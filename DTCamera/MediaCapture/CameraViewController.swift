@@ -59,7 +59,7 @@ class CameraViewController: UIViewController {
     
     private var flashModeObservation: NSKeyValueObservation?
 
-    private let previewView = CameraPreviewView()
+    private let previewView = OpenGLPreviewView()
     private let dismissButton = UIButton()
     private let flashButton = UIButton()
     private let ratioButton = UIButton()
@@ -74,6 +74,8 @@ class CameraViewController: UIViewController {
     private let durationLabel = UILabel()
     private let recordingControl = RecordingControl()
     private let thumbnailCellIdentifier = "PhotoThumbnailCell"
+
+    private var displayLink: CADisplayLink?
 
     private var photos: [UIImage] = []
     
@@ -198,13 +200,18 @@ class CameraViewController: UIViewController {
     }
     
     private func setupPreview() {
-        previewView.session = session
-
         view.addSubview(previewView)
         
         updatePreview()
+        
+        displayLink = CADisplayLink(target: self, selector: #selector(drawFrame))
+        displayLink?.add(to: .main, forMode: .default)
     }
     
+    @objc func drawFrame() {
+        previewView.drawFrame()
+    }
+
     private func updatePreview() {
         previewView.snp.remakeConstraints { make in
             make.left.right.equalToSuperview()
@@ -511,28 +518,28 @@ class CameraViewController: UIViewController {
             return
         }
         
-        guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-            print("Could not find audio device")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
-            return
-        }
-        do {
-            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
-            if session.canAddInput(audioDeviceInput) {
-                session.addInput(audioDeviceInput)
-            } else {
-                print("Could not add audio device input to the session")
-                setupResult = .configurationFailed
-                session.commitConfiguration()
-                return
-            }
-        } catch {
-            print("Could not create audio device input: \(error)")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
-            return
-        }
+//        guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+//            print("Could not find audio device")
+//            setupResult = .configurationFailed
+//            session.commitConfiguration()
+//            return
+//        }
+//        do {
+//            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
+//            if session.canAddInput(audioDeviceInput) {
+//                session.addInput(audioDeviceInput)
+//            } else {
+//                print("Could not add audio device input to the session")
+//                setupResult = .configurationFailed
+//                session.commitConfiguration()
+//                return
+//            }
+//        } catch {
+//            print("Could not create audio device input: \(error)")
+//            setupResult = .configurationFailed
+//            session.commitConfiguration()
+//            return
+//        }
         
         configSessionOutput()
         configRecordingBitRate()

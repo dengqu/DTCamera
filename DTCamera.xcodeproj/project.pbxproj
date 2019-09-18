@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		403EEFD323320561007CC795 /* SimpleVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD123320561007CC795 /* SimpleVertex.glsl */; };
+		403EEFD423320561007CC795 /* SimpleFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* SimpleFragment.glsl */; };
 		40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B286232F29B300A67F11 /* AppDelegate.swift */; };
 		40E1B289232F29B300A67F11 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B288232F29B300A67F11 /* ViewController.swift */; };
 		40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28A232F29B300A67F11 /* Main.storyboard */; };
@@ -35,10 +37,14 @@
 		40E1B2C8232F618B00A67F11 /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2C6232F618B00A67F11 /* CircleView.swift */; };
 		40E1B2C9232F618B00A67F11 /* CircleLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2C7232F618B00A67F11 /* CircleLayer.swift */; };
 		40E1B2CB232F7E5900A67F11 /* MediaCustomTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */; };
+		40E1B2CD232F87EE00A67F11 /* OpenGLPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2CC232F87EE00A67F11 /* OpenGLPreviewView.swift */; };
+		40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */; };
 		C7A58C901B767F15132A7E7B /* Pods_DTCamera.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB99C3FD79603ADA08F2CFE0 /* Pods_DTCamera.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		403EEFD123320561007CC795 /* SimpleVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SimpleVertex.glsl; sourceTree = "<group>"; };
+		403EEFD223320561007CC795 /* SimpleFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SimpleFragment.glsl; sourceTree = "<group>"; };
 		40E1B283232F29B300A67F11 /* DTCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DTCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		40E1B286232F29B300A67F11 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		40E1B288232F29B300A67F11 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -69,6 +75,8 @@
 		40E1B2C6232F618B00A67F11 /* CircleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
 		40E1B2C7232F618B00A67F11 /* CircleLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleLayer.swift; sourceTree = "<group>"; };
 		40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCustomTheme.swift; sourceTree = "<group>"; };
+		40E1B2CC232F87EE00A67F11 /* OpenGLPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenGLPreviewView.swift; sourceTree = "<group>"; };
+		40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
 		9F7939B0D43155A1A4F41401 /* Pods-DTCamera.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DTCamera.release.xcconfig"; path = "Target Support Files/Pods-DTCamera/Pods-DTCamera.release.xcconfig"; sourceTree = "<group>"; };
 		D655EE740C51E94A97861F37 /* Pods-DTCamera.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DTCamera.debug.xcconfig"; path = "Target Support Files/Pods-DTCamera/Pods-DTCamera.debug.xcconfig"; sourceTree = "<group>"; };
 		FB99C3FD79603ADA08F2CFE0 /* Pods_DTCamera.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DTCamera.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -137,6 +145,9 @@
 				40E1B29B232F2B2300A67F11 /* MediaViewController.swift */,
 				40E1B2A7232F2B2400A67F11 /* CameraViewController.swift */,
 				40E1B299232F2B2300A67F11 /* CameraPreviewView.swift */,
+				40E1B2CC232F87EE00A67F11 /* OpenGLPreviewView.swift */,
+				403EEFD123320561007CC795 /* SimpleVertex.glsl */,
+				403EEFD223320561007CC795 /* SimpleFragment.glsl */,
 				40E1B2A0232F2B2300A67F11 /* RecordingControl.swift */,
 				40E1B2C6232F618B00A67F11 /* CircleView.swift */,
 				40E1B2C7232F618B00A67F11 /* CircleLayer.swift */,
@@ -176,6 +187,7 @@
 			children = (
 				40E1B2A5232F2B2400A67F11 /* UIImage+Editor.swift */,
 				40E1B2C4232F3E1E00A67F11 /* UIColor+Extension.swift */,
+				40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -258,8 +270,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */,
+				403EEFD323320561007CC795 /* SimpleVertex.glsl in Resources */,
 				40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */,
 				40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */,
+				403EEFD423320561007CC795 /* SimpleFragment.glsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,6 +334,7 @@
 				40E1B2B0232F2B2400A67F11 /* LibraryPhotoCell.swift in Sources */,
 				40E1B2AF232F2B2400A67F11 /* PhotoEditorFrameView.swift in Sources */,
 				40E1B2C8232F618B00A67F11 /* CircleView.swift in Sources */,
+				40E1B2CD232F87EE00A67F11 /* OpenGLPreviewView.swift in Sources */,
 				40E1B2AC232F2B2400A67F11 /* CameraPreviewView.swift in Sources */,
 				40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */,
 				40E1B2B9232F2B2400A67F11 /* PhotoLibraryViewController.swift in Sources */,
@@ -332,6 +347,7 @@
 				40E1B2BD232F2B2400A67F11 /* LibraryAlbumCell.swift in Sources */,
 				40E1B2BB232F2B2400A67F11 /* PreviewVideoViewController.swift in Sources */,
 				40E1B2B4232F2B2400A67F11 /* PhotoThumbnailCell.swift in Sources */,
+				40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */,
 				40E1B2C9232F618B00A67F11 /* CircleLayer.swift in Sources */,
 				40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */,
 				40E1B2B6232F2B2400A67F11 /* PhotoEditorResizeView.swift in Sources */,
