@@ -1,9 +1,9 @@
-attribute vec4 a_Position;
-attribute vec4 a_Color;
+attribute vec4 a_position;
+attribute mediump vec4 a_texcoord;
 
-varying lowp vec4 v_Color;
+varying mediump vec2 v_texcoord;
 
 void main(void) { 
-    v_Color = a_Color;
-    gl_Position = a_Position;
+    v_texcoord = a_texcoord.xy;
+    gl_Position = a_position;
 }

@@ -21,26 +21,23 @@ struct Vertex {
 
 class OpenGLPreviewView: UIView {
     
-    var Vertices = [
-        Vertex(x:  1, y: -1, z: 0, r: 1, g: 0, b: 0, a: 1),
-        Vertex(x:  1, y:  1, z: 0, r: 0, g: 1, b: 0, a: 1),
-        Vertex(x: -1, y:  1, z: 0, r: 0, g: 0, b: 1, a: 1),
-        Vertex(x: -1, y: -1, z: 0, r: 0, g: 0, b: 0, a: 1),
+    var squareVertices: [GLfloat] = [
+        -1, -1, // bottom left
+        1, -1, // bottom right
+        -1, 1, // top left
+        1, 1, // top right
     ]
-    
-    var Indices: [GLubyte] = [
-        0, 1, 2,
-        2, 3, 0
-    ]
-    
+
     private var context: EAGLContext?
     private var colorRenderBuffer = GLuint()
     private var frameBuffer = GLuint()
-    private var positionSlot = GLuint()
-    private var colorSlot = GLuint()
-    private var vao = GLuint()
     private var vertextBuffer = GLuint()
-    private var indexBuffer = GLuint()
+    private var positionSlot = GLuint()
+    private var texturePositionSlot = GLuint()
+    private var textureUniform = GLuint()
+    private var colorUniform = GLuint()
+
+    private var textureCache: CVOpenGLESTextureCache!
 
     override class var layerClass: AnyClass {
         return CAEAGLLayer.self
@@ -51,12 +48,6 @@ class OpenGLPreviewView: UIView {
     }
     
     deinit {
-        EAGLContext.setCurrent(context)
-        
-        glDeleteBuffers(1, &vao)
-        glDeleteBuffers(1, &vertextBuffer)
-        glDeleteBuffers(1, &indexBuffer)
-        
         EAGLContext.setCurrent(nil)
         
         context = nil
@@ -69,16 +60,94 @@ class OpenGLPreviewView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = UIColor.blue
-        
         setupLayer()
         setupContext()
         compileShaders()
-        setupBuffers()
     }
     
     func displayPixelBuffer(_ pixelBuffer: CVPixelBuffer) {
-            
+        if frameBuffer == 0 {
+            setupBuffers()
+        }
+        
+        let frameWidth = CVPixelBufferGetWidth(pixelBuffer)
+        let frameHeight = CVPixelBufferGetHeight(pixelBuffer)
+        var texture: CVOpenGLESTexture!
+        let resultCode = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                      textureCache,
+                                                                      pixelBuffer,
+                                                                      nil,
+                                                                      GLenum(GL_TEXTURE_2D),
+                                                                      GL_RGBA,
+                                                                      GLsizei(frameWidth),
+                                                                      GLsizei(frameHeight),
+                                                                      GLenum(GL_BGRA),
+                                                                      GLenum(GL_UNSIGNED_BYTE),
+                                                                      0,
+                                                                      &texture)
+        if resultCode != kCVReturnSuccess {
+            print("Could not CVOpenGLESTextureCacheCreateTextureFromImage \(resultCode)")
+            exit(1)
+        }
+        
+        glViewport(0, 0, GLint(bounds.size.width), GLint(bounds.size.height))
+        
+        glClearColor(1, 0, 0, 1.0)
+        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
+        
+        glActiveTexture(GLenum(GL_TEXTURE0))
+        glBindTexture(GLenum(GL_TEXTURE_2D), CVOpenGLESTextureGetName(texture))
+        glUniform1i(GLint(textureUniform), 0)
+        
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GL_CLAMP_TO_EDGE)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
+
+        glEnableVertexAttribArray(positionSlot)
+        glVertexAttribPointer(positionSlot,
+                              2,
+                              GLenum(GL_FLOAT),
+                              GLboolean(UInt8(GL_FALSE)),
+                              GLsizei(0),
+                              &squareVertices)
+
+        // Preserve aspect ratio; fill layer bounds
+        var textureSamplingSize: CGSize = .zero
+        let cropScaleAmount = CGSize(width: bounds.size.width / CGFloat(frameWidth),
+                                     height: bounds.size.height / CGFloat(frameHeight))
+        if cropScaleAmount.height > cropScaleAmount.width {
+            textureSamplingSize.width = bounds.size.width / CGFloat(frameWidth) * cropScaleAmount.height
+            textureSamplingSize.height = 1.0;
+        }
+        else {
+            textureSamplingSize.width = 1.0;
+            textureSamplingSize.height = bounds.size.height / CGFloat(frameHeight) * cropScaleAmount.width;
+        }
+        
+        // Perform a vertical flip by swapping the top left and the bottom left coordinate.
+        // CVPixelBuffers have a top left origin and OpenGL has a bottom left origin.
+        var passThroughTextureVertices: [GLfloat] = [
+            (1.0 - GLfloat(textureSamplingSize.width)) / 2.0, (1.0 + GLfloat(textureSamplingSize.height)) / 2.0, // top left
+            (1.0 + GLfloat(textureSamplingSize.width)) / 2.0, (1.0 + GLfloat(textureSamplingSize.height)) / 2.0, // top right
+            (1.0 - GLfloat(textureSamplingSize.width)) / 2.0, (1.0 - GLfloat(textureSamplingSize.height)) / 2.0, // bottom left
+            (1.0 + GLfloat(textureSamplingSize.width)) / 2.0, (1.0 - GLfloat(textureSamplingSize.height)) / 2.0, // bottom right
+        ]
+        
+        glEnableVertexAttribArray(texturePositionSlot)
+        glVertexAttribPointer(texturePositionSlot,
+                              2,
+                              GLenum(GL_FLOAT),
+                              GLboolean(UInt8(GL_FALSE)),
+                              GLsizei(0),
+                              &passThroughTextureVertices)
+        
+        glUniform4f(GLint(colorUniform), 0, 0, 1, 1)
+        glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
+
+        context?.presentRenderbuffer(Int(GL_RENDERBUFFER))
+        
+        glBindTexture(GLenum(GL_TEXTURE_2D), 0)
     }
     
     private func setupLayer() {
@@ -101,7 +170,7 @@ class OpenGLPreviewView: UIView {
         }
     }
     
-    private func setupFrameBuffer() {
+    private func setupBuffers() {
         guard let context = context, let eaglLayer = eaglLayer else { return }
         
         glGenFramebuffers(1, &frameBuffer)
@@ -121,6 +190,12 @@ class OpenGLPreviewView: UIView {
                                   colorRenderBuffer)
         if glCheckFramebufferStatus(GLenum(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE {
             print("Could not generate frame buffer")
+            exit(1)
+        }
+        
+        let resultCode = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, nil, context, nil, &textureCache)
+        if resultCode != kCVReturnSuccess {
+            print("Could not CVOpenGLESTextureCacheCreate %d", resultCode)
             exit(1)
         }
     }
@@ -146,8 +221,10 @@ class OpenGLPreviewView: UIView {
         
         glUseProgram(program)
         
-        positionSlot = GLuint(glGetAttribLocation(program, "a_Position"))
-        colorSlot = GLuint(glGetAttribLocation(program, "a_Color"))
+        positionSlot = GLuint(glGetAttribLocation(program, "a_position"))
+        texturePositionSlot = GLuint(glGetAttribLocation(program, "a_texcoord"))
+        textureUniform = GLuint(glGetUniformLocation(program, "u_texture"))
+        colorUniform = GLuint(glGetUniformLocation(program, "u_color"))
     }
     
     private func compileShader(name: String, with type: GLenum) -> GLuint {
@@ -180,69 +257,6 @@ class OpenGLPreviewView: UIView {
             print("Could not load shader file \(name)")
             exit(1)
         }
-    }
-    
-    private func setupBuffers() {
-        let vertexSize = MemoryLayout<Vertex>.stride
-        let colorOffset = MemoryLayout<GLfloat>.stride * 3
-        let colorOffsetPointer = UnsafeRawPointer(bitPattern: colorOffset)
-        
-        glGenVertexArraysOES(1, &vao)
-        glBindVertexArrayOES(vao)
-        
-        glGenBuffers(1, &vertextBuffer)
-        glBindBuffer(GLenum(GL_ARRAY_BUFFER), vertextBuffer)
-        glBufferData(GLenum(GL_ARRAY_BUFFER),
-                     Vertices.size(),
-                     Vertices,
-                     GLenum(GL_STATIC_DRAW))
-        
-        glEnableVertexAttribArray(positionSlot)
-        glVertexAttribPointer(positionSlot,
-                              3,
-                              GLenum(GL_FLOAT),
-                              GLboolean(UInt8(GL_FALSE)),
-                              GLsizei(vertexSize),
-                              nil)
-        glEnableVertexAttribArray(colorSlot)
-        glVertexAttribPointer(colorSlot,
-                              4,
-                              GLenum(GL_FLOAT),
-                              GLboolean(UInt8(GL_FALSE)),
-                              GLsizei(vertexSize),
-                              colorOffsetPointer)
-        
-        glGenBuffers(1, &indexBuffer)
-        glBindBuffer(GLenum(GL_ELEMENT_ARRAY_BUFFER), indexBuffer)
-        glBufferData(GLenum(GL_ELEMENT_ARRAY_BUFFER),
-                     Indices.size(),
-                     Indices,
-                     GLenum(GL_STATIC_DRAW))
-        
-        glBindVertexArrayOES(0)
-        glBindBuffer(GLenum(GL_ARRAY_BUFFER), 0)
-        glBindBuffer(GLenum(GL_ELEMENT_ARRAY_BUFFER), 0)
-    }
-    
-    func drawFrame() {
-        if frameBuffer == 0 {
-            setupFrameBuffer()
-        }
-        
-        glViewport(0, 0, GLint(bounds.size.width), GLint(bounds.size.height))
-        
-        glClearColor(1, 0, 0, 1.0)
-        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
-        
-        glBindVertexArrayOES(vao)
-        glDrawElements(GLenum(GL_TRIANGLES),
-                       GLsizei(Indices.count),
-                       GLenum(GL_UNSIGNED_BYTE),
-                       nil)
-
-        context?.presentRenderbuffer(Int(GL_RENDERBUFFER))
-
-        glBindVertexArrayOES(0)
     }
     
 }
