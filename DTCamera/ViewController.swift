@@ -13,6 +13,7 @@ class ViewController: UIViewController {
     @IBAction func go(_ sender: Any) {
         let mode = MediaMode(source: .recording, type: .all, config: MediaConfig())
         let mediaVC = MediaViewController(mode: mode)
+        mediaVC.modalPresentationStyle = .fullScreen
         mediaVC.delegate = self
         present(mediaVC, animated: true, completion: nil)
     }

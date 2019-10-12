@@ -60,6 +60,10 @@ class CameraViewController: UIViewController {
     
     private var flashModeObservation: NSKeyValueObservation?
 
+    private var effectRender: EffectRender!
+    private let retainedBufferCount = 6
+    private var outputVideoFormatDescription: CMFormatDescription?
+
     private let previewView = OpenGLPreviewView()
     private let dismissButton = UIButton()
     private let flashButton = UIButton()
@@ -75,8 +79,6 @@ class CameraViewController: UIViewController {
     private let durationLabel = UILabel()
     private let recordingControl = RecordingControl()
     private let thumbnailCellIdentifier = "PhotoThumbnailCell"
-
-    private var displayLink: CADisplayLink?
 
     private var photos: [UIImage] = []
     
@@ -110,6 +112,8 @@ class CameraViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .black
+        
+        effectRender = EffectOpenGLRender()
         
         timeRemain = maxDuration
         
@@ -938,11 +942,21 @@ extension CameraViewController: AVCaptureFileOutputRecordingDelegate {
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        if let renderedPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+        let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
+        if outputVideoFormatDescription == nil {
+            setupVideoPipeline(with: formatDescription)
+        } else if let sourcePixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+            let renderedPixelBuffer = effectRender.copyRenderedPixelBuffer(sourcePixelBuffer)
             DispatchQueue.main.async { [weak self] in
                 self?.previewView.displayPixelBuffer(renderedPixelBuffer)
             }
         }
+    }
+    
+    private func setupVideoPipeline(with inputFormatDescription: CMFormatDescription?) {
+        guard let inputFormatDescription = inputFormatDescription else { return }
+        effectRender.prepareForInput(with: inputFormatDescription, outputRetainedBufferCountHint: retainedBufferCount)
+        outputVideoFormatDescription = inputFormatDescription
     }
     
 }

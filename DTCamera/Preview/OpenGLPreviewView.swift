@@ -1,6 +1,6 @@
 //
 //  OpenGLPreviewView.swift
-//  JuYouFan
+//  DTCamera
 //
 //  Created by Dan Jiang on 2019/9/12.
 //  Copyright © 2019 Dan Thought Studio. All rights reserved.
@@ -8,16 +8,6 @@
 
 import UIKit
 import GLKit
-
-struct Vertex {
-    var x: GLfloat
-    var y: GLfloat
-    var z: GLfloat
-    var r: GLfloat
-    var g: GLfloat
-    var b: GLfloat
-    var a: GLfloat
-}
 
 class OpenGLPreviewView: UIView {
     
@@ -29,12 +19,15 @@ class OpenGLPreviewView: UIView {
     ]
 
     private var context: EAGLContext?
+    
+    private var program: ShaderProgram!
+    
     private var colorRenderBuffer = GLuint()
     private var frameBuffer = GLuint()
-    private var vertextBuffer = GLuint()
+    
     private var positionSlot = GLuint()
     private var texturePositionSlot = GLuint()
-    private var textureUniform = GLuint()
+    private var textureUniform = GLint()
     private var colorUniform = GLuint()
 
     private var textureCache: CVOpenGLESTextureCache!
@@ -62,11 +55,19 @@ class OpenGLPreviewView: UIView {
         
         setupLayer()
         setupContext()
-        compileShaders()
     }
     
     func displayPixelBuffer(_ pixelBuffer: CVPixelBuffer) {
+        let oldContext = EAGLContext.current()
+        if context != oldContext {
+            if !EAGLContext.setCurrent(context) {
+                print("Could not set current OpenGL context with new context")
+                exit(1)
+            }
+        }
+
         if frameBuffer == 0 {
+            compileShaders()
             setupBuffers()
         }
         
@@ -86,18 +87,20 @@ class OpenGLPreviewView: UIView {
                                                                       0,
                                                                       &texture)
         if resultCode != kCVReturnSuccess {
-            print("Could not CVOpenGLESTextureCacheCreateTextureFromImage \(resultCode)")
+            print("Could not create texture from image \(resultCode)")
             exit(1)
         }
         
         glViewport(0, 0, GLint(bounds.size.width), GLint(bounds.size.height))
         
-        glClearColor(1, 0, 0, 1.0)
+        glClearColor(0.85, 0.85, 0.85, 1.0)
         glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
         
+        program.use()
+
         glActiveTexture(GLenum(GL_TEXTURE0))
         glBindTexture(GLenum(GL_TEXTURE_2D), CVOpenGLESTextureGetName(texture))
-        glUniform1i(GLint(textureUniform), 0)
+        glUniform1i(textureUniform, 0)
         
         glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
         glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
@@ -142,12 +145,18 @@ class OpenGLPreviewView: UIView {
                               GLsizei(0),
                               &passThroughTextureVertices)
         
-        glUniform4f(GLint(colorUniform), 0, 0, 1, 1)
         glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
 
         context?.presentRenderbuffer(Int(GL_RENDERBUFFER))
         
         glBindTexture(GLenum(GL_TEXTURE_2D), 0)
+        
+        if oldContext != context {
+            if !EAGLContext.setCurrent(oldContext) {
+                print("Could not set current OpenGL context with old context")
+                exit(1)
+            }
+        }
     }
     
     private func setupLayer() {
@@ -164,10 +173,13 @@ class OpenGLPreviewView: UIView {
             exit(1)
         }
         self.context = context
-        if !EAGLContext.setCurrent(context) {
-            print("Could not set current OpenGL context")
-            exit(1)
-        }
+    }
+    
+    private func compileShaders() {
+        program = ShaderProgram(vertexShaderName: "PreviewVertex", fragmentShaderName: "PreviewFragment")
+        positionSlot = program.attributeLocation(for: "a_position")
+        texturePositionSlot = program.attributeLocation(for: "a_texcoord")
+        textureUniform = program.uniformLocation(for: "u_texture")
     }
     
     private func setupBuffers() {
@@ -195,66 +207,7 @@ class OpenGLPreviewView: UIView {
         
         let resultCode = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, nil, context, nil, &textureCache)
         if resultCode != kCVReturnSuccess {
-            print("Could not CVOpenGLESTextureCacheCreate %d", resultCode)
-            exit(1)
-        }
-    }
-    
-    private func compileShaders() {
-        let vertexShader = compileShader(name: "SimpleVertex", with: GLenum(GL_VERTEX_SHADER))
-        let fragmentShader = compileShader(name: "SimpleFragment", with: GLenum(GL_FRAGMENT_SHADER))
-        
-        let program = glCreateProgram()
-        glAttachShader(program, vertexShader)
-        glAttachShader(program, fragmentShader)
-        glLinkProgram(program)
-        
-        var linkStatus = GLint()
-        glGetProgramiv(program, GLenum(GL_LINK_STATUS), &linkStatus)
-        if linkStatus == GL_FALSE {
-            let bufferLength: GLsizei = 1024
-            let info: [GLchar] = Array(repeating: GLchar(0), count: Int(bufferLength))
-            glGetProgramInfoLog(program, bufferLength, nil, UnsafeMutablePointer(mutating: info))
-            print(String(validatingUTF8: info) ?? "")
-            exit(1)
-        }
-        
-        glUseProgram(program)
-        
-        positionSlot = GLuint(glGetAttribLocation(program, "a_position"))
-        texturePositionSlot = GLuint(glGetAttribLocation(program, "a_texcoord"))
-        textureUniform = GLuint(glGetUniformLocation(program, "u_texture"))
-        colorUniform = GLuint(glGetUniformLocation(program, "u_color"))
-    }
-    
-    private func compileShader(name: String, with type: GLenum) -> GLuint {
-        do {
-            guard let shaderPath = Bundle.main.path(forResource: name, ofType: "glsl") else {
-                print("Could not find shader file \(name)")
-                exit(1)
-            }
-            let shaderString = try NSString(contentsOfFile: shaderPath, encoding: String.Encoding.utf8.rawValue)
-            var shaderCString = shaderString.utf8String
-            var shaderStringLength = GLint(shaderString.length)
-            let shader = glCreateShader(type)
-            glShaderSource(shader, 1, &shaderCString, &shaderStringLength)
-            
-            glCompileShader(shader)
-            
-            var compileStatus = GLint()
-            glGetShaderiv(shader, GLenum(GL_COMPILE_STATUS), &compileStatus)
-            
-            if compileStatus == GL_FALSE {
-                let bufferLength: GLsizei = 1024
-                let info: [GLchar] = Array(repeating: GLchar(0), count: Int(bufferLength))
-                glGetShaderInfoLog(shader, bufferLength, nil, UnsafeMutablePointer(mutating: info))
-                print(String(validatingUTF8: info) ?? "")
-                exit(1)
-            }
-            
-            return shader
-        } catch {
-            print("Could not load shader file \(name)")
+            print("Could not create texture cache \(resultCode)")
             exit(1)
         }
     }
