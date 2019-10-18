@@ -11,26 +11,36 @@ import GLKit
 
 class OpenGLPreviewView: UIView {
     
+    private var context: EAGLContext?
+
+    // Input
+    private var inputWidth: Int = 0
+    private var inputHeight: Int = 0
+    private var inputTexture: PixelBufferTexture!
+
+    // Shader
     var squareVertices: [GLfloat] = [
         -1, -1, // bottom left
         1, -1, // bottom right
         -1, 1, // top left
         1, 1, // top right
     ]
-
-    private var context: EAGLContext?
-    
+    var textureVertices: [Float] = [
+        0, 0, // bottom left
+        1, 0, // bottom right
+        0, 1, // top left
+        1, 1, // top right
+    ]
     private var program: ShaderProgram!
-    
-    private var colorRenderBuffer = GLuint()
-    private var frameBuffer = GLuint()
-    
     private var positionSlot = GLuint()
     private var texturePositionSlot = GLuint()
     private var textureUniform = GLint()
     private var colorUniform = GLuint()
 
-    private var textureCache: CVOpenGLESTextureCache!
+    // Output
+    private var outputWidth: Int = 0
+    private var outputHeight: Int = 0
+    private var renderDestination: RenderDestination!
 
     override class var layerClass: AnyClass {
         return CAEAGLLayer.self
@@ -41,9 +51,7 @@ class OpenGLPreviewView: UIView {
     }
     
     deinit {
-        EAGLContext.setCurrent(nil)
-        
-        context = nil
+        reset()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -53,11 +61,19 @@ class OpenGLPreviewView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        setupLayer()
-        setupContext()
+        guard let eaglLayer = eaglLayer else { return }
+        eaglLayer.isOpaque = true
+        eaglLayer.drawableProperties = [kEAGLDrawablePropertyRetainedBacking: false,
+                                        kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8]
+
+        guard let context = EAGLContext(api: .openGLES2) else {
+            print("Could not initialize OpenGL context")
+            exit(1)
+        }
+        self.context = context
     }
     
-    func displayPixelBuffer(_ pixelBuffer: CVPixelBuffer) {
+    func display(pixelBuffer: CVPixelBuffer, ratioMode: CameraRatioMode) {
         let oldContext = EAGLContext.current()
         if context != oldContext {
             if !EAGLContext.setCurrent(context) {
@@ -65,48 +81,22 @@ class OpenGLPreviewView: UIView {
                 exit(1)
             }
         }
+        
+        inputWidth = CVPixelBufferGetWidth(pixelBuffer)
+        inputHeight = CVPixelBufferGetHeight(pixelBuffer)
 
-        if frameBuffer == 0 {
+        if renderDestination == nil {
+            setupInput()
             compileShaders()
-            setupBuffers()
+            setupOutput()
         }
-        
-        let frameWidth = CVPixelBufferGetWidth(pixelBuffer)
-        let frameHeight = CVPixelBufferGetHeight(pixelBuffer)
-        var texture: CVOpenGLESTexture!
-        let resultCode = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                                      textureCache,
-                                                                      pixelBuffer,
-                                                                      nil,
-                                                                      GLenum(GL_TEXTURE_2D),
-                                                                      GL_RGBA,
-                                                                      GLsizei(frameWidth),
-                                                                      GLsizei(frameHeight),
-                                                                      GLenum(GL_BGRA),
-                                                                      GLenum(GL_UNSIGNED_BYTE),
-                                                                      0,
-                                                                      &texture)
-        if resultCode != kCVReturnSuccess {
-            print("Could not create texture from image \(resultCode)")
-            exit(1)
-        }
-        
-        glViewport(0, 0, GLint(bounds.size.width), GLint(bounds.size.height))
-        
-        glClearColor(0.85, 0.85, 0.85, 1.0)
-        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
-        
+                
         program.use()
-
-        glActiveTexture(GLenum(GL_TEXTURE0))
-        glBindTexture(GLenum(GL_TEXTURE_2D), CVOpenGLESTextureGetName(texture))
+        
+        inputTexture.createTexture(from: pixelBuffer)
+        inputTexture.bind(textureNo: GLenum(GL_TEXTURE0))
         glUniform1i(textureUniform, 0)
         
-        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
-        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
-        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GL_CLAMP_TO_EDGE)
-        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
-
         glEnableVertexAttribArray(positionSlot)
         glVertexAttribPointer(positionSlot,
                               2,
@@ -114,28 +104,6 @@ class OpenGLPreviewView: UIView {
                               GLboolean(UInt8(GL_FALSE)),
                               GLsizei(0),
                               &squareVertices)
-
-        // Preserve aspect ratio; fill layer bounds
-        var textureSamplingSize: CGSize = .zero
-        let cropScaleAmount = CGSize(width: bounds.size.width / CGFloat(frameWidth),
-                                     height: bounds.size.height / CGFloat(frameHeight))
-        if cropScaleAmount.height > cropScaleAmount.width {
-            textureSamplingSize.width = bounds.size.width / CGFloat(frameWidth) * cropScaleAmount.height
-            textureSamplingSize.height = 1.0;
-        }
-        else {
-            textureSamplingSize.width = 1.0;
-            textureSamplingSize.height = bounds.size.height / CGFloat(frameHeight) * cropScaleAmount.width;
-        }
-        
-        // Perform a vertical flip by swapping the top left and the bottom left coordinate.
-        // CVPixelBuffers have a top left origin and OpenGL has a bottom left origin.
-        var passThroughTextureVertices: [GLfloat] = [
-            (1.0 - GLfloat(textureSamplingSize.width)) / 2.0, (1.0 + GLfloat(textureSamplingSize.height)) / 2.0, // top left
-            (1.0 + GLfloat(textureSamplingSize.width)) / 2.0, (1.0 + GLfloat(textureSamplingSize.height)) / 2.0, // top right
-            (1.0 - GLfloat(textureSamplingSize.width)) / 2.0, (1.0 - GLfloat(textureSamplingSize.height)) / 2.0, // bottom left
-            (1.0 + GLfloat(textureSamplingSize.width)) / 2.0, (1.0 - GLfloat(textureSamplingSize.height)) / 2.0, // bottom right
-        ]
         
         glEnableVertexAttribArray(texturePositionSlot)
         glVertexAttribPointer(texturePositionSlot,
@@ -143,13 +111,14 @@ class OpenGLPreviewView: UIView {
                               GLenum(GL_FLOAT),
                               GLboolean(UInt8(GL_FALSE)),
                               GLsizei(0),
-                              &passThroughTextureVertices)
+                              &textureVertices)
         
         glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
 
         context?.presentRenderbuffer(Int(GL_RENDERBUFFER))
         
-        glBindTexture(GLenum(GL_TEXTURE_2D), 0)
+        inputTexture.unbind()
+        inputTexture.deleteTexture()
         
         if oldContext != context {
             if !EAGLContext.setCurrent(oldContext) {
@@ -159,20 +128,11 @@ class OpenGLPreviewView: UIView {
         }
     }
     
-    private func setupLayer() {
-        guard let eaglLayer = eaglLayer else { return }
-        
-        eaglLayer.isOpaque = true
-        eaglLayer.drawableProperties = [kEAGLDrawablePropertyRetainedBacking: false,
-                                        kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8]
-    }
-    
-    private func setupContext() {
-        guard let context = EAGLContext(api: .openGLES2) else {
-            print("Could not initialize OpenGL context")
-            exit(1)
-        }
-        self.context = context
+    private func setupInput() {
+        guard let context = context else { return }
+        inputTexture = PixelBufferTexture(width: inputWidth, height: inputHeight,
+                                          retainedBufferCountHint: 0)
+        inputTexture.createTextureCache(in: context)
     }
     
     private func compileShaders() {
@@ -182,34 +142,41 @@ class OpenGLPreviewView: UIView {
         textureUniform = program.uniformLocation(for: "u_texture")
     }
     
-    private func setupBuffers() {
+    private func setupOutput() {
         guard let context = context, let eaglLayer = eaglLayer else { return }
-        
-        glGenFramebuffers(1, &frameBuffer)
-        glBindFramebuffer(GLenum(GL_FRAMEBUFFER), frameBuffer)
-
-        glGenRenderbuffers(1, &colorRenderBuffer)
-        glBindRenderbuffer(GLenum(GL_RENDERBUFFER), colorRenderBuffer)
-        
-        if !context.renderbufferStorage(Int(GL_RENDERBUFFER), from: eaglLayer) {
-            print("Could not bind a drawable object’s storage to a render buffer object")
-            exit(1)
+        renderDestination = RenderDestination()
+        renderDestination.createRenderBuffer(context: context, drawable: eaglLayer)
+        var width = GLint()
+        var height = GLint()
+        glGetRenderbufferParameteriv(GLenum(GL_RENDERBUFFER), GLenum(GL_RENDERBUFFER_WIDTH), &width)
+        glGetRenderbufferParameteriv(GLenum(GL_RENDERBUFFER), GLenum(GL_RENDERBUFFER_HEIGHT), &height)
+        outputWidth = Int(width)
+        outputHeight = Int(height)
+        renderDestination.createFrameBuffer(width: outputWidth, height: outputHeight)
+        renderDestination.attachRenderBuffer()
+        renderDestination.checkFramebufferStatus()
+    }
+    
+    private func reset() {
+        let oldContext = EAGLContext.current()
+        if context != oldContext {
+            if !EAGLContext.setCurrent(context) {
+                print("Could not set current OpenGL context with new context")
+                exit(1)
+            }
         }
-
-        glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER),
-                                  GLenum(GL_COLOR_ATTACHMENT0),
-                                  GLenum(GL_RENDERBUFFER),
-                                  colorRenderBuffer)
-        if glCheckFramebufferStatus(GLenum(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE {
-            print("Could not generate frame buffer")
-            exit(1)
+        renderDestination.deleteFrameBuffer()
+        renderDestination.deleteRenderBuffer()
+        program.delete()
+        inputTexture.deleteTextureCache()
+        if oldContext != context {
+            if !EAGLContext.setCurrent(oldContext) {
+                print("Could not set current OpenGL context with old context")
+                exit(1)
+            }
         }
-        
-        let resultCode = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, nil, context, nil, &textureCache)
-        if resultCode != kCVReturnSuccess {
-            print("Could not create texture cache \(resultCode)")
-            exit(1)
-        }
+        EAGLContext.setCurrent(nil)
+        context = nil
     }
     
 }

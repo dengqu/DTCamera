@@ -48,7 +48,7 @@ enum MediaType {
     case all
 }
 
-enum CaptureRatioMode {
+enum CameraRatioMode {
     case r1to1
     case r3to4
     case r9to16
@@ -76,17 +76,25 @@ enum CaptureRatioMode {
     }
 }
 
+enum CameraPositionMode {
+    case front
+    case back
+}
+
 struct MediaConfig {
     let limitOfPhotos: Int
-    let ratioMode: CaptureRatioMode
+    let ratioMode: CameraRatioMode
+    let positionMode: CameraPositionMode
     let minDuration: Int
     let maxDuration: Int
     let recordingFrameRate: Int = 24
     let recordingBitRate: Int = 1500000
 
-    init(limitOfPhotos: Int = 9, ratioMode: CaptureRatioMode = .r3to4,
+    init(limitOfPhotos: Int = 9,
+         ratioMode: CameraRatioMode = .r9to16, positionMode: CameraPositionMode = .back,
          minDuration: Int = 5, maxDuration: Int = 60) {
         self.limitOfPhotos = limitOfPhotos
+        self.positionMode = positionMode
         self.ratioMode = ratioMode
         self.minDuration = minDuration
         self.maxDuration = maxDuration

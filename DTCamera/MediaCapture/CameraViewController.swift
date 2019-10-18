@@ -56,13 +56,14 @@ class CameraViewController: UIViewController {
     }
     private var backgroundRecordingID: UIBackgroundTaskIdentifier?
     
-    private var ratioMode: CaptureRatioMode
-    
+    private var ratioMode: CameraRatioMode
+    private var positionMode: CameraPositionMode
+
     private var flashModeObservation: NSKeyValueObservation?
 
-    private var effectRender: EffectRender!
-    private let retainedBufferCount = 6
-    private var outputVideoFormatDescription: CMFormatDescription?
+    private var effectFilter: EffectFilter!
+    private let retainedBufferCountHint = 6
+    private var videoFormatDescription: CMFormatDescription?
 
     private let previewView = OpenGLPreviewView()
     private let dismissButton = UIButton()
@@ -104,6 +105,7 @@ class CameraViewController: UIViewController {
             source = mode.source
         }
         ratioMode = mode.config.ratioMode
+        positionMode = mode.config.positionMode
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -113,7 +115,7 @@ class CameraViewController: UIViewController {
         
         view.backgroundColor = .black
         
-        effectRender = EffectOpenGLRender()
+        effectFilter = EffectOpenGLFilter()
         
         timeRemain = maxDuration
         
@@ -213,17 +215,13 @@ class CameraViewController: UIViewController {
     private func updatePreview() {
         previewView.snp.remakeConstraints { make in
             make.left.right.equalToSuperview()
-            if source == .capture {
-                let offset: CGFloat = ratioMode == .r1to1 ? 58 : 0
-                if #available(iOS 11, *) {
-                    make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(offset)
-                } else {
-                    make.top.equalTo(self.topLayoutGuide.snp.bottom).offset(offset)
-                }
-                make.height.equalTo(previewView.snp.width).multipliedBy(ratioMode.ratio)
+            let offset: CGFloat = ratioMode == .r1to1 ? 58 : 0
+            if #available(iOS 11, *) {
+                make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(offset)
             } else {
-                make.top.bottom.equalToSuperview()
+                make.top.equalTo(self.topLayoutGuide.snp.bottom).offset(offset)
             }
+            make.height.equalTo(previewView.snp.width).multipliedBy(ratioMode.ratio)
         }
     }
     
@@ -465,10 +463,20 @@ class CameraViewController: UIViewController {
                 frontCameraDevice = cameraDevice
             }
         }
-        if let backCameraDevice = backCameraDevice {
-            defaultVideoDevice = backCameraDevice
+        if positionMode == .back {
+            if let backCameraDevice = backCameraDevice {
+                defaultVideoDevice = backCameraDevice
+            } else {
+                defaultVideoDevice = frontCameraDevice
+                positionMode = .front
+            }
         } else {
-            defaultVideoDevice = frontCameraDevice
+            if let frontCameraDevice = frontCameraDevice {
+                defaultVideoDevice = frontCameraDevice
+            } else {
+                defaultVideoDevice = backCameraDevice
+                positionMode = .back
+            }
         }
         guard let videoDevice = defaultVideoDevice else {
             print("Could not find video device")
@@ -541,6 +549,7 @@ class CameraViewController: UIViewController {
         
         configSessionOutput()
         configRecordingBitRate()
+        configRecordingVideoOrientation()
 
         session.commitConfiguration()
         
@@ -611,6 +620,7 @@ class CameraViewController: UIViewController {
             }
         } else {
             session.removeOutput(stillImageOutput)
+            videoDataOutput.alwaysDiscardsLateVideoFrames = true
             videoDataOutput.videoSettings = [String(kCVPixelBufferPixelFormatTypeKey): kCVPixelFormatType_32BGRA]
             videoDataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
             if session.canAddOutput(videoDataOutput) {
@@ -652,6 +662,13 @@ class CameraViewController: UIViewController {
 //                movieFileOutput.setOutputSettings(outputSettings, for: recordingConnection)
 //            }
 //        }
+    }
+    
+    private func configRecordingVideoOrientation() {
+        guard source == .recording else { return }
+        if let videoConnection = videoDataOutput.connection(with: .video) {
+            videoConnection.videoOrientation = .portrait
+        }
     }
     
     func cancelTimer() {
@@ -784,6 +801,7 @@ class CameraViewController: UIViewController {
             self.configRecordingFPS(for: self.videoDeviceInput.device)
             self.configSessionOutput()
             self.configRecordingBitRate()
+            self.configRecordingVideoOrientation()
             
             self.session.commitConfiguration()
         }
@@ -943,20 +961,19 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
-        if outputVideoFormatDescription == nil {
-            setupVideoPipeline(with: formatDescription)
-        } else if let sourcePixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-            let renderedPixelBuffer = effectRender.copyRenderedPixelBuffer(sourcePixelBuffer)
+        if videoFormatDescription == nil {
+            if let formatDescription = formatDescription {
+                videoFormatDescription = formatDescription
+                effectFilter.prepare(with: ratioMode, positionMode: positionMode,
+                                     formatDescription: formatDescription, retainedBufferCountHint: retainedBufferCountHint)
+            }
+        } else if let inputPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+            let outputPixelBuffer = effectFilter.filter(pixelBuffer: inputPixelBuffer)
             DispatchQueue.main.async { [weak self] in
-                self?.previewView.displayPixelBuffer(renderedPixelBuffer)
+                guard let self = self else { return }
+                self.previewView.display(pixelBuffer: outputPixelBuffer, ratioMode: self.ratioMode)
             }
         }
-    }
-    
-    private func setupVideoPipeline(with inputFormatDescription: CMFormatDescription?) {
-        guard let inputFormatDescription = inputFormatDescription else { return }
-        effectRender.prepareForInput(with: inputFormatDescription, outputRetainedBufferCountHint: retainedBufferCount)
-        outputVideoFormatDescription = inputFormatDescription
     }
     
 }

@@ -10,8 +10,10 @@
 		40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40146B4C2351B5EC00F14513 /* DebugHelper.swift */; };
 		403EEFD323320561007CC795 /* PreviewVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD123320561007CC795 /* PreviewVertex.glsl */; };
 		403EEFD423320561007CC795 /* PreviewFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* PreviewFragment.glsl */; };
-		407843B9233DA624007B0CFE /* EffectRender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843B8233DA624007B0CFE /* EffectRender.swift */; };
-		407843BB233DA8F9007B0CFE /* EffectOpenGLRender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843BA233DA8F9007B0CFE /* EffectOpenGLRender.swift */; };
+		406C011523596E5100E01E70 /* PixelBufferTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C011423596E5100E01E70 /* PixelBufferTexture.swift */; };
+		406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C0117235971AA00E01E70 /* RenderDestination.swift */; };
+		407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843B8233DA624007B0CFE /* EffectFilter.swift */; };
+		407843BB233DA8F9007B0CFE /* EffectOpenGLFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843BA233DA8F9007B0CFE /* EffectOpenGLFilter.swift */; };
 		407843C1233DB2C9007B0CFE /* ShaderProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843C0233DB2C9007B0CFE /* ShaderProgram.swift */; };
 		40AE65CF233E10B60063C4D8 /* DumbFilterVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */; };
 		40AE65D1233E10DD0063C4D8 /* DumbFilterFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */; };
@@ -52,8 +54,10 @@
 		40146B4C2351B5EC00F14513 /* DebugHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHelper.swift; sourceTree = "<group>"; };
 		403EEFD123320561007CC795 /* PreviewVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PreviewVertex.glsl; sourceTree = "<group>"; };
 		403EEFD223320561007CC795 /* PreviewFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PreviewFragment.glsl; sourceTree = "<group>"; };
-		407843B8233DA624007B0CFE /* EffectRender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectRender.swift; sourceTree = "<group>"; };
-		407843BA233DA8F9007B0CFE /* EffectOpenGLRender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectOpenGLRender.swift; sourceTree = "<group>"; };
+		406C011423596E5100E01E70 /* PixelBufferTexture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBufferTexture.swift; sourceTree = "<group>"; };
+		406C0117235971AA00E01E70 /* RenderDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderDestination.swift; sourceTree = "<group>"; };
+		407843B8233DA624007B0CFE /* EffectFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectFilter.swift; sourceTree = "<group>"; };
+		407843BA233DA8F9007B0CFE /* EffectOpenGLFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectOpenGLFilter.swift; sourceTree = "<group>"; };
 		407843C0233DB2C9007B0CFE /* ShaderProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShaderProgram.swift; sourceTree = "<group>"; };
 		40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = DumbFilterVertex.glsl; sourceTree = "<group>"; };
 		40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = DumbFilterFragment.glsl; sourceTree = "<group>"; };
@@ -114,6 +118,15 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		406C011623596F3C00E01E70 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				406C011423596E5100E01E70 /* PixelBufferTexture.swift */,
+				406C0117235971AA00E01E70 /* RenderDestination.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		407843BC233DA927007B0CFE /* Preview */ = {
 			isa = PBXGroup;
 			children = (
@@ -170,6 +183,7 @@
 		40E1B285232F29B300A67F11 /* DTCamera */ = {
 			isa = PBXGroup;
 			children = (
+				406C011623596F3C00E01E70 /* Components */,
 				40146B4B2351B58E00F14513 /* Utils */,
 				40E1B2C3232F3DE000A67F11 /* Extension */,
 				407843BF233DAFE4007B0CFE /* OpenGL */,
@@ -234,8 +248,8 @@
 		40E1B2C1232F2CBC00A67F11 /* Effect */ = {
 			isa = PBXGroup;
 			children = (
-				407843B8233DA624007B0CFE /* EffectRender.swift */,
-				407843BA233DA8F9007B0CFE /* EffectOpenGLRender.swift */,
+				407843B8233DA624007B0CFE /* EffectFilter.swift */,
+				407843BA233DA8F9007B0CFE /* EffectOpenGLFilter.swift */,
 			);
 			path = Effect;
 			sourceTree = "<group>";
@@ -386,12 +400,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				406C011523596E5100E01E70 /* PixelBufferTexture.swift in Sources */,
 				40E1B2B2232F2B2400A67F11 /* PreviewPhotosViewController.swift in Sources */,
 				407843C1233DB2C9007B0CFE /* ShaderProgram.swift in Sources */,
 				40E1B2B3232F2B2400A67F11 /* RecordingControl.swift in Sources */,
 				40E1B2B8232F2B2400A67F11 /* UIImage+Editor.swift in Sources */,
 				40E1B2C5232F3E1E00A67F11 /* UIColor+Extension.swift in Sources */,
-				407843BB233DA8F9007B0CFE /* EffectOpenGLRender.swift in Sources */,
+				407843BB233DA8F9007B0CFE /* EffectOpenGLFilter.swift in Sources */,
 				40E1B2BC232F2B2400A67F11 /* PlayerView.swift in Sources */,
 				40E1B2B0232F2B2400A67F11 /* LibraryPhotoCell.swift in Sources */,
 				40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */,
@@ -412,10 +427,11 @@
 				40E1B2B4232F2B2400A67F11 /* PhotoThumbnailCell.swift in Sources */,
 				40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */,
 				40E1B2C9232F618B00A67F11 /* CircleLayer.swift in Sources */,
+				406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */,
 				40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */,
 				40E1B2B6232F2B2400A67F11 /* PhotoEditorResizeView.swift in Sources */,
 				40E1B2AB232F2B2400A67F11 /* PhotoEditorViewController.swift in Sources */,
-				407843B9233DA624007B0CFE /* EffectRender.swift in Sources */,
+				407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */,
 				40E1B2BA232F2B2400A67F11 /* CameraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

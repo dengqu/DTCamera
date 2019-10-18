@@ -10,7 +10,7 @@ import UIKit
 
 class ShaderProgram {
     
-    private var program = GLuint()
+    private var program: GLuint = 0
     
     init(vertexShaderName: String, fragmentShaderName: String) {
         let vertexShader = compileShader(name: vertexShaderName, with: GLenum(GL_VERTEX_SHADER))
@@ -41,6 +41,13 @@ class ShaderProgram {
     
     func use() {
         glUseProgram(program)
+    }
+    
+    func delete() {
+        if program != 0 {
+            glDeleteProgram(program)
+            program = 0
+        }
     }
     
     func attributeLocation(for name: String) -> GLuint {
