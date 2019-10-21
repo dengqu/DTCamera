@@ -10,6 +10,11 @@
 		40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40146B4C2351B5EC00F14513 /* DebugHelper.swift */; };
 		403EEFD323320561007CC795 /* PreviewVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD123320561007CC795 /* PreviewVertex.glsl */; };
 		403EEFD423320561007CC795 /* PreviewFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* PreviewFragment.glsl */; };
+		404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */; };
+		404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */; };
+		404CE300235D8ECC00DBCFB3 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */; };
+		404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */; };
+		404CE307235D8FE900DBCFB3 /* EffectOpenCVFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */; };
 		406C011523596E5100E01E70 /* PixelBufferTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C011423596E5100E01E70 /* PixelBufferTexture.swift */; };
 		406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C0117235971AA00E01E70 /* RenderDestination.swift */; };
 		407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843B8233DA624007B0CFE /* EffectFilter.swift */; };
@@ -54,6 +59,13 @@
 		40146B4C2351B5EC00F14513 /* DebugHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHelper.swift; sourceTree = "<group>"; };
 		403EEFD123320561007CC795 /* PreviewVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PreviewVertex.glsl; sourceTree = "<group>"; };
 		403EEFD223320561007CC795 /* PreviewFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PreviewFragment.glsl; sourceTree = "<group>"; };
+		404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCPUFilter.swift; sourceTree = "<group>"; };
+		404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCIFilter.swift; sourceTree = "<group>"; };
+		404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
+		404CE302235D8F9D00DBCFB3 /* DTCamera-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTCamera-Bridging-Header.h"; sourceTree = "<group>"; };
+		404CE303235D8F9D00DBCFB3 /* OpenCVWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenCVWrapper.h; sourceTree = "<group>"; };
+		404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
+		404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectOpenCVFilter.swift; sourceTree = "<group>"; };
 		406C011423596E5100E01E70 /* PixelBufferTexture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBufferTexture.swift; sourceTree = "<group>"; };
 		406C0117235971AA00E01E70 /* RenderDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderDestination.swift; sourceTree = "<group>"; };
 		407843B8233DA624007B0CFE /* EffectFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectFilter.swift; sourceTree = "<group>"; };
@@ -103,6 +115,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				404CE300235D8ECC00DBCFB3 /* opencv2.framework in Frameworks */,
 				C7A58C901B767F15132A7E7B /* Pods_DTCamera.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -116,6 +129,23 @@
 				40146B4C2351B5EC00F14513 /* DebugHelper.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		404CE2FE235D8EAB00DBCFB3 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */,
+			);
+			path = ThirdParty;
+			sourceTree = "<group>";
+		};
+		404CE301235D8F6900DBCFB3 /* OpenCV */ = {
+			isa = PBXGroup;
+			children = (
+				404CE303235D8F9D00DBCFB3 /* OpenCVWrapper.h */,
+				404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */,
+			);
+			path = OpenCV;
 			sourceTree = "<group>";
 		};
 		406C011623596F3C00E01E70 /* Components */ = {
@@ -183,9 +213,11 @@
 		40E1B285232F29B300A67F11 /* DTCamera */ = {
 			isa = PBXGroup;
 			children = (
+				404CE2FE235D8EAB00DBCFB3 /* ThirdParty */,
 				406C011623596F3C00E01E70 /* Components */,
 				40146B4B2351B58E00F14513 /* Utils */,
 				40E1B2C3232F3DE000A67F11 /* Extension */,
+				404CE301235D8F6900DBCFB3 /* OpenCV */,
 				407843BF233DAFE4007B0CFE /* OpenGL */,
 				40E1B2BE232F2B8800A67F11 /* Player */,
 				40E1B2BF232F2C4000A67F11 /* MediaCapture */,
@@ -194,6 +226,7 @@
 				407843BD233DA933007B0CFE /* Encode */,
 				407843BE233DA940007B0CFE /* Recording */,
 				40E1B2C0232F2CB100A67F11 /* Live */,
+				404CE302235D8F9D00DBCFB3 /* DTCamera-Bridging-Header.h */,
 				40E1B286232F29B300A67F11 /* AppDelegate.swift */,
 				40E1B288232F29B300A67F11 /* ViewController.swift */,
 				40E1B28A232F29B300A67F11 /* Main.storyboard */,
@@ -250,6 +283,9 @@
 			children = (
 				407843B8233DA624007B0CFE /* EffectFilter.swift */,
 				407843BA233DA8F9007B0CFE /* EffectOpenGLFilter.swift */,
+				404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */,
+				404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */,
+				404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */,
 			);
 			path = Effect;
 			sourceTree = "<group>";
@@ -315,6 +351,7 @@
 				TargetAttributes = {
 					40E1B282232F29B300A67F11 = {
 						CreatedOnToolsVersion = 10.3;
+						LastSwiftMigration = 1110;
 					};
 				};
 			};
@@ -412,7 +449,10 @@
 				40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */,
 				40E1B2AF232F2B2400A67F11 /* PhotoEditorFrameView.swift in Sources */,
 				40E1B2C8232F618B00A67F11 /* CircleView.swift in Sources */,
+				404CE307235D8FE900DBCFB3 /* EffectOpenCVFilter.swift in Sources */,
 				40E1B2CD232F87EE00A67F11 /* OpenGLPreviewView.swift in Sources */,
+				404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */,
+				404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */,
 				40E1B2AC232F2B2400A67F11 /* CameraPreviewView.swift in Sources */,
 				40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */,
 				40E1B2B9232F2B2400A67F11 /* PhotoLibraryViewController.swift in Sources */,
@@ -426,6 +466,7 @@
 				40E1B2BB232F2B2400A67F11 /* PreviewVideoViewController.swift in Sources */,
 				40E1B2B4232F2B2400A67F11 /* PhotoThumbnailCell.swift in Sources */,
 				40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */,
+				404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */,
 				40E1B2C9232F618B00A67F11 /* CircleLayer.swift in Sources */,
 				406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */,
 				40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */,
@@ -579,8 +620,13 @@
 			baseConfigurationReference = D655EE740C51E94A97861F37 /* Pods-DTCamera.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = SLM6SZ8JH3;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DTCamera/ThirdParty",
+				);
 				INFOPLIST_FILE = DTCamera/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -589,6 +635,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.danthought.DTCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "DTCamera/DTCamera-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -599,8 +647,13 @@
 			baseConfigurationReference = 9F7939B0D43155A1A4F41401 /* Pods-DTCamera.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = SLM6SZ8JH3;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DTCamera/ThirdParty",
+				);
 				INFOPLIST_FILE = DTCamera/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -609,6 +662,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.danthought.DTCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "DTCamera/DTCamera-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
