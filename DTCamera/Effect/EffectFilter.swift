@@ -10,6 +10,8 @@ import UIKit
 import CoreMedia
 
 protocol EffectFilter {
+    var outputFormatDescription: CMFormatDescription? { get }
+    
     func prepare(with ratioMode: CameraRatioMode, positionMode: CameraPositionMode,
                  formatDescription: CMFormatDescription, retainedBufferCountHint: Int)
     func filter(pixelBuffer: CVPixelBuffer) -> CVPixelBuffer

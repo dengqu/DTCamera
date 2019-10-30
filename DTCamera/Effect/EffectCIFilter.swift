@@ -11,6 +11,8 @@ import CoreMedia
 
 class EffectCIFilter: EffectFilter {
     
+    var outputFormatDescription: CMFormatDescription?
+
     private var bufferPool: CVPixelBufferPool!
     private var bufferPoolAuxAttributes: NSDictionary!
 
@@ -27,7 +29,13 @@ class EffectCIFilter: EffectFilter {
         createBufferPool(width: Int(dimensions.width),
                          height: Int(dimensions.height),
                          retainedBufferCountHint: retainedBufferCountHint)
-        
+        let testPixelBuffer = createPixelBuffer()
+        var outputFormatDescription: CMFormatDescription?
+        CMVideoFormatDescriptionCreateForImageBuffer(allocator: kCFAllocatorDefault,
+                                                     imageBuffer: testPixelBuffer,
+                                                     formatDescriptionOut: &outputFormatDescription)
+        self.outputFormatDescription = outputFormatDescription
+
         let eaglContext = EAGLContext(api: .openGLES2)
         ciContext = CIContext(eaglContext: eaglContext!, options: [.workingColorSpace : NSNull()])
         
@@ -37,20 +45,13 @@ class EffectCIFilter: EffectFilter {
     }
     
     func filter(pixelBuffer: CVPixelBuffer) -> CVPixelBuffer {
-        var outputPixelBuffer: CVPixelBuffer!
-        
         let inputImage = CIImage(cvPixelBuffer: pixelBuffer, options: nil)
         
         filter.setValue(inputImage, forKey: kCIInputImageKey)
         let outputImage = filter.value(forKey: kCIOutputImageKey) as! CIImage
-        
-        let resultCode = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, bufferPool, &outputPixelBuffer)
-        
-        if resultCode != kCVReturnSuccess {
-            print("Could not create pixel buffer in pool \(resultCode)")
-            exit(1)
-        }
-        
+
+        let outputPixelBuffer = createPixelBuffer()
+
         ciContext.render(outputImage,
                          to: outputPixelBuffer,
                          bounds: outputImage.extent,
@@ -58,8 +59,18 @@ class EffectCIFilter: EffectFilter {
         
         return outputPixelBuffer
     }
-
-    func createBufferPool(width: Int, height: Int, retainedBufferCountHint: Int) {
+    
+    private func createPixelBuffer() -> CVPixelBuffer {
+        var pixelBuffer: CVPixelBuffer!
+        let resultCode = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, bufferPool, &pixelBuffer)
+        if resultCode != kCVReturnSuccess {
+            print("Could not create pixel buffer in pool \(resultCode)")
+            exit(1)
+        }
+        return pixelBuffer
+    }
+    
+    private func createBufferPool(width: Int, height: Int, retainedBufferCountHint: Int) {
         let pixelBufferPoolOptions: NSDictionary = [kCVPixelBufferPoolMinimumBufferCountKey: retainedBufferCountHint]
         let pixelBufferOptions: NSDictionary = [kCVPixelBufferPixelFormatTypeKey: kCVPixelFormatType_32BGRA,
                                                 kCVPixelBufferWidthKey: width,

@@ -12,6 +12,8 @@ import CoreMedia
 
 class EffectOpenGLFilter: EffectFilter {
 
+    var outputFormatDescription: CMFormatDescription?
+
     private var context: EAGLContext?
 
     // Input
@@ -26,11 +28,11 @@ class EffectOpenGLFilter: EffectFilter {
         -1, 1, // top left
         1, 1, // top right
     ]
-    private var textureVertices: [Float] = [ // 180 degree rotated
-        0, 1, // top left
-        1, 1, // top right
+    private var textureVertices: [Float] = [
         0, 0, // bottom left
         1, 0, // bottom right
+        0, 1, // top left
+        1, 1, // top right
     ]
     private var program: ShaderProgram!
     private var positionSlot = GLuint()
@@ -145,10 +147,10 @@ class EffectOpenGLFilter: EffectFilter {
         let targetHeight = targetWidth * Float(ratioMode.ratio)
         let fromY = ((sourceHeight - targetHeight) / 2) / sourceHeight
         let toY = 1.0 - fromY
-        textureVertices[1] = toY
-        textureVertices[3] = toY
-        textureVertices[5] = fromY
-        textureVertices[7] = fromY
+        textureVertices[1] = fromY
+        textureVertices[3] = fromY
+        textureVertices[5] = toY
+        textureVertices[7] = toY
         if positionMode == .front {
             let fromX: Float = 0.0
             let toX: Float = 1.0
@@ -183,6 +185,12 @@ class EffectOpenGLFilter: EffectFilter {
                                            retainedBufferCountHint: retainedBufferCountHint)
         outputTexture.createTextureCache(in: context)
         outputTexture.createBufferPool()
+        let testPixelBuffer = outputTexture.createPixelBuffer()
+        var outputFormatDescription: CMFormatDescription?
+        CMVideoFormatDescriptionCreateForImageBuffer(allocator: kCFAllocatorDefault,
+                                                     imageBuffer: testPixelBuffer,
+                                                     formatDescriptionOut: &outputFormatDescription)
+        self.outputFormatDescription = outputFormatDescription
         renderDestination.createFrameBuffer(width: outputWidth, height: outputHeight)
     }
     
@@ -199,6 +207,7 @@ class EffectOpenGLFilter: EffectFilter {
         inputTexture.deleteTextureCache()
         outputTexture.deleteTextureCache()
         outputTexture.deleteBufferPool()
+        outputFormatDescription = nil
         if oldContext != context {
             if !EAGLContext.setCurrent(oldContext) {
                 print("Could not set current OpenGL context with old context")

@@ -30,26 +30,7 @@ class PixelBufferTexture {
     }
     
     func createTexture() -> CVPixelBuffer {
-        var pixelBuffer: CVPixelBuffer!
-        var resultCode = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
-                                                                             bufferPool,
-                                                                             bufferPoolAuxAttributes,
-                                                                             &pixelBuffer)
-        if resultCode == kCVReturnWouldExceedAllocationThreshold {
-            CVOpenGLESTextureCacheFlush(textureCache, 0)
-            resultCode = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
-                                                                             bufferPool,
-                                                                             bufferPoolAuxAttributes,
-                                                                             &pixelBuffer)
-        }
-        if resultCode != kCVReturnSuccess {
-            if resultCode == kCVReturnWouldExceedAllocationThreshold {
-                print("Pool is out of buffers, dropping frame \(resultCode)")
-            } else {
-                print("Could not create pixel buffer in pool \(resultCode)")
-            }
-            exit(1)
-        }
+        let pixelBuffer = createPixelBuffer()
         createTexture(from: pixelBuffer)
         return pixelBuffer
     }
@@ -89,7 +70,31 @@ class PixelBufferTexture {
     func unbind() {
         glBindTexture(GLenum(GL_TEXTURE_2D), 0)
     }
-    
+        
+    func createPixelBuffer() -> CVPixelBuffer {
+        var pixelBuffer: CVPixelBuffer!
+        var resultCode = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
+                                                                             bufferPool,
+                                                                             bufferPoolAuxAttributes,
+                                                                             &pixelBuffer)
+        if resultCode == kCVReturnWouldExceedAllocationThreshold {
+            CVOpenGLESTextureCacheFlush(textureCache, 0)
+            resultCode = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
+                                                                             bufferPool,
+                                                                             bufferPoolAuxAttributes,
+                                                                             &pixelBuffer)
+        }
+        if resultCode != kCVReturnSuccess {
+            if resultCode == kCVReturnWouldExceedAllocationThreshold {
+                print("Pool is out of buffers, dropping frame \(resultCode)")
+            } else {
+                print("Could not create pixel buffer in pool \(resultCode)")
+            }
+            exit(1)
+        }
+        return pixelBuffer
+    }
+
     func createTextureCache(in context: EAGLContext) {
         let resultCode = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, nil, context, nil, &textureCache)
         if resultCode != kCVReturnSuccess {

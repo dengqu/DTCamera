@@ -15,6 +15,7 @@
 		404CE300235D8ECC00DBCFB3 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */; };
 		404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */; };
 		404CE307235D8FE900DBCFB3 /* EffectOpenCVFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */; };
+		404CE309235EE1F500DBCFB3 /* AssetRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */; };
 		406C011523596E5100E01E70 /* PixelBufferTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C011423596E5100E01E70 /* PixelBufferTexture.swift */; };
 		406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C0117235971AA00E01E70 /* RenderDestination.swift */; };
 		407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843B8233DA624007B0CFE /* EffectFilter.swift */; };
@@ -66,6 +67,7 @@
 		404CE303235D8F9D00DBCFB3 /* OpenCVWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenCVWrapper.h; sourceTree = "<group>"; };
 		404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
 		404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectOpenCVFilter.swift; sourceTree = "<group>"; };
+		404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRecorder.swift; sourceTree = "<group>"; };
 		406C011423596E5100E01E70 /* PixelBufferTexture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBufferTexture.swift; sourceTree = "<group>"; };
 		406C0117235971AA00E01E70 /* RenderDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderDestination.swift; sourceTree = "<group>"; };
 		407843B8233DA624007B0CFE /* EffectFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectFilter.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 		407843BE233DA940007B0CFE /* Recording */ = {
 			isa = PBXGroup;
 			children = (
+				404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */,
 			);
 			path = Recording;
 			sourceTree = "<group>";
@@ -451,6 +454,7 @@
 				40E1B2C8232F618B00A67F11 /* CircleView.swift in Sources */,
 				404CE307235D8FE900DBCFB3 /* EffectOpenCVFilter.swift in Sources */,
 				40E1B2CD232F87EE00A67F11 /* OpenGLPreviewView.swift in Sources */,
+				404CE309235EE1F500DBCFB3 /* AssetRecorder.swift in Sources */,
 				404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */,
 				404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */,
 				40E1B2AC232F2B2400A67F11 /* CameraPreviewView.swift in Sources */,

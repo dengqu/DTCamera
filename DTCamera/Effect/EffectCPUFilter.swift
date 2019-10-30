@@ -11,6 +11,8 @@ import CoreMedia
 
 class EffectCPUFilter: EffectFilter {
     
+    var outputFormatDescription: CMFormatDescription?
+
     func prepare(with ratioMode: CameraRatioMode, positionMode: CameraPositionMode,
                  formatDescription: CMFormatDescription, retainedBufferCountHint: Int) {
         

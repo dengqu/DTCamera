@@ -33,16 +33,20 @@ class CameraViewController: UIViewController {
     }
     private var setupResult: SessionSetupResult = .success
     
-    private let sessionQueue = DispatchQueue(label: "session queue", attributes: [], target: nil)
-    private let videoDataOutputQueue = DispatchQueue(label: "video data output queue", attributes: [], target: nil)
+    private let sessionQueue = DispatchQueue(label: "camera session queue", attributes: [], target: nil)
+    private let videoDataOutputQueue = DispatchQueue(label: "camera video data output queue", attributes: [], target: nil)
+    private let audioDataOutputQueue = DispatchQueue(label: "camera audio data output queue", attributes: [], target: nil)
 
     private let session = AVCaptureSession()
     private var videoDeviceInput: AVCaptureDeviceInput!
     private let stillImageOutput = AVCaptureStillImageOutput()
     private let videoDataOutput = AVCaptureVideoDataOutput()
+    private var videoConnection: AVCaptureConnection?
+    private let audioDataOutput = AVCaptureAudioDataOutput()
+    private var audioConnection: AVCaptureConnection?
+    
     private var isFirstTimeDidMoveToParent = true
     private var isCapturing = false
-    private var isRecording = false
     private var timer: DispatchSourceTimer?
     private var timeRemain = 0
     private var maxDuration: Int {
@@ -64,6 +68,60 @@ class CameraViewController: UIViewController {
     private var effectFilter: EffectFilter!
     private let retainedBufferCountHint = 6
     private var videoFormatDescription: CMFormatDescription?
+    private var audioFormatDescription: CMFormatDescription?
+    private var videoCompressionSettings: [String : Any] = [:]
+    private var audioCompressionSettings: [String : Any] = [:]
+    private let isRenderingEnabledQueue = DispatchQueue(label: "camera isRendering enabled queue", attributes: [.concurrent], target: nil)
+    private var _isRenderingEnabled = false
+    private var isRenderingEnabled: Bool {
+        get {
+            isRenderingEnabledQueue.sync {
+                return _isRenderingEnabled
+            }
+        }
+        set {
+            isRenderingEnabledQueue.async(flags: .barrier) { [weak self] in
+                self?._isRenderingEnabled = newValue
+            }
+        }
+    }
+    private let previewPixelBufferQueue = DispatchQueue(label: "camera preview pixel buffer queue", attributes: [.concurrent], target: nil)
+    private var _previewPixelBuffer: CVPixelBuffer?
+    private var previewPixelBuffer: CVPixelBuffer? {
+        get {
+            previewPixelBufferQueue.sync {
+                return _previewPixelBuffer
+            }
+        }
+        set {
+            previewPixelBufferQueue.async(flags: .barrier) { [weak self] in
+                self?._previewPixelBuffer = newValue
+            }
+        }
+    }
+
+    private enum RecordingStatus: Int {
+        case idle = 0
+        case startingRecording
+        case recording
+        case stoppingRecording
+    }
+    private let recordingStatusQueue = DispatchQueue(label: "camera recording status queue", attributes: [.concurrent], target: nil)
+    private var _recordingStatus: RecordingStatus = .idle
+    private var recordingStatus: RecordingStatus {
+        get {
+            recordingStatusQueue.sync {
+                return _recordingStatus
+            }
+        }
+        set {
+            recordingStatusQueue.async(flags: .barrier) { [weak self] in
+                self?._recordingStatus = newValue
+            }
+        }
+    }
+    private var recorder: AssetRecorder!
+    private var outputFileURL: URL?
 
     private let previewView = OpenGLPreviewView()
     private let dismissButton = UIButton()
@@ -80,6 +138,13 @@ class CameraViewController: UIViewController {
     private let durationLabel = UILabel()
     private let recordingControl = RecordingControl()
     private let thumbnailCellIdentifier = "PhotoThumbnailCell"
+    
+    private let frameRateLabel = UILabel()
+    private let dimensionsLabel = UILabel()
+    private var previousSecondTimestamps: [CMTime] = []
+    private var videoFrameRate: Float = 0.0
+    private var videoDimensions: CMVideoDimensions = CMVideoDimensions(width: 0, height: 0)
+    private var debugLabelsTimer: Timer?
 
     private var photos: [UIImage] = []
     
@@ -116,6 +181,7 @@ class CameraViewController: UIViewController {
         view.backgroundColor = .black
         
         effectFilter = EffectOpenGLFilter()
+        isRenderingEnabled = UIApplication.shared.applicationState != .background
         
         timeRemain = maxDuration
         
@@ -159,9 +225,16 @@ class CameraViewController: UIViewController {
         super.viewWillAppear(animated)
         
         startSessionRunning()
+        
+        debugLabelsTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self,
+                                                selector: #selector(updateDebugLabels),
+                                                userInfo: nil, repeats: true)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        debugLabelsTimer?.invalidate()
+        debugLabelsTimer = nil
+        
         stopSessionRunning()
         
         super.viewWillDisappear(animated)
@@ -292,6 +365,12 @@ class CameraViewController: UIViewController {
         recordingControl.controlButton.addTarget(self, action: #selector(stopRecording), for: .touchUpInside)
         recordingControl.isHidden = true
         
+        frameRateLabel.font = UIFont.boldSystemFont(ofSize: 11)
+        frameRateLabel.textColor = UIColor.white
+        
+        dimensionsLabel.font = UIFont.boldSystemFont(ofSize: 11)
+        dimensionsLabel.textColor = UIColor.white
+
         updateDuration()
         updateCountLabel()
         
@@ -308,6 +387,8 @@ class CameraViewController: UIViewController {
         view.addSubview(doneButton)
         view.addSubview(durationLabel)
         view.addSubview(recordingControl)
+        view.addSubview(frameRateLabel)
+        view.addSubview(dimensionsLabel)
 
         dismissButton.snp.makeConstraints { make in
             if #available(iOS 11, *) {
@@ -380,6 +461,14 @@ class CameraViewController: UIViewController {
                 make.bottom.equalTo(self.bottomLayoutGuide.snp.top).offset(-44)
             }
         }
+        dimensionsLabel.snp.makeConstraints { make in
+            make.right.equalToSuperview().offset(-6)
+            make.bottom.equalTo(recordingControl.snp.centerY).offset(-2)
+        }
+        frameRateLabel.snp.makeConstraints { make in
+            make.right.equalTo(dimensionsLabel)
+            make.top.equalTo(recordingControl.snp.centerY).offset(2)
+        }
     }
 
     private func toggleControls(isHidden: Bool) {
@@ -389,6 +478,8 @@ class CameraViewController: UIViewController {
         shutterButton.isHidden = true
         countLabel.isHidden = true
         minDurationLabel.isHidden = true
+        dimensionsLabel.isHidden = true
+        frameRateLabel.isHidden = true
         if source == .capture {
             collectionView.isHidden = isHidden
             flashButton.isHidden = isHidden
@@ -398,6 +489,8 @@ class CameraViewController: UIViewController {
         } else {
             shutterButton.isHidden = isHidden
             minDurationLabel.isHidden = isHidden
+            dimensionsLabel.isHidden = isHidden
+            frameRateLabel.isHidden = isHidden
         }
     }
     
@@ -433,16 +526,19 @@ class CameraViewController: UIViewController {
     }
     
     private func updateDuration() {
-//        if movieFileOutput.isRecording {
-//            let duration = currentDuration
-//            let progress = CGFloat(duration) / CGFloat(maxDuration)
-//            durationLabel.text = "\(duration / 1000).\((duration % 1000) / CameraViewController.repeatingInterval)秒"
-//            recordingControl.setProgress(progress)
-//            recordingControl.toggleEnable(isEnable: duration >= minDuration)
-//        } else {
-//            durationLabel.text = "0.0秒"
-//            recordingControl.toggleEnable(isEnable: false)
-//        }
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if self.recordingStatus == .recording {
+                let duration = self.currentDuration
+                let progress = CGFloat(duration) / CGFloat(self.maxDuration)
+                self.durationLabel.text = "\(duration / 1000).\((duration % 1000) / CameraViewController.repeatingInterval)秒"
+                self.recordingControl.setProgress(progress)
+                self.recordingControl.toggleEnable(isEnable: duration >= self.minDuration)
+            } else {
+                self.durationLabel.text = "0.0秒"
+                self.recordingControl.toggleEnable(isEnable: false)
+            }
+        }
     }
     
     private func configureSession() {
@@ -486,7 +582,6 @@ class CameraViewController: UIViewController {
         }
         
         configSessionPreset(for: videoDevice)
-        configRecordingFPS(for: videoDevice)
         
         do {
             if videoDevice.hasFlash {
@@ -524,31 +619,31 @@ class CameraViewController: UIViewController {
             return
         }
         
-//        guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-//            print("Could not find audio device")
-//            setupResult = .configurationFailed
-//            session.commitConfiguration()
-//            return
-//        }
-//        do {
-//            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
-//            if session.canAddInput(audioDeviceInput) {
-//                session.addInput(audioDeviceInput)
-//            } else {
-//                print("Could not add audio device input to the session")
-//                setupResult = .configurationFailed
-//                session.commitConfiguration()
-//                return
-//            }
-//        } catch {
-//            print("Could not create audio device input: \(error)")
-//            setupResult = .configurationFailed
-//            session.commitConfiguration()
-//            return
-//        }
+        guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+            print("Could not find audio device")
+            setupResult = .configurationFailed
+            session.commitConfiguration()
+            return
+        }
+        do {
+            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
+            if session.canAddInput(audioDeviceInput) {
+                session.addInput(audioDeviceInput)
+            } else {
+                print("Could not add audio device input to the session")
+                setupResult = .configurationFailed
+                session.commitConfiguration()
+                return
+            }
+        } catch {
+            print("Could not create audio device input: \(error)")
+            setupResult = .configurationFailed
+            session.commitConfiguration()
+            return
+        }
         
         configSessionOutput()
-        configRecordingBitRate()
+        configRecordingFPS(for: videoDevice)
         configRecordingVideoOrientation()
 
         session.commitConfiguration()
@@ -604,12 +699,18 @@ class CameraViewController: UIViewController {
                 print("Could not config video device frame duration: \(error)")
             }
         }
+        videoCompressionSettings = videoDataOutput.recommendedVideoSettingsForAssetWriter(writingTo: .mp4)!
+        audioCompressionSettings = audioDataOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mp4) as! [String: Any]
     }
     
     private func configSessionOutput() {
         if source == .capture {
             videoDataOutput.setSampleBufferDelegate(nil, queue: videoDataOutputQueue)
+            audioDataOutput.setSampleBufferDelegate(nil, queue: audioDataOutputQueue)
             session.removeOutput(videoDataOutput)
+            session.removeOutput(audioDataOutput)
+            videoConnection = nil
+            audioConnection = nil
             if session.canAddOutput(stillImageOutput) {
                 session.addOutput(stillImageOutput)
             } else {
@@ -620,50 +721,31 @@ class CameraViewController: UIViewController {
             }
         } else {
             session.removeOutput(stillImageOutput)
-            videoDataOutput.alwaysDiscardsLateVideoFrames = true
+            videoDataOutput.alwaysDiscardsLateVideoFrames = false
             videoDataOutput.videoSettings = [String(kCVPixelBufferPixelFormatTypeKey): kCVPixelFormatType_32BGRA]
             videoDataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
+            audioDataOutput.setSampleBufferDelegate(self, queue: audioDataOutputQueue)
             if session.canAddOutput(videoDataOutput) {
                 session.addOutput(videoDataOutput)
             } else {
-                print("Could not add movie file output to the session")
+                print("Could not add vidoe data output to the session")
                 setupResult = .configurationFailed
                 session.commitConfiguration()
                 return
             }
+            if session.canAddOutput(audioDataOutput) {
+                session.addOutput(audioDataOutput)
+            } else {
+                print("Could not add audio data output to the session")
+                setupResult = .configurationFailed
+                session.commitConfiguration()
+                return
+            }
+            videoConnection = videoDataOutput.connection(with: .video)
+            audioConnection = audioDataOutput.connection(with: .audio)
         }
     }
-    
-    private func configRecordingBitRate() {
-//        guard source == .recording else { return }
-//        if #available(iOS 12.0, *) {
-//            if let recordingConnection = movieFileOutput.connection(with: .video) {
-//                let supportedSettingsKeys = movieFileOutput.supportedOutputSettingsKeys(for: recordingConnection)
-//                var outputSettings: [String: Any] = [:]
-//                for (settingKey, settingValue) in movieFileOutput.outputSettings(for: recordingConnection) {
-//                    if supportedSettingsKeys.contains(settingKey) {
-//                        if settingKey == AVVideoCompressionPropertiesKey {
-//                            var compressionProperties: [String: Any] = [:]
-//                            if let properties = settingValue as? [String: Any] {
-//                                for (key, value) in properties {
-//                                    if key == AVVideoAverageBitRateKey {
-//                                        compressionProperties[key] = mode.config.recordingBitRate
-//                                    } else {
-//                                        compressionProperties[key] = value
-//                                    }
-//                                }
-//                            }
-//                            outputSettings[settingKey] = compressionProperties
-//                        } else {
-//                            outputSettings[settingKey] = settingValue
-//                        }
-//                    }
-//                }
-//                movieFileOutput.setOutputSettings(outputSettings, for: recordingConnection)
-//            }
-//        }
-    }
-    
+        
     private func configRecordingVideoOrientation() {
         guard source == .recording else { return }
         if let videoConnection = videoDataOutput.connection(with: .video) {
@@ -757,30 +839,38 @@ class CameraViewController: UIViewController {
     }
     
     private func recording() {
-//        sessionQueue.async { [weak self] in
-//            guard let self = self else { return }
-//            if !self.movieFileOutput.isRecording {
-//                if let outputURL = MediaViewController.videoFile {
-//                    DispatchQueue.main.async { [weak self] in
-//                        self?.toggleRecordingControls(isHidden: false)
-//                    }
-//                    if UIDevice.current.isMultitaskingSupported {
-//                        self.backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
-//                    }
-//                    self.movieFileOutput.startRecording(to: outputURL, recordingDelegate: self)
-//                } else {
-//                    print("Could not create video file")
-//                }
-//            } else {
-//                DispatchQueue.main.async { [weak self] in
-//                    self?.toggleRecordingControls(isHidden: true)
-//                }
-//                self.movieFileOutput.stopRecording()
-//            }
-//        }
+        if recordingStatus == .idle {
+            if let outputURL = MediaViewController.videoFile {
+                DispatchQueue.main.async { [weak self] in
+                    self?.toggleRecordingControls(isHidden: false)
+                }
+                let recorder = AssetRecorder(url: outputURL, delegate: self, callbackQueue: .main)
+                recorder.addVideoTrack(with: self.videoFormatDescription!, settings: self.videoCompressionSettings)
+                recorder.addAudioTrack(with: self.audioFormatDescription!, settings: self.audioCompressionSettings)
+                self.recorder = recorder
+                outputFileURL = outputURL
+                recorder.prepareToRecord()
+                recordingStatus = .startingRecording
+                if UIDevice.current.isMultitaskingSupported {
+                    backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: {
+                        print("video capture pipeline background task expired")
+                    })
+                }
+            } else {
+                print("Could not create video file")
+            }
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.toggleRecordingControls(isHidden: true)
+            }
+            recorder.finishRecording()
+            recordingStatus = .stoppingRecording
+        }
     }
     
     private func cleanupRecording() {
+        self.recorder = nil
+        self.recordingStatus = .idle
         if let currentBackgroundRecordingID = backgroundRecordingID {
             backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
             if currentBackgroundRecordingID != UIBackgroundTaskIdentifier.invalid {
@@ -788,7 +878,7 @@ class CameraViewController: UIViewController {
             }
         }
     }
-
+    
     private func toggleSource() {
         guard isViewLoaded else { return }
         
@@ -798,11 +888,10 @@ class CameraViewController: UIViewController {
             self.session.beginConfiguration()
             
             self.configSessionPreset(for: self.videoDeviceInput.device)
-            self.configRecordingFPS(for: self.videoDeviceInput.device)
             self.configSessionOutput()
-            self.configRecordingBitRate()
+            self.configRecordingFPS(for: self.videoDeviceInput.device)
             self.configRecordingVideoOrientation()
-            
+
             self.session.commitConfiguration()
         }
         
@@ -816,19 +905,44 @@ class CameraViewController: UIViewController {
     private func previewVideo(_ video: URL) {
         let previewVideoVC = PreviewVideoViewController(mode: mode, video: video)
         previewVideoVC.delegate = self
+        previewVideoVC.modalPresentationStyle = .fullScreen
         present(previewVideoVC, animated: true, completion: nil)
     }
     
-    @objc func enterForeground(_ notificaton: Notification) {
+    private func calculateFrameRate(at timestamp: CMTime) {
+        previousSecondTimestamps.append(timestamp)
+        
+        let oneSecond = CMTimeMake(value: 1, timescale: 1)
+        let oneSecondAgo = CMTimeSubtract(timestamp, oneSecond)
+        
+        while previousSecondTimestamps[0] < oneSecondAgo {
+            previousSecondTimestamps.remove(at: 0)
+        }
+        
+        if previousSecondTimestamps.count > 1 {
+            let duration: Double = CMTimeGetSeconds(CMTimeSubtract(previousSecondTimestamps.last!, previousSecondTimestamps[0]))
+            videoFrameRate = Float(previousSecondTimestamps.count - 1) / Float(duration)
+        }
+    }
+
+    @objc private func updateDebugLabels() {
+        frameRateLabel.text = "\(Int(roundf(videoFrameRate))) FPS"
+        dimensionsLabel.text = "\(videoDimensions.width) x \(videoDimensions.height)"
+    }
+    
+    @objc private func enterForeground(_ notificaton: Notification) {
         if isViewLoaded && view.window != nil {
             startSessionRunning()
+            isRenderingEnabled = true
         }
     }
     
-    @objc func enterBackground(_ notificaton: Notification) {
-//        if isViewLoaded && view.window != nil && !movieFileOutput.isRecording {
-//            stopSessionRunning()
-//        }
+    @objc private func enterBackground(_ notificaton: Notification) {
+        if isViewLoaded && view.window != nil {
+            stopSessionRunning()
+            isRenderingEnabled = false
+            stopRecording()
+        }
     }
 
     @objc private func close() {
@@ -887,6 +1001,7 @@ class CameraViewController: UIViewController {
     @objc private func previewOrEditPhotos() {
         let previewPhotosVC = PreviewPhotosViewController(mode: mode, photos: photos)
         previewPhotosVC.handler = self
+        previewPhotosVC.modalPresentationStyle = .fullScreen
         present(previewPhotosVC, animated: true, completion: nil)
     }
     
@@ -926,56 +1041,76 @@ extension CameraViewController: PhotoThumbnailCellDelegate {
     
 }
 
-extension CameraViewController: AVCaptureFileOutputRecordingDelegate {
+extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     
-    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
-        startTimer()
-    }
-    
-    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        var success = true
-        
-        if let error = error {
-            success = false
-            print("Movie file finishing error: \(error)")
-        }
-        
-        if success {
-            DispatchQueue.main.async { [weak self] in
-                self?.previewVideo(outputFileURL)
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
+        if connection === videoConnection {
+            let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+            calculateFrameRate(at: timestamp)
+            if videoFormatDescription == nil {
+                if let formatDescription = formatDescription {
+                    videoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
+                    effectFilter.prepare(with: ratioMode, positionMode: positionMode,
+                                         formatDescription: formatDescription, retainedBufferCountHint: retainedBufferCountHint)
+                    if let outputFormatDescription = effectFilter.outputFormatDescription {
+                        videoFormatDescription = outputFormatDescription
+                    } else {
+                        videoFormatDescription = formatDescription
+                    }
+                }
+            } else if isRenderingEnabled, let inputPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+                let outputPixelBuffer = effectFilter.filter(pixelBuffer: inputPixelBuffer)
+                previewPixelBuffer = outputPixelBuffer
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self, let previewPixelBuffer = self.previewPixelBuffer else { return }
+                    self.previewView.display(pixelBuffer: previewPixelBuffer, ratioMode: self.ratioMode)
+                }
+                if recordingStatus == .recording {
+                    recorder.appendVideoPixelBuffer(outputPixelBuffer, withPresentationTime: timestamp)
+                }
             }
-        } else {
-            cancelTimer()
-            DispatchQueue.main.async { [weak self] in
-                self?.toggleRecordingControls(isHidden: true)
-                self?.updateDuration()
+        } else if connection === audioConnection {
+            audioFormatDescription = formatDescription
+            if recordingStatus == .recording {
+                recorder.appendAudioSampleBuffer(sampleBuffer)
             }
         }
-        
-        cleanupRecording()
     }
     
 }
 
-extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
+extension CameraViewController: AssetRecorderDelegate {
     
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
-        if videoFormatDescription == nil {
-            if let formatDescription = formatDescription {
-                videoFormatDescription = formatDescription
-                effectFilter.prepare(with: ratioMode, positionMode: positionMode,
-                                     formatDescription: formatDescription, retainedBufferCountHint: retainedBufferCountHint)
-            }
-        } else if let inputPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-            let outputPixelBuffer = effectFilter.filter(pixelBuffer: inputPixelBuffer)
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.previewView.display(pixelBuffer: outputPixelBuffer, ratioMode: self.ratioMode)
-            }
+    func assetRecorderDidFinishPreparing(_ recorder: AssetRecorder) {
+        if recordingStatus != .startingRecording {
+            fatalError("Expected to be in StartingRecording state")
+        }
+        recordingStatus = .recording
+        startTimer()
+    }
+    
+    func assetRecorder(_ recorder: AssetRecorder, didFailWithError error: Error?) {
+        cancelTimer()
+        cleanupRecording()
+        DispatchQueue.main.async { [weak self] in
+            self?.toggleRecordingControls(isHidden: true)
+            self?.updateDuration()
         }
     }
     
+    func assetRecorderDidFinishRecording(_ recorder: AssetRecorder) {
+        if recordingStatus != .stoppingRecording {
+            fatalError("Expected to be in StoppingRecording state")
+        }
+        cleanupRecording()
+        DispatchQueue.main.async { [weak self] in
+            if let outputFileURL = self?.outputFileURL {
+                self?.previewVideo(outputFileURL)
+            }
+        }
+    }
+
 }
 
 extension CameraViewController: PreviewPhotosViewControllerHandler {

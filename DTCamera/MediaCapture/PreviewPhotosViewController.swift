@@ -300,6 +300,7 @@ class PreviewPhotosViewController: UIPageViewController {
         let photo = photos[currentPage]
         let editorVC = PhotoEditorViewController(photo: photo)
         editorVC.delegate = self
+        editorVC.modalPresentationStyle = .fullScreen
         present(editorVC, animated: true, completion: nil)
     }
     

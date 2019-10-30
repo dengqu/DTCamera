@@ -19,17 +19,17 @@ class OpenGLPreviewView: UIView {
     private var inputTexture: PixelBufferTexture!
 
     // Shader
-    var squareVertices: [GLfloat] = [
+    private var squareVertices: [GLfloat] = [
         -1, -1, // bottom left
         1, -1, // bottom right
         -1, 1, // top left
         1, 1, // top right
     ]
-    var textureVertices: [Float] = [
-        0, 0, // bottom left
-        1, 0, // bottom right
+    private var textureVertices: [Float] = [ // 180 degree rotated
         0, 1, // top left
         1, 1, // top right
+        0, 0, // bottom left
+        1, 0, // bottom right
     ]
     private var program: ShaderProgram!
     private var positionSlot = GLuint()

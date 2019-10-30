@@ -385,6 +385,7 @@ class PhotoLibraryViewController: UIViewController {
     private func previewVideo(_ video: URL) {
         let previewVideoVC = PreviewVideoViewController(mode: mode, video: video)
         previewVideoVC.delegate = self
+        previewVideoVC.modalPresentationStyle = .fullScreen
         present(previewVideoVC, animated: true, completion: nil)
     }
     
@@ -474,6 +475,7 @@ class PhotoLibraryViewController: UIViewController {
                 DTMessageHUD.dismiss()
                 let previewPhotosVC = PreviewPhotosViewController(mode: self.mode, photos: photos)
                 previewPhotosVC.handler = self
+                previewPhotosVC.modalPresentationStyle = .fullScreen
                 self.present(previewPhotosVC, animated: true, completion: nil)
             } else {
                 DTMessageHUD.dismiss()

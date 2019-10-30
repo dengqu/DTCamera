@@ -11,6 +11,8 @@ import CoreMedia
 
 class EffectOpenCVFilter: EffectFilter {
     
+    var outputFormatDescription: CMFormatDescription?
+
     private var openCVWrapper: OpenCVWrapper!
     
     func prepare(with ratioMode: CameraRatioMode, positionMode: CameraPositionMode,

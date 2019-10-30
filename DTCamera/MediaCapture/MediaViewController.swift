@@ -91,7 +91,7 @@ struct MediaConfig {
     let recordingBitRate: Int = 1500000
 
     init(limitOfPhotos: Int = 9,
-         ratioMode: CameraRatioMode = .r9to16, positionMode: CameraPositionMode = .back,
+         ratioMode: CameraRatioMode = .r3to4, positionMode: CameraPositionMode = .back,
          minDuration: Int = 5, maxDuration: Int = 60) {
         self.limitOfPhotos = limitOfPhotos
         self.positionMode = positionMode
