@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreMedia
+import CocoaLumberjack
 
 class EffectCIFilter: EffectFilter {
     
@@ -64,7 +65,7 @@ class EffectCIFilter: EffectFilter {
         var pixelBuffer: CVPixelBuffer!
         let resultCode = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, bufferPool, &pixelBuffer)
         if resultCode != kCVReturnSuccess {
-            print("Could not create pixel buffer in pool \(resultCode)")
+            DDLogError("Could not create pixel buffer in pool \(resultCode)")
             exit(1)
         }
         return pixelBuffer
@@ -82,7 +83,7 @@ class EffectCIFilter: EffectFilter {
                                                  pixelBufferOptions,
                                                  &bufferPool)
         if resultCode != kCVReturnSuccess {
-            print("Could not create pixel buffer pool \(resultCode)")
+            DDLogError("Could not create pixel buffer pool \(resultCode)")
             exit(1)
         }
         bufferPoolAuxAttributes = [kCVPixelBufferPoolAllocationThresholdKey: retainedBufferCountHint]

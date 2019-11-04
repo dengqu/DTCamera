@@ -15,7 +15,7 @@
     cv::Mat bgraImage = cv::Mat(height, width, CV_8UC4, image);
     for (uint32_t y = 0; y < height; y++) {
         for (uint32_t x = 0; x < width; x++) {
-            bgraImage.at<cv::Vec<uint8_t, 4>>(y, x)[1] = 0; // De-green
+            bgraImage.at<cv::Vec<uint8_t, 4>>(y, x)[0] = 0; // De-blue
         }
     }
 }

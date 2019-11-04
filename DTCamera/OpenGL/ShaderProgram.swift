@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CocoaLumberjack
 
 class ShaderProgram {
     
@@ -27,7 +28,7 @@ class ShaderProgram {
             let bufferLength: GLsizei = 1024
             let info: [GLchar] = Array(repeating: GLchar(0), count: Int(bufferLength))
             glGetProgramInfoLog(program, bufferLength, nil, UnsafeMutablePointer(mutating: info))
-            print(String(validatingUTF8: info) ?? "")
+            DDLogError(String(validatingUTF8: info) ?? "")
             exit(1)
         }
         
@@ -61,7 +62,7 @@ class ShaderProgram {
     private func compileShader(name: String, with type: GLenum) -> GLuint {
         do {
             guard let shaderPath = Bundle.main.path(forResource: name, ofType: "glsl") else {
-                print("Could not find shader file \(name)")
+                DDLogError("Could not find shader file \(name)")
                 exit(1)
             }
             let shaderString = try NSString(contentsOfFile: shaderPath, encoding: String.Encoding.utf8.rawValue)
@@ -79,13 +80,13 @@ class ShaderProgram {
                 let bufferLength: GLsizei = 1024
                 let info: [GLchar] = Array(repeating: GLchar(0), count: Int(bufferLength))
                 glGetShaderInfoLog(shader, bufferLength, nil, UnsafeMutablePointer(mutating: info))
-                print(String(validatingUTF8: info) ?? "")
+                DDLogError(String(validatingUTF8: info) ?? "")
                 exit(1)
             }
             
             return shader
         } catch {
-            print("Could not load shader file \(name)")
+            DDLogError("Could not load shader file \(name)")
             exit(1)
         }
     }

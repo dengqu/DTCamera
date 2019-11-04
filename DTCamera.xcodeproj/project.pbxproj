@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40146B4C2351B5EC00F14513 /* DebugHelper.swift */; };
-		403EEFD323320561007CC795 /* PreviewVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD123320561007CC795 /* PreviewVertex.glsl */; };
-		403EEFD423320561007CC795 /* PreviewFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* PreviewFragment.glsl */; };
+		403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD123320561007CC795 /* DirectPassVertex.glsl */; };
+		403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* DirectPassFragment.glsl */; };
 		404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */; };
 		404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */; };
 		404CE300235D8ECC00DBCFB3 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */; };
@@ -29,7 +29,7 @@
 		40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28D232F29B400A67F11 /* Assets.xcassets */; };
 		40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28F232F29B400A67F11 /* LaunchScreen.storyboard */; };
 		40E1B2AB232F2B2400A67F11 /* PhotoEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B298232F2B2300A67F11 /* PhotoEditorViewController.swift */; };
-		40E1B2AC232F2B2400A67F11 /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B299232F2B2300A67F11 /* CameraPreviewView.swift */; };
+		40E1B2AC232F2B2400A67F11 /* CaptureVideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B299232F2B2300A67F11 /* CaptureVideoPreviewView.swift */; };
 		40E1B2AD232F2B2400A67F11 /* PhotoEditorMaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B29A232F2B2300A67F11 /* PhotoEditorMaskView.swift */; };
 		40E1B2AE232F2B2400A67F11 /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B29B232F2B2300A67F11 /* MediaViewController.swift */; };
 		40E1B2AF232F2B2400A67F11 /* PhotoEditorFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B29C232F2B2300A67F11 /* PhotoEditorFrameView.swift */; };
@@ -43,7 +43,7 @@
 		40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A4232F2B2400A67F11 /* LibraryVideoCell.swift */; };
 		40E1B2B8232F2B2400A67F11 /* UIImage+Editor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A5232F2B2400A67F11 /* UIImage+Editor.swift */; };
 		40E1B2B9232F2B2400A67F11 /* PhotoLibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A6232F2B2400A67F11 /* PhotoLibraryViewController.swift */; };
-		40E1B2BA232F2B2400A67F11 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A7232F2B2400A67F11 /* CameraViewController.swift */; };
+		40E1B2BA232F2B2400A67F11 /* CaptureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A7232F2B2400A67F11 /* CaptureViewController.swift */; };
 		40E1B2BB232F2B2400A67F11 /* PreviewVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */; };
 		40E1B2BC232F2B2400A67F11 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A9232F2B2400A67F11 /* PlayerView.swift */; };
 		40E1B2BD232F2B2400A67F11 /* LibraryAlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2AA232F2B2400A67F11 /* LibraryAlbumCell.swift */; };
@@ -53,13 +53,16 @@
 		40E1B2CB232F7E5900A67F11 /* MediaCustomTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */; };
 		40E1B2CD232F87EE00A67F11 /* OpenGLPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2CC232F87EE00A67F11 /* OpenGLPreviewView.swift */; };
 		40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */; };
+		40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */; };
+		40FA3FFF2369949600738C47 /* CapturePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFE2369949600738C47 /* CapturePipeline.swift */; };
+		40FA40012369983200738C47 /* RecordingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA40002369983200738C47 /* RecordingViewController.swift */; };
 		C7A58C901B767F15132A7E7B /* Pods_DTCamera.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB99C3FD79603ADA08F2CFE0 /* Pods_DTCamera.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		40146B4C2351B5EC00F14513 /* DebugHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHelper.swift; sourceTree = "<group>"; };
-		403EEFD123320561007CC795 /* PreviewVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PreviewVertex.glsl; sourceTree = "<group>"; };
-		403EEFD223320561007CC795 /* PreviewFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PreviewFragment.glsl; sourceTree = "<group>"; };
+		403EEFD123320561007CC795 /* DirectPassVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectPassVertex.glsl; sourceTree = "<group>"; };
+		403EEFD223320561007CC795 /* DirectPassFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectPassFragment.glsl; sourceTree = "<group>"; };
 		404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCPUFilter.swift; sourceTree = "<group>"; };
 		404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCIFilter.swift; sourceTree = "<group>"; };
 		404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
@@ -83,7 +86,7 @@
 		40E1B290232F29B400A67F11 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		40E1B292232F29B400A67F11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		40E1B298232F2B2300A67F11 /* PhotoEditorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorViewController.swift; sourceTree = "<group>"; };
-		40E1B299232F2B2300A67F11 /* CameraPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraPreviewView.swift; sourceTree = "<group>"; };
+		40E1B299232F2B2300A67F11 /* CaptureVideoPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureVideoPreviewView.swift; sourceTree = "<group>"; };
 		40E1B29A232F2B2300A67F11 /* PhotoEditorMaskView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorMaskView.swift; sourceTree = "<group>"; };
 		40E1B29B232F2B2300A67F11 /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaViewController.swift; sourceTree = "<group>"; };
 		40E1B29C232F2B2300A67F11 /* PhotoEditorFrameView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorFrameView.swift; sourceTree = "<group>"; };
@@ -97,7 +100,7 @@
 		40E1B2A4232F2B2400A67F11 /* LibraryVideoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryVideoCell.swift; sourceTree = "<group>"; };
 		40E1B2A5232F2B2400A67F11 /* UIImage+Editor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Editor.swift"; sourceTree = "<group>"; };
 		40E1B2A6232F2B2400A67F11 /* PhotoLibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoLibraryViewController.swift; sourceTree = "<group>"; };
-		40E1B2A7232F2B2400A67F11 /* CameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		40E1B2A7232F2B2400A67F11 /* CaptureViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureViewController.swift; sourceTree = "<group>"; };
 		40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewVideoViewController.swift; sourceTree = "<group>"; };
 		40E1B2A9232F2B2400A67F11 /* PlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		40E1B2AA232F2B2400A67F11 /* LibraryAlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryAlbumCell.swift; sourceTree = "<group>"; };
@@ -107,6 +110,9 @@
 		40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCustomTheme.swift; sourceTree = "<group>"; };
 		40E1B2CC232F87EE00A67F11 /* OpenGLPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenGLPreviewView.swift; sourceTree = "<group>"; };
 		40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
+		40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPipeline.swift; sourceTree = "<group>"; };
+		40FA3FFE2369949600738C47 /* CapturePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipeline.swift; sourceTree = "<group>"; };
+		40FA40002369983200738C47 /* RecordingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewController.swift; sourceTree = "<group>"; };
 		9F7939B0D43155A1A4F41401 /* Pods-DTCamera.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DTCamera.release.xcconfig"; path = "Target Support Files/Pods-DTCamera/Pods-DTCamera.release.xcconfig"; sourceTree = "<group>"; };
 		D655EE740C51E94A97861F37 /* Pods-DTCamera.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DTCamera.debug.xcconfig"; path = "Target Support Files/Pods-DTCamera/Pods-DTCamera.debug.xcconfig"; sourceTree = "<group>"; };
 		FB99C3FD79603ADA08F2CFE0 /* Pods_DTCamera.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DTCamera.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -162,7 +168,7 @@
 		407843BC233DA927007B0CFE /* Preview */ = {
 			isa = PBXGroup;
 			children = (
-				40E1B299232F2B2300A67F11 /* CameraPreviewView.swift */,
+				40E1B299232F2B2300A67F11 /* CaptureVideoPreviewView.swift */,
 				40E1B2CC232F87EE00A67F11 /* OpenGLPreviewView.swift */,
 			);
 			path = Preview;
@@ -187,8 +193,8 @@
 			isa = PBXGroup;
 			children = (
 				407843C0233DB2C9007B0CFE /* ShaderProgram.swift */,
-				403EEFD123320561007CC795 /* PreviewVertex.glsl */,
-				403EEFD223320561007CC795 /* PreviewFragment.glsl */,
+				403EEFD123320561007CC795 /* DirectPassVertex.glsl */,
+				403EEFD223320561007CC795 /* DirectPassFragment.glsl */,
 				40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */,
 				40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */,
 			);
@@ -222,6 +228,8 @@
 				40E1B2C3232F3DE000A67F11 /* Extension */,
 				404CE301235D8F6900DBCFB3 /* OpenCV */,
 				407843BF233DAFE4007B0CFE /* OpenGL */,
+				40FA40052369991600738C47 /* PhotoBrowser */,
+				40FA40062369994800738C47 /* PhotoEditor */,
 				40E1B2BE232F2B8800A67F11 /* Player */,
 				40E1B2BF232F2C4000A67F11 /* MediaCapture */,
 				40E1B2C1232F2CBC00A67F11 /* Effect */,
@@ -230,6 +238,7 @@
 				407843BE233DA940007B0CFE /* Recording */,
 				40E1B2C0232F2CB100A67F11 /* Live */,
 				404CE302235D8F9D00DBCFB3 /* DTCamera-Bridging-Header.h */,
+				40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */,
 				40E1B286232F29B300A67F11 /* AppDelegate.swift */,
 				40E1B288232F29B300A67F11 /* ViewController.swift */,
 				40E1B28A232F29B300A67F11 /* Main.storyboard */,
@@ -245,6 +254,7 @@
 			children = (
 				40E1B2A9232F2B2400A67F11 /* PlayerView.swift */,
 				40E1B29E232F2B2300A67F11 /* PlayerViewController.swift */,
+				40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -253,22 +263,9 @@
 			isa = PBXGroup;
 			children = (
 				40E1B29B232F2B2300A67F11 /* MediaViewController.swift */,
-				40E1B2A7232F2B2400A67F11 /* CameraViewController.swift */,
-				40E1B2A0232F2B2300A67F11 /* RecordingControl.swift */,
-				40E1B2C6232F618B00A67F11 /* CircleView.swift */,
-				40E1B2C7232F618B00A67F11 /* CircleLayer.swift */,
-				40E1B2A1232F2B2300A67F11 /* PhotoThumbnailCell.swift */,
-				40E1B2A6232F2B2400A67F11 /* PhotoLibraryViewController.swift */,
-				40E1B29D232F2B2300A67F11 /* LibraryPhotoCell.swift */,
-				40E1B2A4232F2B2400A67F11 /* LibraryVideoCell.swift */,
-				40E1B2AA232F2B2400A67F11 /* LibraryAlbumCell.swift */,
-				40E1B29F232F2B2300A67F11 /* PreviewPhotosViewController.swift */,
-				40E1B2A2232F2B2400A67F11 /* PreviewPhotoViewController.swift */,
-				40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */,
-				40E1B298232F2B2300A67F11 /* PhotoEditorViewController.swift */,
-				40E1B2A3232F2B2400A67F11 /* PhotoEditorResizeView.swift */,
-				40E1B29C232F2B2300A67F11 /* PhotoEditorFrameView.swift */,
-				40E1B29A232F2B2300A67F11 /* PhotoEditorMaskView.swift */,
+				40FA40022369984700738C47 /* Library */,
+				40FA40032369985300738C47 /* Capture */,
+				40FA40042369985800738C47 /* Recording */,
 			);
 			path = MediaCapture;
 			sourceTree = "<group>";
@@ -276,7 +273,6 @@
 		40E1B2C0232F2CB100A67F11 /* Live */ = {
 			isa = PBXGroup;
 			children = (
-				40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */,
 			);
 			path = Live;
 			sourceTree = "<group>";
@@ -301,6 +297,59 @@
 				40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */,
 			);
 			path = Extension;
+			sourceTree = "<group>";
+		};
+		40FA40022369984700738C47 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				40E1B2A6232F2B2400A67F11 /* PhotoLibraryViewController.swift */,
+				40E1B29D232F2B2300A67F11 /* LibraryPhotoCell.swift */,
+				40E1B2A4232F2B2400A67F11 /* LibraryVideoCell.swift */,
+				40E1B2AA232F2B2400A67F11 /* LibraryAlbumCell.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		40FA40032369985300738C47 /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				40E1B2A7232F2B2400A67F11 /* CaptureViewController.swift */,
+				40FA3FFE2369949600738C47 /* CapturePipeline.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		40FA40042369985800738C47 /* Recording */ = {
+			isa = PBXGroup;
+			children = (
+				40FA40002369983200738C47 /* RecordingViewController.swift */,
+				40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */,
+				40E1B2A0232F2B2300A67F11 /* RecordingControl.swift */,
+				40E1B2C6232F618B00A67F11 /* CircleView.swift */,
+				40E1B2C7232F618B00A67F11 /* CircleLayer.swift */,
+			);
+			path = Recording;
+			sourceTree = "<group>";
+		};
+		40FA40052369991600738C47 /* PhotoBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				40E1B29F232F2B2300A67F11 /* PreviewPhotosViewController.swift */,
+				40E1B2A2232F2B2400A67F11 /* PreviewPhotoViewController.swift */,
+				40E1B2A1232F2B2300A67F11 /* PhotoThumbnailCell.swift */,
+			);
+			path = PhotoBrowser;
+			sourceTree = "<group>";
+		};
+		40FA40062369994800738C47 /* PhotoEditor */ = {
+			isa = PBXGroup;
+			children = (
+				40E1B298232F2B2300A67F11 /* PhotoEditorViewController.swift */,
+				40E1B2A3232F2B2400A67F11 /* PhotoEditorResizeView.swift */,
+				40E1B29C232F2B2300A67F11 /* PhotoEditorFrameView.swift */,
+				40E1B29A232F2B2300A67F11 /* PhotoEditorMaskView.swift */,
+			);
+			path = PhotoEditor;
 			sourceTree = "<group>";
 		};
 		6E105E79133862CB63F1A372 /* Pods */ = {
@@ -383,11 +432,11 @@
 			files = (
 				40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */,
 				40AE65CF233E10B60063C4D8 /* DumbFilterVertex.glsl in Resources */,
-				403EEFD323320561007CC795 /* PreviewVertex.glsl in Resources */,
+				403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */,
 				40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */,
 				40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */,
 				40AE65D1233E10DD0063C4D8 /* DumbFilterFragment.glsl in Resources */,
-				403EEFD423320561007CC795 /* PreviewFragment.glsl in Resources */,
+				403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,6 +497,7 @@
 				40E1B2C5232F3E1E00A67F11 /* UIColor+Extension.swift in Sources */,
 				407843BB233DA8F9007B0CFE /* EffectOpenGLFilter.swift in Sources */,
 				40E1B2BC232F2B2400A67F11 /* PlayerView.swift in Sources */,
+				40FA40012369983200738C47 /* RecordingViewController.swift in Sources */,
 				40E1B2B0232F2B2400A67F11 /* LibraryPhotoCell.swift in Sources */,
 				40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */,
 				40E1B2AF232F2B2400A67F11 /* PhotoEditorFrameView.swift in Sources */,
@@ -457,7 +507,7 @@
 				404CE309235EE1F500DBCFB3 /* AssetRecorder.swift in Sources */,
 				404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */,
 				404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */,
-				40E1B2AC232F2B2400A67F11 /* CameraPreviewView.swift in Sources */,
+				40E1B2AC232F2B2400A67F11 /* CaptureVideoPreviewView.swift in Sources */,
 				40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */,
 				40E1B2B9232F2B2400A67F11 /* PhotoLibraryViewController.swift in Sources */,
 				40E1B2AE232F2B2400A67F11 /* MediaViewController.swift in Sources */,
@@ -472,12 +522,14 @@
 				40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */,
 				404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */,
 				40E1B2C9232F618B00A67F11 /* CircleLayer.swift in Sources */,
+				40FA3FFF2369949600738C47 /* CapturePipeline.swift in Sources */,
 				406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */,
 				40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */,
 				40E1B2B6232F2B2400A67F11 /* PhotoEditorResizeView.swift in Sources */,
+				40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */,
 				40E1B2AB232F2B2400A67F11 /* PhotoEditorViewController.swift in Sources */,
 				407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */,
-				40E1B2BA232F2B2400A67F11 /* CameraViewController.swift in Sources */,
+				40E1B2BA232F2B2400A67F11 /* CaptureViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

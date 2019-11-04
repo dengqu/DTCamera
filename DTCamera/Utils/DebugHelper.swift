@@ -7,57 +7,58 @@
 //
 
 import CoreVideo
+import CocoaLumberjack
 
 class DebugHelper: NSObject {
     
     static let shared = DebugHelper()
 
-    func printResultCode(_ resultCode: CVReturn) {
+    func DDLogDebugResultCode(_ resultCode: CVReturn) {
         switch resultCode {
         // Common
         case kCVReturnAllocationFailed:
-            print("kCVReturnAllocationFailed")
+            DDLogDebug("kCVReturnAllocationFailed")
         case kCVReturnError:
-            print("kCVReturnError")
+            DDLogDebug("kCVReturnError")
         case kCVReturnInvalidArgument:
-            print("kCVReturnInvalidArgument")
+            DDLogDebug("kCVReturnInvalidArgument")
         case kCVReturnUnsupported:
-            print("kCVReturnUnsupported")
+            DDLogDebug("kCVReturnUnsupported")
         case kCVReturnLast:
-            print("kCVReturnLast")
+            DDLogDebug("kCVReturnLast")
         case kCVReturnFirst:
-            print("kCVReturnFirst")
+            DDLogDebug("kCVReturnFirst")
         // Pixel Buffer
         case kCVReturnInvalidPixelBufferAttributes:
-            print("kCVReturnInvalidPixelBufferAttributes")
+            DDLogDebug("kCVReturnInvalidPixelBufferAttributes")
         case kCVReturnInvalidPixelFormat:
-            print("kCVReturnInvalidPixelFormat")
+            DDLogDebug("kCVReturnInvalidPixelFormat")
         case kCVReturnInvalidSize:
-            print("kCVReturnInvalidSize")
+            DDLogDebug("kCVReturnInvalidSize")
         case kCVReturnPixelBufferNotMetalCompatible:
-            print("kCVReturnPixelBufferNotMetalCompatible")
+            DDLogDebug("kCVReturnPixelBufferNotMetalCompatible")
         case kCVReturnPixelBufferNotOpenGLCompatible:
-            print("kCVReturnPixelBufferNotOpenGLCompatible")
+            DDLogDebug("kCVReturnPixelBufferNotOpenGLCompatible")
         // Buffer Pool
         case kCVReturnRetry:
-            print("kCVReturnRetry")
+            DDLogDebug("kCVReturnRetry")
         case kCVReturnInvalidPoolAttributes:
-            print("kCVReturnInvalidPoolAttributes")
+            DDLogDebug("kCVReturnInvalidPoolAttributes")
         case kCVReturnPoolAllocationFailed:
-            print("kCVReturnPoolAllocationFailed")
+            DDLogDebug("kCVReturnPoolAllocationFailed")
         case kCVReturnWouldExceedAllocationThreshold:
-            print("kCVReturnWouldExceedAllocationThreshold")
+            DDLogDebug("kCVReturnWouldExceedAllocationThreshold")
         // Display Link
         case kCVReturnInvalidDisplay:
-            print("kCVReturnInvalidDisplay")
+            DDLogDebug("kCVReturnInvalidDisplay")
         case kCVReturnDisplayLinkAlreadyRunning:
-            print("kCVReturnDisplayLinkAlreadyRunning")
+            DDLogDebug("kCVReturnDisplayLinkAlreadyRunning")
         case kCVReturnDisplayLinkNotRunning:
-            print("kCVReturnDisplayLinkNotRunning")
+            DDLogDebug("kCVReturnDisplayLinkNotRunning")
         case kCVReturnDisplayLinkCallbacksNotSet:
-            print("kCVReturnDisplayLinkCallbacksNotSet")
+            DDLogDebug("kCVReturnDisplayLinkCallbacksNotSet")
         default:
-            print("unknown")
+            DDLogDebug("unknown")
         }
     }
     

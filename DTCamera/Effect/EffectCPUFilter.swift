@@ -14,9 +14,7 @@ class EffectCPUFilter: EffectFilter {
     var outputFormatDescription: CMFormatDescription?
 
     func prepare(with ratioMode: CameraRatioMode, positionMode: CameraPositionMode,
-                 formatDescription: CMFormatDescription, retainedBufferCountHint: Int) {
-        
-    }
+                 formatDescription: CMFormatDescription, retainedBufferCountHint: Int) {}
     
     func filter(pixelBuffer: CVPixelBuffer) -> CVPixelBuffer {
         let bytesPerPixel = 4
@@ -31,7 +29,7 @@ class EffectCPUFilter: EffectFilter {
         for row in 0..<bufferHeight {
             var pixel = baseAddress.advanced(by: Int(row * bytesPerRow))
             for _ in 0..<bufferWidth {
-                pixel[0] = 0 // De-blue (second pixel in BGRA is blue)
+                pixel[1] = 0 // De-green (second pixel in BGRA is green)
                 pixel += bytesPerPixel
             }
         }

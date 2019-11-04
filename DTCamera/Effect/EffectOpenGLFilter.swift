@@ -9,6 +9,7 @@
 import UIKit
 import GLKit
 import CoreMedia
+import CocoaLumberjack
 
 class EffectOpenGLFilter: EffectFilter {
 
@@ -43,7 +44,7 @@ class EffectOpenGLFilter: EffectFilter {
     private var outputWidth: Int = 0
     private var outputHeight: Int = 0
     private var outputTexture: PixelBufferTexture!
-    private let renderDestination = RenderDestination()
+    private var renderDestination: RenderDestination!
 
     deinit {
         reset()
@@ -51,7 +52,7 @@ class EffectOpenGLFilter: EffectFilter {
 
     init() {
         guard let context = EAGLContext(api: .openGLES2) else {
-            print("Could not initialize OpenGL context")
+            DDLogError("Could not initialize OpenGL context")
             exit(1)
         }
         self.context = context
@@ -66,18 +67,24 @@ class EffectOpenGLFilter: EffectFilter {
         let oldContext = EAGLContext.current()
         if context !== oldContext {
             if !EAGLContext.setCurrent(context) {
-                print("Could not set current OpenGL context with new context")
+                DDLogError("Could not set current OpenGL context with new context")
                 exit(1)
             }
         }
         
         setupInput()
-        compileShaders()
-        setupOutput(retainedBufferCountHint: retainedBufferCountHint)
-        
+        if program == nil {
+            compileShaders()
+        }
+        setupOutputTexture(retainedBufferCountHint: retainedBufferCountHint)
+        if renderDestination == nil {
+            setupRenderDestination()
+        }
+        renderDestination.setViewport(width: outputWidth, height: outputHeight)
+
         if oldContext !== context {
             if !EAGLContext.setCurrent(oldContext) {
-                print("Could not set current OpenGL context with old context")
+                DDLogError("Could not set current OpenGL context with old context")
                 exit(1)
             }
         }
@@ -87,7 +94,7 @@ class EffectOpenGLFilter: EffectFilter {
         let oldContext = EAGLContext.current()
         if context !== oldContext {
             if !EAGLContext.setCurrent(context) {
-                print("Could not set current OpenGL context with new context")
+                DDLogError("Could not set current OpenGL context with new context")
                 exit(1)
             }
         }
@@ -129,7 +136,7 @@ class EffectOpenGLFilter: EffectFilter {
 
         if oldContext !== context {
             if !EAGLContext.setCurrent(oldContext) {
-                print("Could not set current OpenGL context with old context")
+                DDLogError("Could not set current OpenGL context with old context")
                 exit(1)
             }
         }
@@ -151,13 +158,18 @@ class EffectOpenGLFilter: EffectFilter {
         textureVertices[3] = fromY
         textureVertices[5] = toY
         textureVertices[7] = toY
+        let fromX: Float = 0.0
+        let toX: Float = 1.0
         if positionMode == .front {
-            let fromX: Float = 0.0
-            let toX: Float = 1.0
             textureVertices[0] = toX
             textureVertices[2] = fromX
             textureVertices[4] = toX
             textureVertices[6] = fromX
+        } else {
+            textureVertices[0] = fromX
+            textureVertices[2] = toX
+            textureVertices[4] = fromX
+            textureVertices[6] = toX
         }
         inputWidth = Int(sourceWidth)
         inputHeight = Int(sourceHeight)
@@ -179,7 +191,7 @@ class EffectOpenGLFilter: EffectFilter {
         textureUniform = program.uniformLocation(for: "u_texture")
     }
     
-    private func setupOutput(retainedBufferCountHint: Int) {
+    private func setupOutputTexture(retainedBufferCountHint: Int) {
         guard let context = context else { return }
         outputTexture = PixelBufferTexture(width: outputWidth, height: outputHeight,
                                            retainedBufferCountHint: retainedBufferCountHint)
@@ -191,26 +203,30 @@ class EffectOpenGLFilter: EffectFilter {
                                                      imageBuffer: testPixelBuffer,
                                                      formatDescriptionOut: &outputFormatDescription)
         self.outputFormatDescription = outputFormatDescription
-        renderDestination.createFrameBuffer(width: outputWidth, height: outputHeight)
+    }
+    
+    private func setupRenderDestination() {
+        renderDestination = RenderDestination()
+        renderDestination.createFrameBuffer()
     }
     
     private func reset() {
         let oldContext = EAGLContext.current()
         if context != oldContext {
             if !EAGLContext.setCurrent(context) {
-                print("Could not set current OpenGL context with new context")
+                DDLogError("Could not set current OpenGL context with new context")
                 exit(1)
             }
         }
         renderDestination.deleteFrameBuffer()
-        program.delete()
-        inputTexture.deleteTextureCache()
-        outputTexture.deleteTextureCache()
-        outputTexture.deleteBufferPool()
+        program?.delete()
+        inputTexture?.deleteTextureCache()
+        outputTexture?.deleteTextureCache()
+        outputTexture?.deleteBufferPool()
         outputFormatDescription = nil
         if oldContext != context {
             if !EAGLContext.setCurrent(oldContext) {
-                print("Could not set current OpenGL context with old context")
+                DDLogError("Could not set current OpenGL context with old context")
                 exit(1)
             }
         }

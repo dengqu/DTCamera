@@ -9,8 +9,9 @@
 import UIKit
 import AVFoundation
 import CoreMedia
+import CocoaLumberjack
 
-protocol AssetRecorderDelegate: NSObjectProtocol {
+protocol AssetRecorderDelegate: class {
     func assetRecorderDidFinishPreparing(_ recorder: AssetRecorder)
     func assetRecorder(_ recorder: AssetRecorder, didFailWithError error: Error?)
     func assetRecorderDidFinishRecording(_ recorder: AssetRecorder)
@@ -90,11 +91,13 @@ class AssetRecorder {
     
     func addVideoTrack(with formatDescription: CMFormatDescription, settings videoSettings: [String : Any]) {
         if status != .idle {
-            fatalError("Cannot add tracks while not idle")
+            DDLogError("Cannot add tracks while not idle")
+            exit(1)
         }
         
         if videoTrackSourceFormatDescription != nil {
-            fatalError("Cannot add more than one video track")
+            DDLogError("Cannot add more than one video track")
+            exit(1)
         }
         
         videoTrackSourceFormatDescription = formatDescription
@@ -103,11 +106,13 @@ class AssetRecorder {
     
     func addAudioTrack(with formatDescription: CMFormatDescription, settings audioSettings: [String : Any]) {
         if status != .idle {
-            fatalError("Cannot add tracks while not idle")
+            DDLogError("Cannot add tracks while not idle")
+            exit(1)
         }
         
         if audioTrackSourceFormatDescription != nil {
-            fatalError("Cannot add more than one audio track")
+            DDLogError("Cannot add more than one audio track")
+            exit(1)
         }
         
         audioTrackSourceFormatDescription = formatDescription
@@ -116,7 +121,8 @@ class AssetRecorder {
     
     func prepareToRecord() {
         if status != .idle {
-            fatalError("Already prepared, cannot prepare again")
+            DDLogError("Already prepared, cannot prepare again")
+            exit(1)
         }
         
         transitionToStatus(.preparingToRecord, error: nil)
@@ -127,7 +133,7 @@ class AssetRecorder {
             var error: Error? = nil
             
             do {
-                self.assetWriter = try AVAssetWriter(outputURL: self.url, fileType: .mov)
+                self.assetWriter = try AVAssetWriter(outputURL: self.url, fileType: .mp4)
                 
                 // Create and add inputs
                 self.setupAssetWriterVideoInput()
@@ -155,7 +161,8 @@ class AssetRecorder {
     
     func appendVideoPixelBuffer(_ pixelBuffer: CVPixelBuffer, withPresentationTime presentationTime: CMTime) {
         guard let formatDescription = videoTrackSourceFormatDescription else {
-            fatalError("Cannot append video pixel buffer")
+            DDLogError("Cannot append video pixel buffer")
+            exit(1)
         }
 
         var sampleBuffer: CMSampleBuffer?
@@ -177,7 +184,8 @@ class AssetRecorder {
         if let sampleBuffer = sampleBuffer {
             self.appendSampleBuffer(sampleBuffer, ofMediaType: .video)
         } else {
-            fatalError("sample buffer create failed (\(resultCode))")
+            DDLogError("sample buffer create failed (\(resultCode))")
+            exit(1)
         }
     }
 
@@ -193,11 +201,12 @@ class AssetRecorder {
              .finishingRecordingPart1,
              .finishingRecordingPart2,
              .finished:
-            fatalError("Not recording")
+            DDLogError("Not recording")
+            exit(1)
         case .failed:
             // From the client's perspective the movie recorder can asynchronously transition to an error state as the result of an append.
             // Because of this we are lenient when finishRecording is called and we are in an error state.
-            print("Recording has failed, nothing to do")
+            DDLogWarn("Recording has failed, nothing to do")
         case .recording:
             shouldFinishRecording = true
         }
@@ -232,13 +241,14 @@ class AssetRecorder {
     private func setupAssetWriterVideoInput() {
         guard let formatDescription = videoTrackSourceFormatDescription,
             let assetWriter = assetWriter else {
-                fatalError("Cannot setup asset writer`s video input")
+                DDLogError("Cannot setup asset writer`s video input")
+                exit(1)
         }
         
         let dimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
         var videoSettings = videoTrackSettings
         if videoSettings.isEmpty {
-            print("No video settings provided, using default settings")
+            DDLogWarn("No video settings provided, using default settings")
 
             var bitsPerPixel: Float
             let numPixels = dimensions.width * dimensions.height
@@ -273,22 +283,25 @@ class AssetRecorder {
             if assetWriter.canAdd(videoInput) {
                 assetWriter.add(videoInput)
             } else {
-                fatalError("Cannot add video input to asset writer")
+                DDLogError("Cannot add video input to asset writer")
+                exit(1)
             }
         } else {
-            fatalError("Cannot apply video settings to asset writer")
+            DDLogError("Cannot apply video settings to asset writer")
+            exit(1)
         }
     }
     
     private func setupAssetWriterAudioInput() {
         guard let formatDescription = audioTrackSourceFormatDescription,
             let assetWriter = assetWriter else {
-                fatalError("Cannot setup asset writer`s audio input")
+                DDLogError("Cannot setup asset writer`s audio input")
+                exit(1)
         }
 
         var audioSettings = audioTrackSettings
         if audioSettings.isEmpty {
-            print("No audio settings provided, using default settings")
+            DDLogWarn("No audio settings provided, using default settings")
             audioSettings = [AVFormatIDKey : kAudioFormatMPEG4AAC]
         }
         
@@ -299,16 +312,19 @@ class AssetRecorder {
             if assetWriter.canAdd(audioInput) {
                 assetWriter.add(audioInput)
             } else {
-                fatalError("Cannot add audio input to asset writer")
+                DDLogError("Cannot add audio input to asset writer")
+                exit(1)
             }
         } else {
-            fatalError("Cannot apply audio settings to asset writer")
+            DDLogError("Cannot apply audio settings to asset writer")
+            exit(1)
         }
     }
     
     private func appendSampleBuffer(_ sampleBuffer: CMSampleBuffer, ofMediaType mediaType: AVMediaType) {
         if status.rawValue < RecorderStatus.recording.rawValue {
-            fatalError("Not ready to record yet")
+            DDLogError("Not ready to record yet")
+            exit(1)
         }
 
         writingQueue.async { [weak self] in
@@ -335,7 +351,7 @@ class AssetRecorder {
                         self.transitionToStatus(.failed, error: error)
                     }
                 } else {
-                    print("\(mediaType) input not ready for more media data, dropping buffer")
+                    DDLogWarn("\(mediaType) input not ready for more media data, dropping buffer")
                 }
             }
         }
@@ -343,7 +359,7 @@ class AssetRecorder {
 
     private func transitionToStatus(_ status: RecorderStatus, error: Error?) {
         if let error = error {
-            print("state transition from \(self.status.description) to \(status.description) with error: \(error)")
+            DDLogWarn("state transition from \(self.status.description) to \(status.description) with error: \(error)")
         }
 
         var shouldNotifyDelegate = false
@@ -373,7 +389,8 @@ class AssetRecorder {
                 case .failed:
                     self.delegate?.assetRecorder(self, didFailWithError: error)
                 default:
-                    fatalError("Unexpected recording status (\(status)) for delegate callback")
+                    DDLogError("Unexpected recording status (\(status)) for delegate callback")
+                    exit(1)
                 }
             }
         }

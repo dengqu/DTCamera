@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CocoaLumberjack
 
 class PixelBufferTexture {
     
@@ -49,7 +50,7 @@ class PixelBufferTexture {
                                                                       0,
                                                                       &texture)
         if resultCode != kCVReturnSuccess {
-            print("Could not create texture from image \(resultCode)")
+            DDLogError("Could not create texture from image \(resultCode)")
             exit(1)
         }
     }
@@ -86,9 +87,9 @@ class PixelBufferTexture {
         }
         if resultCode != kCVReturnSuccess {
             if resultCode == kCVReturnWouldExceedAllocationThreshold {
-                print("Pool is out of buffers, dropping frame \(resultCode)")
+                DDLogError("Pool is out of buffers, dropping frame \(resultCode)")
             } else {
-                print("Could not create pixel buffer in pool \(resultCode)")
+                DDLogError("Could not create pixel buffer in pool \(resultCode)")
             }
             exit(1)
         }
@@ -98,7 +99,7 @@ class PixelBufferTexture {
     func createTextureCache(in context: EAGLContext) {
         let resultCode = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, nil, context, nil, &textureCache)
         if resultCode != kCVReturnSuccess {
-            print("Could not create texture cache \(resultCode)")
+            DDLogError("Could not create texture cache \(resultCode)")
             exit(1)
         }
     }
@@ -119,7 +120,7 @@ class PixelBufferTexture {
                                                  pixelBufferOptions,
                                                  &bufferPool)
         if resultCode != kCVReturnSuccess {
-            print("Could not create pixel buffer pool \(resultCode)")
+            DDLogError("Could not create pixel buffer pool \(resultCode)")
             exit(1)
         }
         bufferPoolAuxAttributes = [kCVPixelBufferPoolAllocationThresholdKey: retainedBufferCountHint]

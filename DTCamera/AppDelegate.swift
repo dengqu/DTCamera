@@ -8,6 +8,8 @@
 
 import UIKit
 import AVFoundation
+import CocoaLumberjack
+import DoraemonKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,6 +26,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         MediaViewController.theme = MediaCustomTheme()
+        
+        DDLog.add(DDTTYLogger.sharedInstance)
+
+        let fileLogger = DDFileLogger() // File Logger
+        fileLogger.rollingFrequency = 60 * 60 * 24 // 24 hours
+        fileLogger.logFileManager.maximumNumberOfLogFiles = 7
+        DDLog.add(fileLogger)
+        
+        DoraemonManager.shareInstance().install()
 
         return true
     }

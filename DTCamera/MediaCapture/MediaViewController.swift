@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CocoaLumberjack
 
 protocol MediaTheme {
     var themeColor: UIColor { get }
@@ -52,15 +53,15 @@ enum CameraRatioMode {
     case r1to1
     case r3to4
     case r9to16
-    
-    var icon: UIImage {
+        
+    var title: String {
         switch self {
         case .r1to1:
-            return #imageLiteral(resourceName: "ratio_1_1")
+            return " 1:1 "
         case .r3to4:
-            return #imageLiteral(resourceName: "ratio_3_4")
+            return " 3:4 "
         case .r9to16:
-            return #imageLiteral(resourceName: "ratio_9_16")
+            return " 9:16 "
         }
     }
     
@@ -79,6 +80,15 @@ enum CameraRatioMode {
 enum CameraPositionMode {
     case front
     case back
+    
+    var title: String {
+        switch self {
+        case .front:
+            return "前置"
+        case .back:
+            return "后置"
+        }
+    }
 }
 
 struct MediaConfig {
@@ -111,6 +121,12 @@ class MediaMode {
         self.type = type
         self.config = config
     }
+}
+
+enum SessionSetupResult {
+    case success
+    case notAuthorized
+    case configurationFailed
 }
 
 protocol MediaViewControllerDelegate: class {
@@ -153,8 +169,9 @@ class MediaViewController: UIViewController {
     let mode: MediaMode
 
     private let photoLibraryVC: PhotoLibraryViewController
-    private let cameraVC: CameraViewController
-    
+    private let captureVC: CaptureViewController
+    private let recordingVC: RecordingViewController
+
     private let sources: [MediaSource]
     private let buttons: [MediaSource: UIButton]
     private let indicator = UIView()
@@ -179,8 +196,9 @@ class MediaViewController: UIViewController {
         }
 
         self.photoLibraryVC = PhotoLibraryViewController(mode: mode)
-        self.cameraVC = CameraViewController(mode: mode)
-        
+        self.captureVC = CaptureViewController(mode: mode)
+        self.recordingVC = RecordingViewController(mode: mode)
+
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -259,37 +277,40 @@ class MediaViewController: UIViewController {
             button.isUserInteractionEnabled = false
         }
         
-        var transitionContext: MediaSwitchTransitionContext?
-        if newSource == .library {
-            cameraVC.willMove(toParent: nil)
-            addChild(photoLibraryVC)
-            transitionContext = MediaSwitchTransitionContext(fromVC: cameraVC,
-                                                             toVC: photoLibraryVC,
-                                                             goRight: true)
-        } else if oldSource == .library {
-            cameraVC.source = newSource
-            photoLibraryVC.willMove(toParent: nil)
-            addChild(cameraVC)
-            transitionContext = MediaSwitchTransitionContext(fromVC: photoLibraryVC,
-                                                             toVC: cameraVC,
-                                                             goRight: false)
+        var fromVC: UIViewController
+        switch oldSource {
+        case .library:
+            fromVC = photoLibraryVC
+        case .capture:
+            fromVC = captureVC
+        case .recording:
+            fromVC = recordingVC
         }
-        if let transitionContext = transitionContext {
-            transitionContext.completionBlock = { [weak self] _ in
-                guard let self = self else { return }
-                if newSource == .library {
-                    self.cameraVC.removeFromParent()
-                    self.photoLibraryVC.didMove(toParent: self)
-                } else if oldSource == .library {
-                    self.photoLibraryVC.removeFromParent()
-                    self.cameraVC.didMove(toParent: self)
-                }
-            }
-            let animator = MediaSwitchAnimator()
-            animator.animateTransition(using: transitionContext)
-        } else {
-            cameraVC.source = newSource
+        var goRight = false
+        var toVC: UIViewController
+        switch newSource {
+        case .library:
+            toVC = photoLibraryVC
+            goRight = true
+        case .capture:
+            toVC = captureVC
+            goRight = oldSource == .recording
+        case .recording:
+            toVC = recordingVC
         }
+
+        fromVC.willMove(toParent: nil)
+        addChild(toVC)
+        let transitionContext = MediaSwitchTransitionContext(fromVC: fromVC,
+                                                             toVC: toVC,
+                                                             goRight: goRight)
+        transitionContext.completionBlock = { [weak self] _ in
+            guard let self = self else { return }
+            fromVC.removeFromParent()
+            toVC.didMove(toParent: self)
+        }
+        let animator = MediaSwitchAnimator()
+        animator.animateTransition(using: transitionContext)
         
         if let newIndex = sources.firstIndex(of: newSource) {
             for (index, source) in sources.enumerated() {
@@ -310,10 +331,13 @@ class MediaViewController: UIViewController {
     }
 
     private func setupContentControllers() {
-        if mode.source == .library {
+        switch mode.source {
+        case .library:
             displayContentController(photoLibraryVC)
-        } else {
-            displayContentController(cameraVC)
+        case .capture:
+            displayContentController(captureVC)
+        case .recording:
+            displayContentController(recordingVC)
         }
     }
     
@@ -338,7 +362,7 @@ class MediaSwitchAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             let toVC = transitionContext.viewController(forKey: .to),
             let fromView = fromVC.view,
             let toView = toVC.view else {
-                print("!!! Error: media switch animation is not allowed !!!")
+                DDLogWarn("!!! Error: media switch animation is not allowed !!!")
                 return
         }
         

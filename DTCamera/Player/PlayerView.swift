@@ -58,7 +58,10 @@ class PlayerView: UIView {
                     isEnded = false
                 }
                 player?.play()
-                controlButton.setImage(#imageLiteral(resourceName: "pause"), for: .normal)
+                let controlButtonTitle = NSAttributedString(string: "暂停",
+                                                            attributes: [.font: UIFont.systemFont(ofSize: 48),
+                                                                         .foregroundColor: UIColor.white])
+                controlButton.setAttributedTitle(controlButtonTitle, for: .normal)
                 hideControlButtonLater()
                 if style == .inline {
                     sliderView.isHidden = false
@@ -68,7 +71,10 @@ class PlayerView: UIView {
                 }
             } else {
                 player?.pause()
-                controlButton.setImage(#imageLiteral(resourceName: "play"), for: .normal)
+                let controlButtonTitle = NSAttributedString(string: "播放",
+                                                            attributes: [.font: UIFont.systemFont(ofSize: 48),
+                                                                         .foregroundColor: UIColor.white])
+                controlButton.setAttributedTitle(controlButtonTitle, for: .normal)
                 cancelHideControlButton()
             }
         }
@@ -124,7 +130,10 @@ class PlayerView: UIView {
         }
         
         controlButton = UIButton()
-        controlButton.setImage(#imageLiteral(resourceName: "play"), for: .normal)
+        let controlButtonTitle = NSAttributedString(string: "播放",
+                                                    attributes: [.font: UIFont.systemFont(ofSize: 48),
+                                                                 .foregroundColor: UIColor.white])
+        controlButton.setAttributedTitle(controlButtonTitle, for: .normal)
         controlButton.addTarget(self, action: #selector(onControl), for: .touchUpInside)
         addSubview(controlButton)
         controlButton.snp.makeConstraints { make in
@@ -154,7 +163,10 @@ class PlayerView: UIView {
             setupSlider()
             
             dismissButton = UIButton()
-            dismissButton.setImage(#imageLiteral(resourceName: "back_circle"), for: .normal)
+            let dismissButtonTitle = NSAttributedString(string: "关闭",
+                                                        attributes: [.font: UIFont.systemFont(ofSize: 16),
+                                                                     .foregroundColor: UIColor.white])
+            dismissButton.setAttributedTitle(dismissButtonTitle, for: .normal)
             dismissButton.addTarget(self, action: #selector(onExit), for: .touchUpInside)
             addSubview(dismissButton)
             dismissButton.snp.makeConstraints { make in
@@ -175,15 +187,21 @@ class PlayerView: UIView {
             switchScreenButton = UIButton()
             if style == .inline {
                 switchScreenButton.addTarget(self, action: #selector(onFullScreen), for: .touchUpInside)
-                switchScreenButton.setImage(#imageLiteral(resourceName: "fullscreen"), for: .normal)
+                let switchScreenButtonTitle = NSAttributedString(string: "全屏",
+                                                            attributes: [.font: UIFont.systemFont(ofSize: 16),
+                                                                         .foregroundColor: UIColor.white])
+                switchScreenButton.setAttributedTitle(switchScreenButtonTitle, for: .normal)
             } else {
                 switchScreenButton.addTarget(self, action: #selector(onExit), for: .touchUpInside)
-                switchScreenButton.setImage(#imageLiteral(resourceName: "nofullscreen"), for: .normal)
+                let switchScreenButtonTitle = NSAttributedString(string: "缩小",
+                                                            attributes: [.font: UIFont.systemFont(ofSize: 16),
+                                                                         .foregroundColor: UIColor.white])
+                switchScreenButton.setAttributedTitle(switchScreenButtonTitle, for: .normal)
             }
             sliderView.addSubview(switchScreenButton)
             switchScreenButton.snp.makeConstraints { make in
                 make.top.bottom.equalToSuperview()
-                make.width.equalTo(18 + 6 + 6)
+                make.width.equalTo(32 + 6 + 6)
                 make.left.equalTo(totalTimeLabel.snp.right).offset(2)
                 make.right.equalToSuperview().offset(-10)
             }
@@ -213,8 +231,6 @@ class PlayerView: UIView {
     private func setupProgressView() {
         progressView = UIProgressView(progressViewStyle: .default)
         progressView.progress = 0
-        progressView.progressImage = #imageLiteral(resourceName: "progressImage")
-        progressView.trackImage = #imageLiteral(resourceName: "trackImage")
         sliderView.addSubview(progressView)
         progressView.snp.makeConstraints { make in
             make.left.equalTo(currentTimeLabel.snp.right).offset(2)
@@ -226,9 +242,6 @@ class PlayerView: UIView {
     private func setupSlider() {
         slider = UISlider()
         slider.minimumValue = 0
-        slider.setThumbImage(#imageLiteral(resourceName: "currentThumb"), for: .normal)
-        slider.setMinimumTrackImage(#imageLiteral(resourceName: "currentMaximumTrack"), for: .normal)
-        slider.setMaximumTrackImage(#imageLiteral(resourceName: "currentMinimumTrack"), for: .normal)
         
         slider.isContinuous = false
         // slider开始滑动事件
@@ -323,7 +336,7 @@ class PlayerView: UIView {
             }
         } else {
             indicatorView.stopAnimating()
-            DTMessageBar.error(message: "视频无法播放")
+            DTMessageBar.error(message: "视频无法播放", position: .bottom)
         }
     }
     

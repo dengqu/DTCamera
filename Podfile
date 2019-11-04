@@ -7,10 +7,13 @@ target 'DTCamera' do
 
   # Pods for DTCamera
   pod "DTMessageBar"
-	pod "DTMessageHUD"
+  pod "DTMessageHUD"
   pod 'DeviceKit'
   pod 'SnapKit'
   pod 'RxSwift'
   pod 'RxCocoa'
-	pod 'Action'
+  pod 'Action'
+  pod 'CocoaLumberjack/Swift'
+  pod 'DoraemonKit/Core', :configurations => ['Debug']
+  pod 'DoraemonKit/WithLogger', :configurations => ['Debug']
 end

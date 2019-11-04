@@ -8,6 +8,7 @@
 
 import UIKit
 import GLKit
+import CocoaLumberjack
 
 class OpenGLPreviewView: UIView {
     
@@ -67,17 +68,17 @@ class OpenGLPreviewView: UIView {
                                         kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8]
 
         guard let context = EAGLContext(api: .openGLES2) else {
-            print("Could not initialize OpenGL context")
+            DDLogError("Could not initialize OpenGL context")
             exit(1)
         }
         self.context = context
     }
     
-    func display(pixelBuffer: CVPixelBuffer, ratioMode: CameraRatioMode) {
+    func display(pixelBuffer: CVPixelBuffer) {
         let oldContext = EAGLContext.current()
         if context != oldContext {
             if !EAGLContext.setCurrent(context) {
-                print("Could not set current OpenGL context with new context")
+                DDLogError("Could not set current OpenGL context with new context")
                 exit(1)
             }
         }
@@ -85,8 +86,10 @@ class OpenGLPreviewView: UIView {
         inputWidth = CVPixelBufferGetWidth(pixelBuffer)
         inputHeight = CVPixelBufferGetHeight(pixelBuffer)
 
-        if renderDestination == nil {
+        if inputTexture == nil {
             setupInput()
+        }
+        if renderDestination == nil {
             compileShaders()
             setupOutput()
         }
@@ -122,10 +125,15 @@ class OpenGLPreviewView: UIView {
         
         if oldContext != context {
             if !EAGLContext.setCurrent(oldContext) {
-                print("Could not set current OpenGL context with old context")
+                DDLogError("Could not set current OpenGL context with old context")
                 exit(1)
             }
         }
+    }
+    
+    func resetInputAndOutputDimensions() {
+        inputTexture = nil
+        setOutputDimensions()
     }
     
     private func setupInput() {
@@ -136,7 +144,7 @@ class OpenGLPreviewView: UIView {
     }
     
     private func compileShaders() {
-        program = ShaderProgram(vertexShaderName: "PreviewVertex", fragmentShaderName: "PreviewFragment")
+        program = ShaderProgram(vertexShaderName: "DirectPassVertex", fragmentShaderName: "DirectPassFragment")
         positionSlot = program.attributeLocation(for: "a_position")
         texturePositionSlot = program.attributeLocation(for: "a_texcoord")
         textureUniform = program.uniformLocation(for: "u_texture")
@@ -146,32 +154,37 @@ class OpenGLPreviewView: UIView {
         guard let context = context, let eaglLayer = eaglLayer else { return }
         renderDestination = RenderDestination()
         renderDestination.createRenderBuffer(context: context, drawable: eaglLayer)
+        renderDestination.createFrameBuffer()
+        setOutputDimensions()
+        renderDestination.attachRenderBuffer()
+        renderDestination.checkFramebufferStatus()
+    }
+    
+    private func setOutputDimensions() {
         var width = GLint()
         var height = GLint()
         glGetRenderbufferParameteriv(GLenum(GL_RENDERBUFFER), GLenum(GL_RENDERBUFFER_WIDTH), &width)
         glGetRenderbufferParameteriv(GLenum(GL_RENDERBUFFER), GLenum(GL_RENDERBUFFER_HEIGHT), &height)
         outputWidth = Int(width)
         outputHeight = Int(height)
-        renderDestination.createFrameBuffer(width: outputWidth, height: outputHeight)
-        renderDestination.attachRenderBuffer()
-        renderDestination.checkFramebufferStatus()
+        renderDestination.setViewport(width: outputWidth, height: outputHeight)
     }
     
     private func reset() {
         let oldContext = EAGLContext.current()
         if context != oldContext {
             if !EAGLContext.setCurrent(context) {
-                print("Could not set current OpenGL context with new context")
+                DDLogError("Could not set current OpenGL context with new context")
                 exit(1)
             }
         }
-        renderDestination.deleteFrameBuffer()
-        renderDestination.deleteRenderBuffer()
-        program.delete()
-        inputTexture.deleteTextureCache()
+        renderDestination?.deleteFrameBuffer()
+        renderDestination?.deleteRenderBuffer()
+        program?.delete()
+        inputTexture?.deleteTextureCache()
         if oldContext != context {
             if !EAGLContext.setCurrent(oldContext) {
-                print("Could not set current OpenGL context with old context")
+                DDLogError("Could not set current OpenGL context with old context")
                 exit(1)
             }
         }
