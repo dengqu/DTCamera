@@ -56,6 +56,7 @@
 		40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */; };
 		40FA3FFF2369949600738C47 /* CapturePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFE2369949600738C47 /* CapturePipeline.swift */; };
 		40FA40012369983200738C47 /* RecordingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA40002369983200738C47 /* RecordingViewController.swift */; };
+		40FE69DA2372609000F1D266 /* VideoEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FE69D92372609000F1D266 /* VideoEncoder.swift */; };
 		C7A58C901B767F15132A7E7B /* Pods_DTCamera.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB99C3FD79603ADA08F2CFE0 /* Pods_DTCamera.framework */; };
 /* End PBXBuildFile section */
 
@@ -113,6 +114,7 @@
 		40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPipeline.swift; sourceTree = "<group>"; };
 		40FA3FFE2369949600738C47 /* CapturePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipeline.swift; sourceTree = "<group>"; };
 		40FA40002369983200738C47 /* RecordingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewController.swift; sourceTree = "<group>"; };
+		40FE69D92372609000F1D266 /* VideoEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEncoder.swift; sourceTree = "<group>"; };
 		9F7939B0D43155A1A4F41401 /* Pods-DTCamera.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DTCamera.release.xcconfig"; path = "Target Support Files/Pods-DTCamera/Pods-DTCamera.release.xcconfig"; sourceTree = "<group>"; };
 		D655EE740C51E94A97861F37 /* Pods-DTCamera.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DTCamera.debug.xcconfig"; path = "Target Support Files/Pods-DTCamera/Pods-DTCamera.debug.xcconfig"; sourceTree = "<group>"; };
 		FB99C3FD79603ADA08F2CFE0 /* Pods_DTCamera.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DTCamera.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -177,6 +179,7 @@
 		407843BD233DA933007B0CFE /* Encode */ = {
 			isa = PBXGroup;
 			children = (
+				40FE69D92372609000F1D266 /* VideoEncoder.swift */,
 			);
 			path = Encode;
 			sourceTree = "<group>";
@@ -529,6 +532,7 @@
 				40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */,
 				40E1B2AB232F2B2400A67F11 /* PhotoEditorViewController.swift in Sources */,
 				407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */,
+				40FE69DA2372609000F1D266 /* VideoEncoder.swift in Sources */,
 				40E1B2BA232F2B2400A67F11 /* CaptureViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

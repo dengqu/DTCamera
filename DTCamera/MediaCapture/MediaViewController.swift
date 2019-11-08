@@ -137,10 +137,10 @@ protocol MediaViewControllerDelegate: class {
 
 class MediaViewController: UIViewController {
     
-    static var videoFile: URL? {
+    static func getVideoFile(needCreate: Bool = false) -> URL? {
         let documentsFolder = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         let dirURL = URL(fileURLWithPath: documentsFolder).appendingPathComponent("DTCameraMedias", isDirectory: true)
-        let fileURL = dirURL.appendingPathComponent("video").appendingPathExtension("mp4")
+        let fileURL = dirURL.appendingPathComponent("video").appendingPathExtension("h264")
         
         do {
             if !FileManager.default.fileExists(atPath: dirURL.path) {
@@ -148,6 +148,9 @@ class MediaViewController: UIViewController {
             }
             if FileManager.default.fileExists(atPath: fileURL.path) {
                 try FileManager.default.removeItem(at: fileURL)
+            }
+            if needCreate, !FileManager.default.createFile(atPath: fileURL.path, contents: nil, attributes: nil) {
+                return nil
             }
         } catch {
             return nil

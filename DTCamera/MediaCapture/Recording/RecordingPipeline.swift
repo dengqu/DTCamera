@@ -37,18 +37,11 @@ class RecordingPipeline: NSObject {
     private let videoDataOutputQueue = DispatchQueue(label: "recording video data output queue", attributes: [], target: nil)
     private let videoDataOutput = AVCaptureVideoDataOutput()
     private var videoConnection: AVCaptureConnection?
-    private var audioDeviceInput: AVCaptureDeviceInput?
-    private let audioDataOutputQueue = DispatchQueue(label: "recording audio data output queue", attributes: [], target: nil)
-    private let audioDataOutput = AVCaptureAudioDataOutput()
-    private var audioConnection: AVCaptureConnection?
 
     // Effect
     private var effectFilter: EffectFilter!
     private let retainedBufferCountHint = 6
     private var videoFormatDescription: CMFormatDescription?
-    private var audioFormatDescription: CMFormatDescription?
-    private var videoCompressionSettings: [String : Any] = [:]
-    private var audioCompressionSettings: [String : Any] = [:]
     
     // Preview
     private let previewPixelBufferQueue = DispatchQueue(label: "recording preview pixel buffer queue", attributes: [.concurrent], target: nil)
@@ -87,9 +80,11 @@ class RecordingPipeline: NSObject {
             }
         }
     }
-    private var recorder: AssetRecorder?
+    private var videoEncoder: VideoEncoder?
     private var videoFile: URL?
     private var backgroundRecordingID: UIBackgroundTaskIdentifier?
+    private var fileHandle: FileHandle?
+    private let NALUHeader: [UInt8] = [0, 0, 0, 1]
 
     // Miscellaneous
     private var previousSecondTimestamps: [CMTime] = []
@@ -187,17 +182,21 @@ class RecordingPipeline: NSObject {
             exit(1)
         }
 
-        let videoFile = MediaViewController.videoFile
+        let videoFile = MediaViewController.getVideoFile(needCreate: true)
         if let videoFile = videoFile,
-            let videoFormatDescription = videoFormatDescription,
-            let audioFormatDescription = audioFormatDescription {
-            let recorder = AssetRecorder(url: videoFile, delegate: self, callbackQueue: .main)
-            recorder.addVideoTrack(with: videoFormatDescription, settings: videoCompressionSettings)
-            recorder.addAudioTrack(with: audioFormatDescription, settings: audioCompressionSettings)
-            self.recorder = recorder
+            let fileHandle = FileHandle(forWritingAtPath: videoFile.path),
+            let videoFormatDescription = videoFormatDescription {
+            let dimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
+            videoEncoder = VideoEncoder(width: Int(dimensions.width),
+                                        height: Int(dimensions.height),
+                                        fps: mode.config.recordingFrameRate,
+                                        maxBitRate: mode.config.recordingBitRate,
+                                        avgBitRate: mode.config.recordingBitRate)
+            videoEncoder?.delegate = self
             self.videoFile = videoFile
-            recorder.prepareToRecord()
-            recordingStatus = .startingRecording
+            self.fileHandle = fileHandle
+            recordingStatus = .recording
+            delegate?.recordingPipelineRecorderDidFinishPreparing(self)
             if UIDevice.current.isMultitaskingSupported {
                 backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: {
                     DDLogError("video capture pipeline background task expired")
@@ -208,22 +207,23 @@ class RecordingPipeline: NSObject {
             if videoFile == nil {
                 DDLogError("videoFile is nil")
             }
+            if fileHandle == nil {
+                DDLogError("fileHandle is nil")
+            }
             if videoFormatDescription == nil {
                 DDLogError("videoFormatDescription is nil")
-            }
-            if audioFormatDescription == nil {
-                DDLogError("audioFormatDescription is nil")
             }
         }
     }
     
     func stopRecording() {
         recordingStatus = .stoppingRecording
-        recorder?.finishRecording()
+        videoEncoder?.stopEncode()
     }
 
     private func cleanupRecording() {
-        recorder = nil
+        videoEncoder = nil
+        fileHandle = nil
         recordingStatus = .idle
         if let currentBackgroundRecordingID = backgroundRecordingID {
             backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
@@ -322,42 +322,13 @@ class RecordingPipeline: NSObject {
             session.commitConfiguration()
             return
         }
-        
-        guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-            DDLogError("Could not find audio device")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
-            return
-        }
-        do {
-            if let audioDeviceInput = audioDeviceInput {
-                session.removeInput(audioDeviceInput)
-            }
-            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
-            if session.canAddInput(audioDeviceInput) {
-                session.addInput(audioDeviceInput)
-                self.audioDeviceInput = audioDeviceInput
-            } else {
-                DDLogError("Could not add audio device input to the session")
-                setupResult = .configurationFailed
-                session.commitConfiguration()
-                return
-            }
-        } catch {
-            DDLogError("Could not create audio device input: \(error)")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
-            return
-        }
     }
     
     private func configSessionOutput() {
         session.removeOutput(videoDataOutput)
-        session.removeOutput(audioDataOutput)
         videoDataOutput.alwaysDiscardsLateVideoFrames = false
         videoDataOutput.videoSettings = [String(kCVPixelBufferPixelFormatTypeKey): kCVPixelFormatType_32BGRA]
         videoDataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
-        audioDataOutput.setSampleBufferDelegate(self, queue: audioDataOutputQueue)
         if session.canAddOutput(videoDataOutput) {
             session.addOutput(videoDataOutput)
         } else {
@@ -366,16 +337,7 @@ class RecordingPipeline: NSObject {
             session.commitConfiguration()
             return
         }
-        if session.canAddOutput(audioDataOutput) {
-            session.addOutput(audioDataOutput)
-        } else {
-            DDLogError("Could not add audio data output to the session")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
-            return
-        }
         videoConnection = videoDataOutput.connection(with: .video)
-        audioConnection = audioDataOutput.connection(with: .audio)
     }
 
     private func configRecordingFPS(for videoDevice: AVCaptureDevice) {
@@ -396,12 +358,6 @@ class RecordingPipeline: NSObject {
             } catch {
                 DDLogError("Could not config video device frame duration: \(error)")
             }
-        }
-        if let settings = videoDataOutput.recommendedVideoSettingsForAssetWriter(writingTo: .mp4) {
-            videoCompressionSettings = settings
-        }
-        if let settings =  audioDataOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mp4) as? [String: Any] {
-            audioCompressionSettings = settings
         }
     }
     
@@ -427,69 +383,70 @@ class RecordingPipeline: NSObject {
     
 }
 
-extension RecordingPipeline: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+extension RecordingPipeline: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
-        if connection === videoConnection {
-            let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-            calculateFrameRate(at: timestamp)
-            if videoFormatDescription == nil {
-                if let formatDescription = formatDescription {
-                    videoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
-                    effectFilter.prepare(with: ratioMode, positionMode: positionMode,
-                                         formatDescription: formatDescription, retainedBufferCountHint: retainedBufferCountHint)
-                    if let outputFormatDescription = effectFilter.outputFormatDescription {
-                        videoFormatDescription = outputFormatDescription
-                    } else {
-                        videoFormatDescription = formatDescription
-                    }
-                    if let videoFormatDescription = videoFormatDescription {
-                        effectFilterVideoDimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
-                    }
+        let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        calculateFrameRate(at: timestamp)
+        if videoFormatDescription == nil {
+            if let formatDescription = formatDescription {
+                videoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
+                effectFilter.prepare(with: ratioMode, positionMode: positionMode,
+                                     formatDescription: formatDescription, retainedBufferCountHint: retainedBufferCountHint)
+                if let outputFormatDescription = effectFilter.outputFormatDescription {
+                    videoFormatDescription = outputFormatDescription
+                } else {
+                    videoFormatDescription = formatDescription
                 }
-            } else if isRenderingEnabled, let inputPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-                let outputPixelBuffer = effectFilter.filter(pixelBuffer: inputPixelBuffer)
-                previewPixelBuffer = outputPixelBuffer
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self, let previewPixelBuffer = self.previewPixelBuffer else { return }
-                    self.delegate?.recordingPipeline(self, display: previewPixelBuffer)
-                }
-                if recordingStatus == .recording {
-                    recorder?.appendVideoPixelBuffer(outputPixelBuffer, withPresentationTime: timestamp)
+                if let videoFormatDescription = videoFormatDescription {
+                    effectFilterVideoDimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
                 }
             }
-        } else if connection === audioConnection {
-            audioFormatDescription = formatDescription
+        } else if isRenderingEnabled, let inputPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+            let outputPixelBuffer = effectFilter.filter(pixelBuffer: inputPixelBuffer)
+            previewPixelBuffer = outputPixelBuffer
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let previewPixelBuffer = self.previewPixelBuffer else { return }
+                self.delegate?.recordingPipeline(self, display: previewPixelBuffer)
+            }
             if recordingStatus == .recording {
-                recorder?.appendAudioSampleBuffer(sampleBuffer)
+                videoEncoder?.encode(pixelBuffer: outputPixelBuffer)
             }
         }
     }
     
 }
 
-extension RecordingPipeline: AssetRecorderDelegate {
+extension RecordingPipeline: VideoEncoderDelegate {
     
-    func assetRecorderDidFinishPreparing(_ recorder: AssetRecorder) {
-        if recordingStatus != .startingRecording {
-            DDLogError("Expected to be in StartingRecording state")
-            exit(1)
-        }
-        recordingStatus = .recording
-        delegate?.recordingPipelineRecorderDidFinishPreparing(self)
-    }
-    
-    func assetRecorder(_ recorder: AssetRecorder, didFailWithError error: Error?) {
+    func videoEncoderEncodedFailed(_ encoder: VideoEncoder) {
         cleanupRecording()
-        delegate?.recordingPipeline(self, recorderDidFail: error)
+        delegate?.recordingPipeline(self, recorderDidFail: nil)
     }
     
-    func assetRecorderDidFinishRecording(_ recorder: AssetRecorder) {
-        if recordingStatus != .stoppingRecording {
-            DDLogError("Expected to be in StoppingRecording state")
-            exit(1)
-        }
+    func videoEncoderInitFailed(_ encoder: VideoEncoder) {
+        cleanupRecording()
+        delegate?.recordingPipeline(self, recorderDidFail: nil)
+    }
+    
+    func videoEncoder(_ encoder: VideoEncoder, encoded sps: Data, pps: Data) {
+        guard let fileHandle = fileHandle else { return }
+        let headerData = Data(bytes: NALUHeader, count: NALUHeader.count)
+        fileHandle.write(headerData)
+        fileHandle.write(sps)
+        fileHandle.write(headerData)
+        fileHandle.write(pps)
+    }
+    
+    func videoEncoder(_ encoder: VideoEncoder, encoded data: Data, isKeyframe: Bool) {
+        guard let fileHandle = fileHandle else { return }
+        let headerData = Data(bytes: NALUHeader, count: NALUHeader.count)
+        fileHandle.write(headerData)
+        fileHandle.write(data)
+    }
+    
+    func videoEncoderFinished(_ encoder: VideoEncoder) {
         cleanupRecording()
         delegate?.recordingPipeline(self, recorderDidFinish: videoFile!)
     }

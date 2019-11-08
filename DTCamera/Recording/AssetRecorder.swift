@@ -172,7 +172,7 @@ class AssetRecorder {
         timingInfo.decodeTimeStamp = .invalid
         timingInfo.presentationTimeStamp = presentationTime
         
-        let resultCode = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault,
+        let statusCode = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault,
                                                             imageBuffer: pixelBuffer,
                                                             dataReady: true,
                                                             makeDataReadyCallback: nil,
@@ -184,7 +184,7 @@ class AssetRecorder {
         if let sampleBuffer = sampleBuffer {
             self.appendSampleBuffer(sampleBuffer, ofMediaType: .video)
         } else {
-            DDLogError("sample buffer create failed (\(resultCode))")
+            DDLogError("sample buffer create failed (\(statusCode))")
             exit(1)
         }
     }
