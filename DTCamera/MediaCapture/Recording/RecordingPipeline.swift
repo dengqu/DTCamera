@@ -182,7 +182,7 @@ class RecordingPipeline: NSObject {
             exit(1)
         }
 
-        let videoFile = MediaViewController.getVideoFile(needCreate: true)
+        let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "h264", needCreate: true)
         if let videoFile = videoFile,
             let fileHandle = FileHandle(forWritingAtPath: videoFile.path),
             let videoFormatDescription = videoFormatDescription {

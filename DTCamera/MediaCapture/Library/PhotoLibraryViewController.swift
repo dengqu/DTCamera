@@ -655,7 +655,7 @@ extension PhotoLibraryViewController: UICollectionViewDelegate {
             asset.duration >= TimeInterval(mode.config.minDuration),
             asset.duration <= TimeInterval(mode.config.maxDuration) {
             DTMessageHUD.hud()
-            guard let videoFile = MediaViewController.getVideoFile(),
+            guard let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "mp4"),
                 let imageManager = imageManager else {
                     DTMessageHUD.dismiss()
                     DTMessageBar.error(message: "创建视频文件失败", position: .bottom)

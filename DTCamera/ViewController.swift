@@ -12,13 +12,52 @@ import DTMessageBar
 import CocoaLumberjack
 
 class ViewController: UIViewController {
+    
+    private var auGraphPlayer: AUGraphPlayer?
+    private var audioRecorder: AudioRecorder?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playAndRecord)
+            try AVAudioSession.sharedInstance().setPreferredSampleRate(44100.0)
+            try AVAudioSession.sharedInstance().setActive(true, options: [])
+        } catch {
+            DDLogError("Could not config audio session: \(error)")
+        }
+    }
 
-    @IBAction func go(_ sender: Any) {
+    @IBAction func openCamera(_ sender: Any) {
         let mode = MediaMode(source: .recording, type: .all, config: MediaConfig())
         let mediaVC = MediaViewController(mode: mode)
         mediaVC.modalPresentationStyle = .fullScreen
         mediaVC.delegate = self
         present(mediaVC, animated: true, completion: nil)
+    }
+    
+    @IBAction func playAUGraph(_ sender: Any) {
+        if let fileURL = Bundle.main.url(forResource: "faded", withExtension: "mp3") {
+            auGraphPlayer = AUGraphPlayer(fileURL: fileURL)
+            auGraphPlayer?.play()
+        }
+    }
+    
+    @IBAction func stopAUGraph(_ sender: Any) {
+        auGraphPlayer?.stop()
+        auGraphPlayer = nil
+    }
+    
+    @IBAction func startPCMRecording(_ sender: Any) {
+        if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf") {
+            audioRecorder = AudioRecorder(fileURL: fileURL)
+            audioRecorder?.startRecording()
+        }
+    }
+    
+    @IBAction func stopPCMRecording(_ sender: Any) {
+        audioRecorder?.stopRecording()
+        audioRecorder = nil
     }
     
 }

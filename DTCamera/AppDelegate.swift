@@ -18,13 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-        if #available(iOS 10.0, *) {
-            do {
-                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
-            } catch {}
-        }
-        
         MediaViewController.theme = MediaCustomTheme()
         
         DDLog.add(DDTTYLogger.sharedInstance)

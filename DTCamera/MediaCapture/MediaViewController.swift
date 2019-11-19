@@ -137,10 +137,10 @@ protocol MediaViewControllerDelegate: class {
 
 class MediaViewController: UIViewController {
     
-    static func getVideoFile(needCreate: Bool = false) -> URL? {
+    static func getMediaFileURL(name: String, ext: String, needCreate: Bool = false) -> URL? {
         let documentsFolder = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         let dirURL = URL(fileURLWithPath: documentsFolder).appendingPathComponent("DTCameraMedias", isDirectory: true)
-        let fileURL = dirURL.appendingPathComponent("video").appendingPathExtension("h264")
+        let fileURL = dirURL.appendingPathComponent(name).appendingPathExtension(ext)
         
         do {
             if !FileManager.default.fileExists(atPath: dirURL.path) {
