@@ -166,7 +166,7 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                                                                                 parameterSetCountOut: &spsCount,
                                                                                 nalUnitHeaderLengthOut: &nalHeaderLength)
             if statusCode == noErr {
-                DDLogInfo("sps: \(String(describing: sps)), spsSize: \(spsSize), spsCount: \(spsCount), NAL header length: \(nalHeaderLength)")
+                DDLogDebug("sps: \(String(describing: sps)), spsSize: \(spsSize), spsCount: \(spsCount), NAL header length: \(nalHeaderLength)")
                 // pps
                 var ppsSize: Int = 0
                 var ppsCount: Int = 0
@@ -178,7 +178,7 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                                                                                 parameterSetCountOut: &ppsCount,
                                                                                 nalUnitHeaderLengthOut: &nalHeaderLength)
                 if statusCode == noErr {
-                    DDLogInfo("pps: \(String(describing: pps)), ppsSize: \(ppsSize), ppsCount: \(ppsCount), NAL header length: \(nalHeaderLength)")
+                    DDLogDebug("pps: \(String(describing: pps)), ppsSize: \(ppsSize), ppsCount: \(ppsCount), NAL header length: \(nalHeaderLength)")
                     let spsData = Data(bytes: sps, count: spsSize)
                     let ppsData = Data(bytes: pps, count: ppsSize)
                     encoder.delegate?.videoEncoder(encoder, encoded: spsData, pps: ppsData)

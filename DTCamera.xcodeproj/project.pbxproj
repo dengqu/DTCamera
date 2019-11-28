@@ -11,12 +11,14 @@
 		403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD123320561007CC795 /* DirectPassVertex.glsl */; };
 		403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* DirectPassFragment.glsl */; };
 		404178982382A92E0078893D /* faded.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 404178972382A92E0078893D /* faded.mp3 */; };
+		4041789A2384DC430078893D /* AudioEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404178992384DC430078893D /* AudioEncoder.swift */; };
 		404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */; };
 		404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */; };
 		404CE300235D8ECC00DBCFB3 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */; };
 		404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */; };
 		404CE307235D8FE900DBCFB3 /* EffectOpenCVFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */; };
 		404CE309235EE1F500DBCFB3 /* AssetRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */; };
+		406516A8238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406516A7238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift */; };
 		406C011523596E5100E01E70 /* PixelBufferTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C011423596E5100E01E70 /* PixelBufferTexture.swift */; };
 		406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C0117235971AA00E01E70 /* RenderDestination.swift */; };
 		407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843B8233DA624007B0CFE /* EffectFilter.swift */; };
@@ -68,6 +70,7 @@
 		403EEFD123320561007CC795 /* DirectPassVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectPassVertex.glsl; sourceTree = "<group>"; };
 		403EEFD223320561007CC795 /* DirectPassFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectPassFragment.glsl; sourceTree = "<group>"; };
 		404178972382A92E0078893D /* faded.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = faded.mp3; sourceTree = "<group>"; };
+		404178992384DC430078893D /* AudioEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEncoder.swift; sourceTree = "<group>"; };
 		404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCPUFilter.swift; sourceTree = "<group>"; };
 		404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCIFilter.swift; sourceTree = "<group>"; };
 		404CE2FF235D8ECC00DBCFB3 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
@@ -76,6 +79,7 @@
 		404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
 		404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectOpenCVFilter.swift; sourceTree = "<group>"; };
 		404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRecorder.swift; sourceTree = "<group>"; };
+		406516A7238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FourCharCode+StringLiteralConvertible.swift"; sourceTree = "<group>"; };
 		406C011423596E5100E01E70 /* PixelBufferTexture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBufferTexture.swift; sourceTree = "<group>"; };
 		406C0117235971AA00E01E70 /* RenderDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderDestination.swift; sourceTree = "<group>"; };
 		407843B8233DA624007B0CFE /* EffectFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectFilter.swift; sourceTree = "<group>"; };
@@ -186,6 +190,7 @@
 			isa = PBXGroup;
 			children = (
 				40FE69D92372609000F1D266 /* VideoEncoder.swift */,
+				404178992384DC430078893D /* AudioEncoder.swift */,
 			);
 			path = Encode;
 			sourceTree = "<group>";
@@ -304,6 +309,7 @@
 		40E1B2C3232F3DE000A67F11 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				406516A7238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift */,
 				40E1B2A5232F2B2400A67F11 /* UIImage+Editor.swift */,
 				40E1B2C4232F3E1E00A67F11 /* UIColor+Extension.swift */,
 				40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */,
@@ -530,6 +536,7 @@
 				404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */,
 				404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */,
 				40F3E687237EABFE00D69336 /* AUGraphPlayer.swift in Sources */,
+				406516A8238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift in Sources */,
 				40E1B2AC232F2B2400A67F11 /* CaptureVideoPreviewView.swift in Sources */,
 				40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */,
 				40E1B2B9232F2B2400A67F11 /* PhotoLibraryViewController.swift in Sources */,
@@ -554,6 +561,7 @@
 				407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */,
 				40FE69DA2372609000F1D266 /* VideoEncoder.swift in Sources */,
 				40E1B2BA232F2B2400A67F11 /* CaptureViewController.swift in Sources */,
+				4041789A2384DC430078893D /* AudioEncoder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

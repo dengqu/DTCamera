@@ -137,7 +137,7 @@ protocol MediaViewControllerDelegate: class {
 
 class MediaViewController: UIViewController {
     
-    static func getMediaFileURL(name: String, ext: String, needCreate: Bool = false) -> URL? {
+    static func getMediaFileURL(name: String, ext: String, needRemove: Bool = true, needCreate: Bool = false) -> URL? {
         let documentsFolder = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         let dirURL = URL(fileURLWithPath: documentsFolder).appendingPathComponent("DTCameraMedias", isDirectory: true)
         let fileURL = dirURL.appendingPathComponent(name).appendingPathExtension(ext)
@@ -146,7 +146,7 @@ class MediaViewController: UIViewController {
             if !FileManager.default.fileExists(atPath: dirURL.path) {
                 try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true, attributes: nil)
             }
-            if FileManager.default.fileExists(atPath: fileURL.path) {
+            if needRemove, FileManager.default.fileExists(atPath: fileURL.path) {
                 try FileManager.default.removeItem(at: fileURL)
             }
             if needCreate, !FileManager.default.createFile(atPath: fileURL.path, contents: nil, attributes: nil) {

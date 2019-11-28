@@ -13,15 +13,20 @@ import CocoaLumberjack
 
 class ViewController: UIViewController {
     
+    private let sampleRate: Int = 44100
+
     private var auGraphPlayer: AUGraphPlayer?
+    
     private var audioRecorder: AudioRecorder?
     
+    private var audioEncoder: AudioEncoder?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         do {
             try AVAudioSession.sharedInstance().setCategory(.playAndRecord)
-            try AVAudioSession.sharedInstance().setPreferredSampleRate(44100.0)
+            try AVAudioSession.sharedInstance().setPreferredSampleRate(Double(sampleRate))
             try AVAudioSession.sharedInstance().setActive(true, options: [])
         } catch {
             DDLogError("Could not config audio session: \(error)")
@@ -35,22 +40,10 @@ class ViewController: UIViewController {
         mediaVC.delegate = self
         present(mediaVC, animated: true, completion: nil)
     }
-    
-    @IBAction func playAUGraph(_ sender: Any) {
-        if let fileURL = Bundle.main.url(forResource: "faded", withExtension: "mp3") {
-            auGraphPlayer = AUGraphPlayer(fileURL: fileURL)
-            auGraphPlayer?.play()
-        }
-    }
-    
-    @IBAction func stopAUGraph(_ sender: Any) {
-        auGraphPlayer?.stop()
-        auGraphPlayer = nil
-    }
-    
+        
     @IBAction func startPCMRecording(_ sender: Any) {
         if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf") {
-            audioRecorder = AudioRecorder(fileURL: fileURL)
+            audioRecorder = AudioRecorder(fileURL: fileURL, sampleRate: sampleRate)
             audioRecorder?.startRecording()
         }
     }
@@ -58,6 +51,29 @@ class ViewController: UIViewController {
     @IBAction func stopPCMRecording(_ sender: Any) {
         audioRecorder?.stopRecording()
         audioRecorder = nil
+    }
+    
+    @IBAction func convertPCMtoAAC(_ sender: Any) {
+        guard let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false),
+            let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needCreate: true) else {
+                return
+        }
+        audioEncoder = AudioEncoder(sampleRate: sampleRate, inputFileURL: pcmFileURL, outputFileURL: aacFileURL)
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            self?.audioEncoder?.startEncode()
+        }
+    }
+    
+    @IBAction func playAAC(_ sender: Any) {
+        if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false) {
+            auGraphPlayer = AUGraphPlayer(fileURL: fileURL)
+            auGraphPlayer?.play()
+        }
+    }
+    
+    @IBAction func stopAAC(_ sender: Any) {
+        auGraphPlayer?.stop()
+        auGraphPlayer = nil
     }
     
 }

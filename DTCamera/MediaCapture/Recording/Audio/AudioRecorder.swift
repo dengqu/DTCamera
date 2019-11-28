@@ -13,7 +13,9 @@ import CocoaLumberjack
 class AudioRecorder {
 
     let fileURL: URL
-    var finalAudioFile: ExtAudioFileRef!
+    let sampleRate: Int
+
+    var audioFile: ExtAudioFileRef!
     
     var auGraph: AUGraph!
     var ioNode = AUNode()
@@ -25,18 +27,20 @@ class AudioRecorder {
     var mixerNode = AUNode()
     var mixerUnit: AudioUnit!
 
-    init(fileURL: URL) {
+    init(fileURL: URL, sampleRate: Int) {
         self.fileURL = fileURL
+        self.sampleRate = sampleRate
         createAudioUnitGraph()
     }
     
     func startRecording() {
-        prepareFinalWriteFile()
+        prepareAudioFile()
         let statusCode = AUGraphStart(auGraph)
         if statusCode != noErr {
             DDLogError("Could not start AUGraph \(statusCode)")
             exit(1)
         }
+        DDLogDebug("start audio recording")
     }
     
     func stopRecording() {
@@ -45,9 +49,10 @@ class AudioRecorder {
             DDLogError("Could not stop AUGraph \(statusCode)")
             exit(1)
         }
-        if let finalAudioFile = finalAudioFile {
-            ExtAudioFileDispose(finalAudioFile)
+        if let audioFile = audioFile {
+            ExtAudioFileDispose(audioFile)
         }
+        DDLogDebug("stops audio recording")
     }
 
     private func createAudioUnitGraph() {
@@ -66,8 +71,8 @@ class AudioRecorder {
         }
         
         getUnitsFromNodes()
-        setAudioUnitProperties()
-        makeNodeConnections()
+        setAudioUnitsProperties()
+        makeNodesConnection()
         
         statusCode = AUGraphInitialize(auGraph)
         if statusCode != noErr {
@@ -129,7 +134,7 @@ class AudioRecorder {
         }
     }
     
-    private func setAudioUnitProperties() {
+    private func setAudioUnitsProperties() {
         var enableIO: UInt32 = 1
         var statusCode = AudioUnitSetProperty(ioUnit,
                                               kAudioOutputUnitProperty_EnableIO,
@@ -142,19 +147,18 @@ class AudioRecorder {
             exit(1)
         }
 
-        let bytesPerSample = UInt32(MemoryLayout<AudioUnitSampleType>.size)
-
+        let bytesPerSample: UInt32 = 2
         var stereoStreamFormat = AudioStreamBasicDescription()
         bzero(&stereoStreamFormat, MemoryLayout.size(ofValue: stereoStreamFormat))
-        stereoStreamFormat.mSampleRate = 44100.0
+        stereoStreamFormat.mSampleRate = Float64(sampleRate)
         stereoStreamFormat.mFormatID = kAudioFormatLinearPCM
-        stereoStreamFormat.mFormatFlags = kAudioFormatFlagsAudioUnitCanonical | kAudioFormatFlagIsNonInterleaved
-        stereoStreamFormat.mBytesPerPacket = bytesPerSample
-        stereoStreamFormat.mFramesPerPacket = 1
-        stereoStreamFormat.mBytesPerFrame = bytesPerSample
-        stereoStreamFormat.mChannelsPerFrame = 2
+        stereoStreamFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked
         stereoStreamFormat.mBitsPerChannel = 8 * bytesPerSample
-
+        stereoStreamFormat.mChannelsPerFrame = 2
+        stereoStreamFormat.mBytesPerFrame = bytesPerSample * 2
+        stereoStreamFormat.mFramesPerPacket = 1
+        stereoStreamFormat.mBytesPerPacket = stereoStreamFormat.mBytesPerFrame
+        
         statusCode = AudioUnitSetProperty(ioUnit,
                                           kAudioUnitProperty_StreamFormat,
                                           kAudioUnitScope_Output,
@@ -166,6 +170,28 @@ class AudioRecorder {
             exit(1)
         }
         
+        statusCode = AudioUnitSetProperty(convertUnit,
+                                          kAudioUnitProperty_StreamFormat,
+                                          kAudioUnitScope_Output,
+                                          0,
+                                          &stereoStreamFormat,
+                                          UInt32(MemoryLayout.size(ofValue: stereoStreamFormat)))
+        if statusCode != noErr {
+            DDLogError("Could not set stream format for convert unit output element 0 \(statusCode)")
+            exit(1)
+        }
+        
+        statusCode = AudioUnitSetProperty(mixerUnit,
+                                          kAudioUnitProperty_StreamFormat,
+                                          kAudioUnitScope_Output,
+                                          0,
+                                          &stereoStreamFormat,
+                                          UInt32(MemoryLayout.size(ofValue: stereoStreamFormat)))
+        if statusCode != noErr {
+            DDLogError("Could not set stream format for mixer unit output element 0 \(statusCode)")
+            exit(1)
+        }
+
         var mixerElementCount: UInt32 = 1
         statusCode = AudioUnitSetProperty(mixerUnit,
                                           kAudioUnitProperty_ElementCount,
@@ -177,9 +203,20 @@ class AudioRecorder {
             DDLogError("Could not set element count for mixer unit input element 0 \(statusCode)")
             exit(1)
         }
+        
+        statusCode = AudioUnitSetProperty(ioUnit,
+                                          kAudioUnitProperty_StreamFormat,
+                                          kAudioUnitScope_Input,
+                                          outputBus,
+                                          &stereoStreamFormat,
+                                          UInt32(MemoryLayout.size(ofValue: stereoStreamFormat)))
+        if statusCode != noErr {
+            DDLogError("Could not set stream format for I/O unit output element 0 \(statusCode)")
+            exit(1)
+        }
     }
         
-    private func makeNodeConnections() {
+    private func makeNodesConnection() {
         var statusCode = AUGraphConnectNodeInput(auGraph, ioNode, inputBus, convertNode, 0)
         if statusCode != noErr {
             DDLogError("I/O node element 1 connect to convert node element 0 \(statusCode)")
@@ -192,27 +229,29 @@ class AudioRecorder {
             exit(1)
         }
         
-        var finalRenderProc = AURenderCallbackStruct()
-        finalRenderProc.inputProc = renderCallback
-        finalRenderProc.inputProcRefCon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-        statusCode = AUGraphSetNodeInputCallback(auGraph, ioNode, outputBus, &finalRenderProc)
+        var inputCallback = AURenderCallbackStruct()
+        inputCallback.inputProc = renderCallback
+        inputCallback.inputProcRefCon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+        statusCode = AUGraphSetNodeInputCallback(auGraph, ioNode, outputBus, &inputCallback)
         if statusCode != noErr {
             DDLogError("Could not set input callback for I/O node \(statusCode)")
             exit(1)
         }
     }
     
-    private func prepareFinalWriteFile() {
+    private func prepareAudioFile() {
+        let bytesPerSample: UInt32 = 2
         var destinationFormat = AudioStreamBasicDescription()
         memset(&destinationFormat, 0, MemoryLayout.size(ofValue: destinationFormat))
-        destinationFormat.mSampleRate = 44100.0
+        destinationFormat.mSampleRate = Float64(sampleRate)
         destinationFormat.mFormatID = kAudioFormatLinearPCM
         destinationFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked
-        destinationFormat.mBitsPerChannel = 16
-        destinationFormat.mBytesPerPacket = destinationFormat.mBitsPerChannel / 8
-        destinationFormat.mFramesPerPacket = 1
-        destinationFormat.mBytesPerFrame = destinationFormat.mBitsPerChannel / 8
+        destinationFormat.mBitsPerChannel = 8 * bytesPerSample
         destinationFormat.mChannelsPerFrame = 2
+        destinationFormat.mBytesPerFrame = bytesPerSample * 2
+        destinationFormat.mFramesPerPacket = 1
+        destinationFormat.mBytesPerPacket = bytesPerSample * 2
+
         var size = UInt32(MemoryLayout.size(ofValue: destinationFormat))
         var statusCode = AudioFormatGetProperty(kAudioFormatProperty_FormatInfo,
                                                 0,
@@ -229,36 +268,14 @@ class AudioRecorder {
                                                &destinationFormat,
                                                nil,
                                                AudioFileFlags.eraseFile.rawValue,
-                                               &finalAudioFile)
+                                               &audioFile)
         if statusCode != noErr {
             DDLogError("ExtAudioFileCreateWithURL failed \(statusCode)")
             exit(1)
         }
-
-        var clientFormat = AudioStreamBasicDescription()
-        memset(&clientFormat, 0, MemoryLayout.size(ofValue: clientFormat))
-        size = UInt32(MemoryLayout.size(ofValue: clientFormat))
-        statusCode = AudioUnitGetProperty(mixerUnit,
-                                          kAudioUnitProperty_StreamFormat,
-                                          kAudioUnitScope_Output,
-                                          0,
-                                          &clientFormat,
-                                          &size)
-        if statusCode != noErr {
-            DDLogError("AudioUnitGetProperty failed \(statusCode)")
-            exit(1)
-        }
-        statusCode = ExtAudioFileSetProperty(finalAudioFile,
-                                             kExtAudioFileProperty_ClientDataFormat,
-                                             UInt32(MemoryLayout.size(ofValue: clientFormat)),
-                                             &clientFormat)
-        if statusCode != noErr {
-            DDLogError("ExtAudioFileSetProperty kExtAudioFileProperty_ClientDataFormat failed \(statusCode)")
-            exit(1)
-        }
         
         var codec: UInt32 = kAppleHardwareAudioCodecManufacturer
-        statusCode = ExtAudioFileSetProperty(finalAudioFile,
+        statusCode = ExtAudioFileSetProperty(audioFile,
                                              kExtAudioFileProperty_CodecManufacturer,
                                              UInt32(MemoryLayout.size(ofValue: codec)),
                                              &codec)
@@ -267,7 +284,7 @@ class AudioRecorder {
             exit(1)
         }
         
-        statusCode = ExtAudioFileWriteAsync(finalAudioFile, 0, nil)
+        statusCode = ExtAudioFileWriteAsync(audioFile, 0, nil)
         if statusCode != noErr {
             DDLogError("ExtAudioFileWriteAsync failed \(statusCode)")
             exit(1)
@@ -279,11 +296,13 @@ class AudioRecorder {
 func renderCallback(inRefCon: UnsafeMutableRawPointer,
                     ioActionFlags: UnsafeMutablePointer<AudioUnitRenderActionFlags>,
                     inTimeStamp: UnsafePointer<AudioTimeStamp>,
-                    inBusNumber: UInt32, inNumberFrames: UInt32,
+                    inBusNumber: UInt32,
+                    inNumberFrames: UInt32,
                     ioData: UnsafeMutablePointer<AudioBufferList>?) -> OSStatus {
     let recorder: AudioRecorder = Unmanaged.fromOpaque(inRefCon).takeUnretainedValue()
-    AudioUnitRender(recorder.mixerUnit, ioActionFlags, inTimeStamp, 0, inNumberFrames, ioData!)
-    let statusCode = ExtAudioFileWriteAsync(recorder.finalAudioFile, inNumberFrames, ioData)
+    var statusCode = AudioUnitRender(recorder.mixerUnit, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, ioData!)
+    DDLogDebug("audio recorder write \(inNumberFrames) frames with \(ioData?.pointee.mBuffers.mDataByteSize ?? 0) btyes")
+    statusCode = ExtAudioFileWriteAsync(recorder.audioFile, inNumberFrames, ioData)
     if statusCode != noErr {
         DDLogError("ExtAudioFileWriteAsync failed \(statusCode)")
         exit(1)
