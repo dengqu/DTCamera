@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40146B4C2351B5EC00F14513 /* DebugHelper.swift */; };
+		40307FF72390D1BE00915B97 /* DrumsMonoSTP.aif in Resources */ = {isa = PBXBuildFile; fileRef = 40307FF52390D1BE00915B97 /* DrumsMonoSTP.aif */; };
+		40307FF82390D1BE00915B97 /* GuitarMonoSTP.aif in Resources */ = {isa = PBXBuildFile; fileRef = 40307FF62390D1BE00915B97 /* GuitarMonoSTP.aif */; };
+		40307FFA2390FF4800915B97 /* MenusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40307FF92390FF4800915B97 /* MenusViewController.swift */; };
 		403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD123320561007CC795 /* DirectPassVertex.glsl */; };
 		403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* DirectPassFragment.glsl */; };
 		404178982382A92E0078893D /* faded.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 404178972382A92E0078893D /* faded.mp3 */; };
@@ -27,7 +30,6 @@
 		40AE65CF233E10B60063C4D8 /* DumbFilterVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */; };
 		40AE65D1233E10DD0063C4D8 /* DumbFilterFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */; };
 		40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B286232F29B300A67F11 /* AppDelegate.swift */; };
-		40E1B289232F29B300A67F11 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B288232F29B300A67F11 /* ViewController.swift */; };
 		40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28A232F29B300A67F11 /* Main.storyboard */; };
 		40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28D232F29B400A67F11 /* Assets.xcassets */; };
 		40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28F232F29B400A67F11 /* LaunchScreen.storyboard */; };
@@ -67,6 +69,9 @@
 
 /* Begin PBXFileReference section */
 		40146B4C2351B5EC00F14513 /* DebugHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHelper.swift; sourceTree = "<group>"; };
+		40307FF52390D1BE00915B97 /* DrumsMonoSTP.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = DrumsMonoSTP.aif; sourceTree = "<group>"; };
+		40307FF62390D1BE00915B97 /* GuitarMonoSTP.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = GuitarMonoSTP.aif; sourceTree = "<group>"; };
+		40307FF92390FF4800915B97 /* MenusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenusViewController.swift; sourceTree = "<group>"; };
 		403EEFD123320561007CC795 /* DirectPassVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectPassVertex.glsl; sourceTree = "<group>"; };
 		403EEFD223320561007CC795 /* DirectPassFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectPassFragment.glsl; sourceTree = "<group>"; };
 		404178972382A92E0078893D /* faded.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = faded.mp3; sourceTree = "<group>"; };
@@ -89,7 +94,6 @@
 		40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = DumbFilterFragment.glsl; sourceTree = "<group>"; };
 		40E1B283232F29B300A67F11 /* DTCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DTCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		40E1B286232F29B300A67F11 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		40E1B288232F29B300A67F11 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		40E1B28B232F29B300A67F11 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		40E1B28D232F29B400A67F11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		40E1B290232F29B400A67F11 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -256,7 +260,7 @@
 				404CE302235D8F9D00DBCFB3 /* DTCamera-Bridging-Header.h */,
 				40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */,
 				40E1B286232F29B300A67F11 /* AppDelegate.swift */,
-				40E1B288232F29B300A67F11 /* ViewController.swift */,
+				40307FF92390FF4800915B97 /* MenusViewController.swift */,
 				40E1B28A232F29B300A67F11 /* Main.storyboard */,
 				40E1B28D232F29B400A67F11 /* Assets.xcassets */,
 				40E1B28F232F29B400A67F11 /* LaunchScreen.storyboard */,
@@ -320,6 +324,8 @@
 		40F3E688237EE56500D69336 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				40307FF52390D1BE00915B97 /* DrumsMonoSTP.aif */,
+				40307FF62390D1BE00915B97 /* GuitarMonoSTP.aif */,
 				404178972382A92E0078893D /* faded.mp3 */,
 			);
 			path = Resources;
@@ -459,11 +465,13 @@
 				40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */,
 				40AE65CF233E10B60063C4D8 /* DumbFilterVertex.glsl in Resources */,
 				403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */,
+				40307FF72390D1BE00915B97 /* DrumsMonoSTP.aif in Resources */,
 				404178982382A92E0078893D /* faded.mp3 in Resources */,
 				40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */,
 				40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */,
 				40AE65D1233E10DD0063C4D8 /* DumbFilterFragment.glsl in Resources */,
 				403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */,
+				40307FF82390D1BE00915B97 /* GuitarMonoSTP.aif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,6 +539,7 @@
 				40E1B2AF232F2B2400A67F11 /* PhotoEditorFrameView.swift in Sources */,
 				40E1B2C8232F618B00A67F11 /* CircleView.swift in Sources */,
 				404CE307235D8FE900DBCFB3 /* EffectOpenCVFilter.swift in Sources */,
+				40307FFA2390FF4800915B97 /* MenusViewController.swift in Sources */,
 				40E1B2CD232F87EE00A67F11 /* OpenGLPreviewView.swift in Sources */,
 				404CE309235EE1F500DBCFB3 /* AssetRecorder.swift in Sources */,
 				404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */,
@@ -541,7 +550,6 @@
 				40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */,
 				40E1B2B9232F2B2400A67F11 /* PhotoLibraryViewController.swift in Sources */,
 				40E1B2AE232F2B2400A67F11 /* MediaViewController.swift in Sources */,
-				40E1B289232F29B300A67F11 /* ViewController.swift in Sources */,
 				40E1B2CB232F7E5900A67F11 /* MediaCustomTheme.swift in Sources */,
 				40E1B2B1232F2B2400A67F11 /* PlayerViewController.swift in Sources */,
 				40E1B2B5232F2B2400A67F11 /* PreviewPhotoViewController.swift in Sources */,

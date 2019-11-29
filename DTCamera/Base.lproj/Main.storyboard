@@ -1,85 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ZWh-vP-XsB">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
-        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
-        <scene sceneID="tne-QT-ifu">
+        <!--Menus View Controller-->
+        <scene sceneID="L9A-4H-4fC">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="DTCamera" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                <tableViewController id="ZWh-vP-XsB" customClass="MenusViewController" customModule="DTCamera" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="1zI-sp-y5k">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PVJ-SJ-ZOq">
-                                <rect key="frame" x="181.5" y="54" width="51" height="30"/>
-                                <state key="normal" title="camera"/>
-                                <connections>
-                                    <action selector="openCamera:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wcD-I5-Nkf"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JR5-UY-aGh">
-                                <rect key="frame" x="94" y="174" width="93" height="30"/>
-                                <state key="normal" title="start paly aac"/>
-                                <connections>
-                                    <action selector="playAAC:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Dnu-DR-coy"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EfB-dH-wpT">
-                                <rect key="frame" x="227" y="174" width="91" height="30"/>
-                                <state key="normal" title="stop play aac"/>
-                                <connections>
-                                    <action selector="stopAAC:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QXK-XE-znz"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KQD-VA-e6q">
-                                <rect key="frame" x="51" y="94" width="136" height="30"/>
-                                <state key="normal" title="pcm startRecording"/>
-                                <connections>
-                                    <action selector="startPCMRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="a3B-hw-PS1"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="odx-Rj-bwH">
-                                <rect key="frame" x="227" y="94" width="134" height="30"/>
-                                <state key="normal" title="pcm stopRecording"/>
-                                <connections>
-                                    <action selector="stopPCMRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8RF-nv-Tm8"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i7y-Hv-gAi">
-                                <rect key="frame" x="141" y="134" width="132" height="30"/>
-                                <state key="normal" title="convert pcm to aac"/>
-                                <connections>
-                                    <action selector="convertPCMtoAAC:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NNG-BS-dmg"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <constraints>
-                            <constraint firstItem="JR5-UY-aGh" firstAttribute="top" secondItem="i7y-Hv-gAi" secondAttribute="bottom" constant="10" id="1bc-hK-rdJ"/>
-                            <constraint firstItem="JR5-UY-aGh" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-20" id="3wU-9d-A5j"/>
-                            <constraint firstItem="EfB-dH-wpT" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="20" id="9ta-ow-Uj1"/>
-                            <constraint firstItem="odx-Rj-bwH" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="20" id="EFB-jK-Jy0"/>
-                            <constraint firstItem="KQD-VA-e6q" firstAttribute="top" secondItem="PVJ-SJ-ZOq" secondAttribute="bottom" constant="10" id="F19-5E-bP1"/>
-                            <constraint firstItem="PVJ-SJ-ZOq" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="JXe-wl-C7V"/>
-                            <constraint firstItem="i7y-Hv-gAi" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="PfR-We-baT"/>
-                            <constraint firstItem="PVJ-SJ-ZOq" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="RM3-tP-B5Y"/>
-                            <constraint firstItem="KQD-VA-e6q" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-20" id="Ueb-L5-l0z"/>
-                            <constraint firstItem="i7y-Hv-gAi" firstAttribute="top" secondItem="KQD-VA-e6q" secondAttribute="bottom" constant="10" id="cmq-kb-NXC"/>
-                            <constraint firstItem="odx-Rj-bwH" firstAttribute="top" secondItem="PVJ-SJ-ZOq" secondAttribute="bottom" constant="10" id="qQ0-u9-4s6"/>
-                            <constraint firstItem="EfB-dH-wpT" firstAttribute="top" secondItem="i7y-Hv-gAi" secondAttribute="bottom" constant="10" id="vbX-VP-CiU"/>
-                        </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="NgL-X5-6Yr">
+                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="NgL-X5-6Yr" id="Rod-PO-PJf">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="ZWh-vP-XsB" id="RKx-vx-oc4"/>
+                            <outlet property="delegate" destination="ZWh-vP-XsB" id="Yhb-4W-6bG"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fwx-aJ-rCk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="139" y="113"/>
+            <point key="canvasLocation" x="228" y="71"/>
         </scene>
     </scenes>
 </document>

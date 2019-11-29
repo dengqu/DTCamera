@@ -7,15 +7,18 @@
 //
 
 import UIKit
+import AVFoundation
 import AudioToolbox
 import CocoaLumberjack
 
 class AudioRecorder {
 
-    let fileURL: URL
     let sampleRate: Int
 
+    let fileURL: URL
     var audioFile: ExtAudioFileRef!
+
+    let bgmFileURL: URL?
     
     var auGraph: AUGraph!
     var ioNode = AUNode()
@@ -24,13 +27,17 @@ class AudioRecorder {
     let outputBus: AudioUnitElement = 0
     var convertNode = AUNode()
     var convertUnit: AudioUnit!
+    var filePlayerNode = AUNode()
+    var filePlayerUnit: AudioUnit!
     var mixerNode = AUNode()
     var mixerUnit: AudioUnit!
 
-    init(fileURL: URL, sampleRate: Int) {
-        self.fileURL = fileURL
+    init(sampleRate: Int, fileURL: URL, bgmFileURL: URL?) {
         self.sampleRate = sampleRate
+        self.fileURL = fileURL
+        self.bgmFileURL = bgmFileURL
         createAudioUnitGraph()
+        setupFilePlayer()
     }
     
     func startRecording() {
@@ -103,6 +110,19 @@ class AudioRecorder {
             DDLogError("Could not add converter node to AUGraph \(statusCode)")
             exit(1)
         }
+        
+        if bgmFileURL != nil {
+            var filePlayerDescription = AudioComponentDescription()
+            bzero(&filePlayerDescription, MemoryLayout.size(ofValue: filePlayerDescription))
+            filePlayerDescription.componentManufacturer = kAudioUnitManufacturer_Apple
+            filePlayerDescription.componentType = kAudioUnitType_Generator
+            filePlayerDescription.componentSubType = kAudioUnitSubType_AudioFilePlayer
+            statusCode = AUGraphAddNode(auGraph, &filePlayerDescription, &filePlayerNode)
+            if statusCode != noErr {
+                DDLogError("Could not add file player node to AUGraph \(statusCode)")
+                exit(1)
+            }
+        }
 
         var mixerDescription = AudioComponentDescription()
         bzero(&mixerDescription, MemoryLayout.size(ofValue: mixerDescription))
@@ -126,6 +146,13 @@ class AudioRecorder {
         if statusCode != noErr {
             DDLogError("Could not retrieve node info for convert node \(statusCode)")
             exit(1)
+        }
+        if bgmFileURL != nil {
+            statusCode = AUGraphNodeInfo(auGraph, filePlayerNode, nil, &filePlayerUnit)
+            if statusCode != noErr {
+                DDLogError("Could not retrieve node info for file player node \(statusCode)")
+                exit(1)
+            }
         }
         statusCode = AUGraphNodeInfo(auGraph, mixerNode, nil, &mixerUnit)
         if statusCode != noErr {
@@ -192,7 +219,7 @@ class AudioRecorder {
             exit(1)
         }
 
-        var mixerElementCount: UInt32 = 1
+        var mixerElementCount: UInt32 = bgmFileURL != nil ? 2 : 1
         statusCode = AudioUnitSetProperty(mixerUnit,
                                           kAudioUnitProperty_ElementCount,
                                           kAudioUnitScope_Input,
@@ -229,6 +256,14 @@ class AudioRecorder {
             exit(1)
         }
         
+        if bgmFileURL != nil {
+            statusCode = AUGraphConnectNodeInput(auGraph, filePlayerNode, 0, mixerNode, 1)
+            if statusCode != noErr {
+                DDLogError("file player node element 0 connect to mixer node element 1 \(statusCode)")
+                exit(1)
+            }
+        }
+
         var inputCallback = AURenderCallbackStruct()
         inputCallback.inputProc = renderCallback
         inputCallback.inputProcRefCon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
@@ -290,7 +325,99 @@ class AudioRecorder {
             exit(1)
         }
     }
-
+    
+    private func setupFilePlayer() {
+        guard let bgmFileURL = bgmFileURL else { return }
+        
+        var fileId: AudioFileID!
+        var statusCode = AudioFileOpenURL(bgmFileURL as CFURL, .readPermission, 0, &fileId)
+        if statusCode != noErr {
+            DDLogError("Could not open audio file \(statusCode)")
+            exit(1)
+        }
+        
+        statusCode = AudioUnitSetProperty(filePlayerUnit,
+                                          kAudioUnitProperty_ScheduledFileIDs,
+                                          kAudioUnitScope_Global,
+                                          0,
+                                          &fileId,
+                                          UInt32(MemoryLayout.size(ofValue: fileId)))
+        if statusCode != noErr {
+            DDLogError("Could not tell file player unit load which file \(statusCode)")
+            exit(1)
+        }
+        
+        var fileAudioStreamFormat = AudioStreamBasicDescription()
+        var size = UInt32(MemoryLayout.size(ofValue: fileAudioStreamFormat))
+        statusCode = AudioFileGetProperty(fileId,
+                                          kAudioFilePropertyDataFormat,
+                                          &size,
+                                          &fileAudioStreamFormat)
+        if statusCode != noErr {
+            DDLogError("Could not get the audio data format from the file \(statusCode)")
+            exit(1)
+        }
+        
+        var numberOfPackets: UInt64 = 0
+        size = UInt32(MemoryLayout.size(ofValue: numberOfPackets))
+        statusCode = AudioFileGetProperty(fileId,
+                                          kAudioFilePropertyAudioDataPacketCount,
+                                          &size,
+                                          &numberOfPackets)
+        if statusCode != noErr {
+            DDLogError("Could not get number of packets from the file \(statusCode)")
+            exit(1)
+        }
+        
+        var rgn = ScheduledAudioFileRegion(mTimeStamp: .init(),
+                                           mCompletionProc: nil,
+                                           mCompletionProcUserData: nil,
+                                           mAudioFile: fileId,
+                                           mLoopCount: 0,
+                                           mStartFrame: 0,
+                                           mFramesToPlay: UInt32(numberOfPackets) * fileAudioStreamFormat.mFramesPerPacket)
+        memset(&rgn.mTimeStamp, 0, MemoryLayout.size(ofValue: rgn.mTimeStamp))
+        rgn.mTimeStamp.mFlags = .sampleTimeValid
+        rgn.mTimeStamp.mSampleTime = 0
+        statusCode = AudioUnitSetProperty(filePlayerUnit,
+                                          kAudioUnitProperty_ScheduledFileRegion,
+                                          kAudioUnitScope_Global,
+                                          0,
+                                          &rgn,
+                                          UInt32(MemoryLayout.size(ofValue: rgn)))
+        if statusCode != noErr {
+            DDLogError("Could not set file player unit`s region \(statusCode)")
+            exit(1)
+        }
+        
+        var defaultValue: UInt32 = 0
+        statusCode = AudioUnitSetProperty(filePlayerUnit,
+                                          kAudioUnitProperty_ScheduledFilePrime,
+                                          kAudioUnitScope_Global,
+                                          0,
+                                          &defaultValue,
+                                          UInt32(MemoryLayout.size(ofValue: defaultValue)))
+        if statusCode != noErr {
+            DDLogError("Could not set file player unit`s prime \(statusCode)")
+            exit(1)
+        }
+        
+        var startTime = AudioTimeStamp()
+        memset(&startTime, 0, MemoryLayout.size(ofValue: startTime))
+        startTime.mFlags = .sampleTimeValid
+        startTime.mSampleTime = -1
+        statusCode = AudioUnitSetProperty(filePlayerUnit,
+                                          kAudioUnitProperty_ScheduleStartTimeStamp,
+                                          kAudioUnitScope_Global,
+                                          0,
+                                          &startTime,
+                                          UInt32(MemoryLayout.size(ofValue: startTime)))
+        if statusCode != noErr {
+            DDLogError("Could not set file player unit`s start time \(statusCode)")
+            exit(1)
+        }
+    }
+    
 }
 
 func renderCallback(inRefCon: UnsafeMutableRawPointer,
