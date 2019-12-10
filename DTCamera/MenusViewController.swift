@@ -71,12 +71,14 @@ class MenusViewController: UITableViewController {
             } else if indexPath.row == 3 {
                 cell.textLabel?.text = "Stop PCM Recording"
             } else if indexPath.row == 4 {
-                cell.textLabel?.text = "Convert PCM to AAC"
+                cell.textLabel?.text = "Convert PCM to AAC with AudioToolbox"
             } else if indexPath.row == 5 {
-                cell.textLabel?.text = "Start Play AAC"
+                cell.textLabel?.text = "Convert PCM to AAC with FFmpeg"
             } else if indexPath.row == 6 {
-                cell.textLabel?.text = "Start Play MP3"
+                cell.textLabel?.text = "Start Play AAC"
             } else if indexPath.row == 7 {
+                cell.textLabel?.text = "Start Play MP3"
+            } else if indexPath.row == 8 {
                 cell.textLabel?.text = "Stop Play"
             }
         }
@@ -114,14 +116,20 @@ class MenusViewController: UITableViewController {
                     }
                 }
             } else if indexPath.row == 5 {
+                if  let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false),
+                    let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needCreate: true) {
+                    let aacEncoder = AACEncoder(inputFilePath: pcmFileURL.path, outputFilePath: aacFileURL.path)
+                    aacEncoder.startEncode()
+                }
+            } else if indexPath.row == 6 {
                 if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false) {
                     playAudio(fileURL: fileURL)
                 }
-            } else if indexPath.row == 6 {
+            } else if indexPath.row == 7 {
                 if let fileURL = Bundle.main.url(forResource: "faded", withExtension: "mp3") {
                     playAudio(fileURL: fileURL)
                 }
-            } else if indexPath.row == 7 {
+            } else if indexPath.row == 8 {
                 auGraphPlayer?.stop()
                 auGraphPlayer = nil
             }

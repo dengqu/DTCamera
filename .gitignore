@@ -59,4 +59,4 @@ fastlane/screenshots
 
 iOSInjectionProject/
 
-DTCamera/ThirdParty/opencv2.framework
+DTCamera/ThirdParty/*
