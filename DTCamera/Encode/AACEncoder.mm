@@ -28,7 +28,6 @@
 }
 
 - (void)startEncode {
-    printf("FDK AAC Encoder Test...");
     AudioEncoder *encoder = new AudioEncoder();
     int bitsPerSample = 16;
     const char *codec_name = [@"aac" cStringUsingEncoding:NSUTF8StringEncoding];

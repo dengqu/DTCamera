@@ -41,6 +41,8 @@
 		40937E63239F36E100DE5E85 /* AACEncoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40937E62239F36E100DE5E85 /* AACEncoder.mm */; };
 		40AE65CF233E10B60063C4D8 /* DumbFilterVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */; };
 		40AE65D1233E10DD0063C4D8 /* DumbFilterFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */; };
+		40B109F123A09644004198B4 /* audio_decoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40B109EF23A09644004198B4 /* audio_decoder.cpp */; };
+		40B109F423A0F7A7004198B4 /* AACDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40B109F323A0F7A7004198B4 /* AACDecoder.mm */; };
 		40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B286232F29B300A67F11 /* AppDelegate.swift */; };
 		40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28A232F29B300A67F11 /* Main.storyboard */; };
 		40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28D232F29B400A67F11 /* Assets.xcassets */; };
@@ -231,6 +233,10 @@
 		40937E62239F36E100DE5E85 /* AACEncoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AACEncoder.mm; sourceTree = "<group>"; };
 		40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = DumbFilterVertex.glsl; sourceTree = "<group>"; };
 		40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = DumbFilterFragment.glsl; sourceTree = "<group>"; };
+		40B109EF23A09644004198B4 /* audio_decoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = audio_decoder.cpp; sourceTree = "<group>"; };
+		40B109F023A09644004198B4 /* audio_decoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = audio_decoder.h; sourceTree = "<group>"; };
+		40B109F223A0F7A7004198B4 /* AACDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AACDecoder.h; sourceTree = "<group>"; };
+		40B109F323A0F7A7004198B4 /* AACDecoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AACDecoder.mm; sourceTree = "<group>"; };
 		40E1B283232F29B300A67F11 /* DTCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DTCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		40E1B286232F29B300A67F11 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		40E1B28B232F29B300A67F11 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -516,6 +522,8 @@
 			children = (
 				4032F6242399089F00FABC3C /* audio_encoder.h */,
 				4032F6232399089F00FABC3C /* audio_encoder.cpp */,
+				40B109F023A09644004198B4 /* audio_decoder.h */,
+				40B109EF23A09644004198B4 /* audio_decoder.cpp */,
 			);
 			path = FFmpeg;
 			sourceTree = "<group>";
@@ -563,6 +571,8 @@
 				404178992384DC430078893D /* AudioEncoder.swift */,
 				40937E61239F36E100DE5E85 /* AACEncoder.h */,
 				40937E62239F36E100DE5E85 /* AACEncoder.mm */,
+				40B109F223A0F7A7004198B4 /* AACDecoder.h */,
+				40B109F323A0F7A7004198B4 /* AACDecoder.mm */,
 			);
 			path = Encode;
 			sourceTree = "<group>";
@@ -908,6 +918,7 @@
 				40FA40012369983200738C47 /* RecordingViewController.swift in Sources */,
 				40E5153623790A350034943F /* AudioRecorder.swift in Sources */,
 				40E1B2B0232F2B2400A67F11 /* LibraryPhotoCell.swift in Sources */,
+				40B109F423A0F7A7004198B4 /* AACDecoder.mm in Sources */,
 				40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */,
 				40E1B2AF232F2B2400A67F11 /* PhotoEditorFrameView.swift in Sources */,
 				40E1B2C8232F618B00A67F11 /* CircleView.swift in Sources */,
@@ -935,6 +946,7 @@
 				404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */,
 				40E1B2C9232F618B00A67F11 /* CircleLayer.swift in Sources */,
 				40FA3FFF2369949600738C47 /* CapturePipeline.swift in Sources */,
+				40B109F123A09644004198B4 /* audio_decoder.cpp in Sources */,
 				406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */,
 				40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */,
 				40E1B2B6232F2B2400A67F11 /* PhotoEditorResizeView.swift in Sources */,

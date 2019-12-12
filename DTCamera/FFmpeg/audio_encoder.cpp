@@ -19,6 +19,11 @@ int AudioEncoder::alloc_audio_stream(const char *codec_name) {
     AVSampleFormat preferedSampleFMT = AV_SAMPLE_FMT_S16;
     int preferedChannels = audioChannels;
     int preferedSampleRate = audioSampleRate;
+    /*
+     * 会将音频流或者视频流的信息填充好，分配出 AVStream 结构体，
+     * 在音频流中分配声道、采样率、表示格式、编码器等信息，
+     * 在视频流中分配宽、高、帧率、表示格式、编码器等信息。
+     */
     audioStream = avformat_new_stream(avFormatContext, NULL);
     audioStream->id = 1;
     avCodecContext = audioStream->codec;
@@ -189,19 +194,29 @@ int AudioEncoder::init(int bitRate, int channels, int sampleRate, int bitsPerSam
     
     avFormatContext = avformat_alloc_context();
     printf("aacFilePath is %s\n", aacFilePath);
-    if ((ret = avformat_alloc_output_context2(&avFormatContext, NULL, NULL, aacFilePath)) != 0 ) { // 确认 muxer
+    /*
+     * 最关键的还是根据上一步注册的 Muxer 和 Demuxer 部分（也就是封装格式部分）去找到对应的格式，
+     * 有可能是 flv 格式、MP4 格式、mov 格式，甚至是 MP3 格式等，
+     * 如果找不到对应的格式（即在 configure 选项中没有打开这个格式的开关），那么这里会返回找不到对应的格式的错误提示。
+     */
+    if ((ret = avformat_alloc_output_context2(&avFormatContext, NULL, NULL, aacFilePath)) != 0 ) {
         printf("avFormatContext   alloc   failed : %s\n", av_err2str(ret));
         return -1;
     }
     
-    if (ret = avio_open2(&avFormatContext->pb, aacFilePath, AVIO_FLAG_WRITE, NULL, NULL)) { // 确认 protocol
+    /*
+     * 首先调用函数 ffurl_open，构造出 URLContext 结构体，这个结构体中包含了 URLProtocol（需要去第一步 register_protocol 中已经注册的协议链表中寻找）,
+     * 接着会调用 avio_alloc_context 方法，分配出 AVIOContext 结构体，并将上一步构造出来的 URLProtocol 传递进来,
+     * 然后把上一步分配出来 AVIOContext 结构体赋值给 AVFormatContext 的属性。
+     */
+    if (ret = avio_open2(&avFormatContext->pb, aacFilePath, AVIO_FLAG_WRITE, NULL, NULL)) {
         printf("Could not avio open fail %s\n", av_err2str(ret));
         return -1;
     }
     
     this->alloc_audio_stream(codec_name);
     av_dump_format(avFormatContext, 0, aacFilePath, 1);
-    if (avformat_write_header(avFormatContext, NULL) != 0) {
+    if (avformat_write_header(avFormatContext, NULL) != 0) { // 写入头部信息
         printf("Could not write header\n");
         return -1;
     }
@@ -254,7 +269,7 @@ void AudioEncoder::encodePacket() {
     pkt.pts = pkt.dts = 0;
     pkt.data = samples;
     pkt.size = buffer_size;
-    ret = avcodec_encode_audio2(avCodecContext, &pkt, encode_frame, &got_output);
+    ret = avcodec_encode_audio2(avCodecContext, &pkt, encode_frame, &got_output); // 编码音频
     if (ret < 0) {
         printf("Error encoding audio frame\n");
         return;
@@ -265,13 +280,17 @@ void AudioEncoder::encodePacket() {
         }
         pkt.flags |= AV_PKT_FLAG_KEY;
         this->duration = pkt.pts * av_q2d(audioStream->time_base);
-        int writeCode = av_interleaved_write_frame(avFormatContext, &pkt);
+        /*
+         * 会将编码后的 AVPacket 结构体作为 Muxer 中的 write_packet 生命周期方法的输入，
+         * write_packet函数会加上自己封装格式的头信息，然后调用协议层写到本地文件或者网络服务器上。
+         */
+        int writeCode = av_interleaved_write_frame(avFormatContext, &pkt); // 写入文件
     }
     av_free_packet(&pkt);
 }
 
 void AudioEncoder::destroy() {
-    printf("start destroy!!!");
+    printf("AudioEncoder start destroy!!!\n");
     if (NULL != swrBuffer) {
         free(swrBuffer);
         swrBuffer = NULL;
@@ -296,7 +315,11 @@ void AudioEncoder::destroy() {
     }
     if (this->isWriteHeaderSuccess) {
         avFormatContext->duration = this->duration * AV_TIME_BASE;
-        printf("duration is %.3f", this->duration);
+        printf("duration is %.3f\n", this->duration);
+        /*
+         * 必须和 avformat_write_header 成对出现，
+         * 把没有输出的 AVPacket 全部丢给协议层去做输出，然后会调用 Muxer 的 write_trailer 生命周期方法。
+         */
         av_write_trailer(avFormatContext);
     }
     if (NULL != avCodecContext) {
@@ -306,5 +329,5 @@ void AudioEncoder::destroy() {
     if (NULL != avCodecContext && NULL != avFormatContext->pb) {
         avio_close(avFormatContext->pb);
     }
-    printf("end destroy!!! totalEncodeTimeMills is %d totalSWRTimeMills is %d", totalEncodeTimeMills, totalSWRTimeMills);
+    printf("AudioEncoder end destroy!!! totalEncodeTimeMills is %d totalSWRTimeMills is %d\n", totalEncodeTimeMills, totalSWRTimeMills);
 }

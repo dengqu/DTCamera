@@ -36,14 +36,18 @@ class MenusViewController: UITableViewController {
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 4
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return 1
         } else if section == 1 {
-            return 8
+            return 4
+        } else if section == 2 {
+            return 3
+        } else if section == 3 {
+            return 4
         }
         return 0
     }
@@ -52,7 +56,11 @@ class MenusViewController: UITableViewController {
         if section == 0 {
             return "Major"
         } else if section == 1 {
-            return "Audio"
+            return "Audio Recordings"
+        } else if section == 2 {
+            return "Audio Convert"
+        } else if section == 3 {
+            return "Audio Play"
         }
         return nil
     }
@@ -63,22 +71,30 @@ class MenusViewController: UITableViewController {
             cell.textLabel?.text = "Open Camera"
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
-                cell.textLabel?.text = "Start PCM Recording"
+                cell.textLabel?.text = "Start CAF Recording"
             } else if indexPath.row == 1 {
-                cell.textLabel?.text = "Start PCM Recording with Drums BGM"
+                cell.textLabel?.text = "Start CAF Recording with Drums BGM"
             } else if indexPath.row == 2 {
-                cell.textLabel?.text = "Start PCM Recording with Guitar BGM"
+                cell.textLabel?.text = "Start CAF Recording with Guitar BGM"
             } else if indexPath.row == 3 {
-                cell.textLabel?.text = "Stop PCM Recording"
-            } else if indexPath.row == 4 {
-                cell.textLabel?.text = "Convert PCM to AAC with AudioToolbox"
-            } else if indexPath.row == 5 {
-                cell.textLabel?.text = "Convert PCM to AAC with FFmpeg"
-            } else if indexPath.row == 6 {
-                cell.textLabel?.text = "Start Play AAC"
-            } else if indexPath.row == 7 {
+                cell.textLabel?.text = "Stop CAF Recording"
+            }
+        } else if indexPath.section == 2 {
+            if indexPath.row == 0 {
+                cell.textLabel?.text = "Convert CAF to AAC with AudioToolbox"
+            } else if indexPath.row == 1 {
+                cell.textLabel?.text = "Convert CAF to AAC with FFmpeg"
+            } else if indexPath.row == 2 {
+                cell.textLabel?.text = "Convert AAC to PCM with FFmpeg"
+            }
+        } else if indexPath.section == 3 {
+            if indexPath.row == 0 {
                 cell.textLabel?.text = "Start Play MP3"
-            } else if indexPath.row == 8 {
+            } else if indexPath.row == 1 {
+                cell.textLabel?.text = "Start Play CAF"
+            } else if indexPath.row == 2 {
+                cell.textLabel?.text = "Start Play AAC"
+            } else if indexPath.row == 3 {
                 cell.textLabel?.text = "Stop Play"
             }
         }
@@ -107,7 +123,9 @@ class MenusViewController: UITableViewController {
             } else if indexPath.row == 3 {
                 audioRecorder?.stopRecording()
                 audioRecorder = nil
-            } else if indexPath.row == 4 {
+            }
+        } else if indexPath.section == 2 {
+            if indexPath.row == 0 {
                 if  let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false),
                     let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needCreate: true) {
                     audioEncoder = AudioEncoder(sampleRate: sampleRate, inputFileURL: pcmFileURL, outputFileURL: aacFileURL)
@@ -115,21 +133,33 @@ class MenusViewController: UITableViewController {
                         self?.audioEncoder?.startEncode()
                     }
                 }
-            } else if indexPath.row == 5 {
+            } else if indexPath.row == 1 {
                 if  let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false),
                     let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needCreate: true) {
                     let aacEncoder = AACEncoder(inputFilePath: pcmFileURL.path, outputFilePath: aacFileURL.path)
                     aacEncoder.startEncode()
                 }
-            } else if indexPath.row == 6 {
-                if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false) {
-                    playAudio(fileURL: fileURL)
+            } else if indexPath.row == 2 {
+                if let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false),
+                    let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "pcm", needCreate: true) {
+                    let aacDecoder = AACDecoder(inputFilePath: aacFileURL.path, outputFilePath: pcmFileURL.path)
+                    aacDecoder.startDecode()
                 }
-            } else if indexPath.row == 7 {
+            }
+        } else if indexPath.section == 3 {
+            if indexPath.row == 0 {
                 if let fileURL = Bundle.main.url(forResource: "faded", withExtension: "mp3") {
                     playAudio(fileURL: fileURL)
                 }
-            } else if indexPath.row == 8 {
+            } else if indexPath.row == 1 {
+                if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false) {
+                    playAudio(fileURL: fileURL)
+                }
+            } else if indexPath.row == 2 {
+                if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false) {
+                    playAudio(fileURL: fileURL)
+                }
+            } else if indexPath.row == 3 {
                 auGraphPlayer?.stop()
                 auGraphPlayer = nil
             }

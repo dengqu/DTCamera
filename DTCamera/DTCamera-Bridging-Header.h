@@ -4,3 +4,4 @@
 
 #import "OpenCVWrapper.h"
 #import "AACEncoder.h"
+#import "AACDecoder.h"
