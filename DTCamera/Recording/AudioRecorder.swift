@@ -11,12 +11,17 @@ import AVFoundation
 import AudioToolbox
 import CocoaLumberjack
 
+protocol AudioRecorderDelegate: class {
+    func audioRecorder(_ recorder: AudioRecorder, receive buffer: AudioBuffer)
+}
+
 class AudioRecorder {
 
     let sampleRate: Int
 
-    let fileURL: URL
+    let fileURL: URL?
     var audioFile: ExtAudioFileRef!
+    weak var delegate: AudioRecorderDelegate?
 
     let bgmFileURL: URL?
     
@@ -32,7 +37,7 @@ class AudioRecorder {
     var mixerNode = AUNode()
     var mixerUnit: AudioUnit!
 
-    init(sampleRate: Int, fileURL: URL, bgmFileURL: URL?) {
+    init(sampleRate: Int, fileURL: URL?, bgmFileURL: URL?) {
         self.sampleRate = sampleRate
         self.fileURL = fileURL
         self.bgmFileURL = bgmFileURL
@@ -275,6 +280,8 @@ class AudioRecorder {
     }
     
     private func prepareAudioFile() {
+        guard let fileURL = fileURL else { return }
+        
         let bytesPerSample: UInt32 = 2
         var destinationFormat = AudioStreamBasicDescription()
         memset(&destinationFormat, 0, MemoryLayout.size(ofValue: destinationFormat))
@@ -428,11 +435,15 @@ func renderCallback(inRefCon: UnsafeMutableRawPointer,
                     ioData: UnsafeMutablePointer<AudioBufferList>?) -> OSStatus {
     let recorder: AudioRecorder = Unmanaged.fromOpaque(inRefCon).takeUnretainedValue()
     var statusCode = AudioUnitRender(recorder.mixerUnit, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, ioData!)
-    DDLogDebug("audio recorder write \(inNumberFrames) frames with \(ioData?.pointee.mBuffers.mDataByteSize ?? 0) btyes")
-    statusCode = ExtAudioFileWriteAsync(recorder.audioFile, inNumberFrames, ioData)
-    if statusCode != noErr {
-        DDLogError("ExtAudioFileWriteAsync failed \(statusCode)")
-        exit(1)
+    DDLogDebug("audio recorder receive \(inNumberFrames) frames with \(ioData?.pointee.mBuffers.mDataByteSize ?? 0) btyes")
+    if let audioFile = recorder.audioFile {
+        statusCode = ExtAudioFileWriteAsync(audioFile, inNumberFrames, ioData)
+        if statusCode != noErr {
+            DDLogError("ExtAudioFileWriteAsync failed \(statusCode)")
+            exit(1)
+        }
+    } else if let audioBuffer = ioData?.pointee.mBuffers {
+        recorder.delegate?.audioRecorder(recorder, receive: audioBuffer)
     }
     return statusCode
 }

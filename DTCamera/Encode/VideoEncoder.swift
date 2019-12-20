@@ -14,8 +14,8 @@ import CocoaLumberjack
 protocol VideoEncoderDelegate: class {
     func videoEncoderEncodedFailed(_ encoder: VideoEncoder)
     func videoEncoderInitFailed(_ encoder: VideoEncoder)
-    func videoEncoder(_ encoder: VideoEncoder, encoded sps: Data, pps: Data)
-    func videoEncoder(_ encoder: VideoEncoder, encoded data: Data, isKeyframe: Bool)
+    func videoEncoder(_ encoder: VideoEncoder, encoded sps: Data, pps: Data, timestamp: Float64)
+    func videoEncoder(_ encoder: VideoEncoder, encoded data: Data, isKeyframe: Bool, timestamp: Float64)
     func videoEncoderFinished(_ encoder: VideoEncoder)
 }
 
@@ -181,7 +181,8 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                     DDLogDebug("pps: \(String(describing: pps)), ppsSize: \(ppsSize), ppsCount: \(ppsCount), NAL header length: \(nalHeaderLength)")
                     let spsData = Data(bytes: sps, count: spsSize)
                     let ppsData = Data(bytes: pps, count: ppsSize)
-                    encoder.delegate?.videoEncoder(encoder, encoded: spsData, pps: ppsData)
+                    let timeMills = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) * 1000
+                    encoder.delegate?.videoEncoder(encoder, encoded: spsData, pps: ppsData, timestamp: timeMills)
                 }
             }
         }
@@ -208,7 +209,8 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                 NALUnitLength = CFSwapInt32BigToHost(NALUnitLength)
                 
                 let data: Data = Data(bytes: dataPointer.advanced(by: bufferOffset + AVCCHeaderLength), count: Int(NALUnitLength))
-                encoder.delegate?.videoEncoder(encoder, encoded: data, isKeyframe: isKeyframe)
+                let timeMills = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) * 1000
+                encoder.delegate?.videoEncoder(encoder, encoded: data, isKeyframe: isKeyframe, timestamp: timeMills)
                 
                 // move forward to the next NAL Unit
                 bufferOffset += Int(AVCCHeaderLength)

@@ -58,8 +58,15 @@ class RecordingPipeline: NSObject {
             }
         }
     }
+    
+    // Video Encode
+    private var videoEncoder: VideoEncoder?
+    
+    // Audio Recorder
+    private var audioRecorder: AudioRecorder?
+    private var startRecordTimeMills: Double = 0
 
-    // Recording
+    // Recording or Live
     enum RecordingStatus: Int {
         case idle = 0
         case startingRecording
@@ -80,11 +87,8 @@ class RecordingPipeline: NSObject {
             }
         }
     }
-    private var videoEncoder: VideoEncoder?
-    private var videoFile: URL?
     private var backgroundRecordingID: UIBackgroundTaskIdentifier?
-    private var fileHandle: FileHandle?
-    private let NALUHeader: [UInt8] = [0, 0, 0, 1]
+    private var livePublisher: LivePublisher?
 
     // Miscellaneous
     private var previousSecondTimestamps: [CMTime] = []
@@ -181,49 +185,20 @@ class RecordingPipeline: NSObject {
             DDLogError("Expected to be in idle state")
             exit(1)
         }
-
-        let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "h264", needCreate: true)
-        if let videoFile = videoFile,
-            let fileHandle = FileHandle(forWritingAtPath: videoFile.path),
-            let videoFormatDescription = videoFormatDescription {
-            let dimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
-            videoEncoder = VideoEncoder(width: Int(dimensions.width),
-                                        height: Int(dimensions.height),
-                                        fps: mode.config.recordingFrameRate,
-                                        maxBitRate: mode.config.recordingBitRate,
-                                        avgBitRate: mode.config.recordingBitRate)
-            videoEncoder?.delegate = self
-            self.videoFile = videoFile
-            self.fileHandle = fileHandle
-            recordingStatus = .recording
-            delegate?.recordingPipelineRecorderDidFinishPreparing(self)
-            if UIDevice.current.isMultitaskingSupported {
-                backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: {
-                    DDLogError("video capture pipeline background task expired")
-                })
-            }
-        } else {
-            DDLogError("Could not start recording")
-            if videoFile == nil {
-                DDLogError("videoFile is nil")
-            }
-            if fileHandle == nil {
-                DDLogError("fileHandle is nil")
-            }
-            if videoFormatDescription == nil {
-                DDLogError("videoFormatDescription is nil")
-            }
-        }
+        startComsumer()
     }
     
     func stopRecording() {
         recordingStatus = .stoppingRecording
         videoEncoder?.stopEncode()
+        audioRecorder?.stopRecording()
+        livePublisher?.stop()
     }
 
     private func cleanupRecording() {
         videoEncoder = nil
-        fileHandle = nil
+        audioRecorder = nil
+        livePublisher = nil
         recordingStatus = .idle
         if let currentBackgroundRecordingID = backgroundRecordingID {
             backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
@@ -381,6 +356,67 @@ class RecordingPipeline: NSObject {
         }
     }
     
+    private func startComsumer() {
+        let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true)
+        if let videoFile = videoFile,
+            let videoFormatDescription = videoFormatDescription {
+            let dimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
+            livePublisher = LivePublisher(rtmpurl: videoFile.path,
+                                          videoWidth: Int(dimensions.width),
+                                          videoHeight: Int(dimensions.height),
+                                          videoFrameRate: mode.config.recordingFrameRate,
+                                          videoBitRate: mode.config.recordingBitRate,
+                                          audioSampleRate: mode.config.audioSampleRate,
+                                          audioChannels: mode.config.audioChannels,
+                                          audioBitRate: mode.config.audioBitRate,
+                                          audioCodecName: mode.config.audioCodecName)
+            livePublisher?.delegate = self
+            livePublisher?.start()
+        } else {
+            DDLogError("Could not start recording")
+            if videoFile == nil {
+                DDLogError("videoFile is nil")
+            }
+            if videoFormatDescription == nil {
+                DDLogError("videoFormatDescription is nil")
+            }
+        }
+
+    }
+    
+    private func startProducer() {
+        let bgmFile = Bundle.main.url(forResource: "DrumsMonoSTP", withExtension: "aif")
+        if let bgmFile = bgmFile,
+            let videoFormatDescription = videoFormatDescription {
+            let dimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
+            videoEncoder = VideoEncoder(width: Int(dimensions.width),
+                                        height: Int(dimensions.height),
+                                        fps: mode.config.recordingFrameRate,
+                                        maxBitRate: mode.config.recordingBitRate,
+                                        avgBitRate: mode.config.recordingBitRate)
+            videoEncoder?.delegate = self
+            audioRecorder = AudioRecorder(sampleRate: mode.config.audioSampleRate, fileURL: nil, bgmFileURL: bgmFile)
+            audioRecorder?.delegate = self
+            audioRecorder?.startRecording()
+            startRecordTimeMills = CFAbsoluteTimeGetCurrent() * 1000
+            recordingStatus = .recording
+            delegate?.recordingPipelineRecorderDidFinishPreparing(self)
+            if UIDevice.current.isMultitaskingSupported {
+                backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: {
+                    DDLogError("video capture pipeline background task expired")
+                })
+            }
+        } else {
+            DDLogError("Could not start recording")
+            if bgmFile == nil {
+                DDLogError("bgmFile is nil")
+            }
+            if videoFormatDescription == nil {
+                DDLogError("videoFormatDescription is nil")
+            }
+        }
+    }
+    
 }
 
 extension RecordingPipeline: AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -430,25 +466,50 @@ extension RecordingPipeline: VideoEncoderDelegate {
         delegate?.recordingPipeline(self, recorderDidFail: nil)
     }
     
-    func videoEncoder(_ encoder: VideoEncoder, encoded sps: Data, pps: Data) {
-        guard let fileHandle = fileHandle else { return }
-        let headerData = Data(bytes: NALUHeader, count: NALUHeader.count)
-        fileHandle.write(headerData)
-        fileHandle.write(sps)
-        fileHandle.write(headerData)
-        fileHandle.write(pps)
+    func videoEncoder(_ encoder: VideoEncoder, encoded sps: Data, pps: Data, timestamp: Float64) {
+        livePublisher?.gotSpsPps(sps, pps: pps, timestramp: timestamp)
     }
     
-    func videoEncoder(_ encoder: VideoEncoder, encoded data: Data, isKeyframe: Bool) {
-        guard let fileHandle = fileHandle else { return }
-        let headerData = Data(bytes: NALUHeader, count: NALUHeader.count)
-        fileHandle.write(headerData)
-        fileHandle.write(data)
+    func videoEncoder(_ encoder: VideoEncoder, encoded data: Data, isKeyframe: Bool, timestamp: Float64) {
+        livePublisher?.gotEncodedData(data, isKeyFrame: isKeyframe, timestramp: timestamp)
     }
     
     func videoEncoderFinished(_ encoder: VideoEncoder) {
         cleanupRecording()
-        delegate?.recordingPipeline(self, recorderDidFinish: videoFile!)
     }
 
+}
+
+extension RecordingPipeline: AudioRecorderDelegate {
+    
+    func audioRecorder(_ recorder: AudioRecorder, receive buffer: AudioBuffer) {
+        livePublisher?.receive(buffer, sampleRate: Int32(mode.config.audioSampleRate), startRecordTimeMills: startRecordTimeMills)
+    }
+    
+}
+
+extension RecordingPipeline: LivePublisherDelegate {
+    
+    func onConnectSuccess() {
+        DispatchQueue.main.async { [weak self] in
+            self?.startProducer()
+        }
+    }
+    
+    func onConnectFailed() {
+        DDLogError("live publish failed")
+        DispatchQueue.main.async { [weak self] in
+            self?.stopRecording()
+            self?.cleanupRecording()
+        }
+    }
+    
+    func publishTimeOut() {
+        DDLogError("live publish timeout")
+        DispatchQueue.main.async { [weak self] in
+            self?.stopRecording()
+            self?.cleanupRecording()
+        }
+    }
+    
 }
