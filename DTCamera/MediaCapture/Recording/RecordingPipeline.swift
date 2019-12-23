@@ -197,7 +197,7 @@ class RecordingPipeline: NSObject {
 
     private func cleanupRecording() {
         videoEncoder = nil
-        audioRecorder = nil
+//        audioRecorder = nil
         livePublisher = nil
         recordingStatus = .idle
         if let currentBackgroundRecordingID = backgroundRecordingID {

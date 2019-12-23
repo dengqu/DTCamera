@@ -17,7 +17,7 @@ LiveAudioEncoderAdapter::LiveAudioEncoderAdapter() {
 LiveAudioEncoderAdapter::~LiveAudioEncoderAdapter() {
 }
 
-static int fill_pcm_frame_callback(int16_t *samples, int frame_size, int nb_channels, double *presentationTimeMills, void *context) {
+static int fill_pcm_frame_callback(uint8_t *samples, int frame_size, int nb_channels, double *presentationTimeMills, void *context) {
     LiveAudioEncoderAdapter *adapter = (LiveAudioEncoderAdapter *)context;
     return adapter->getAudioFrame(samples, frame_size, nb_channels, presentationTimeMills);
 }
@@ -79,8 +79,8 @@ void LiveAudioEncoderAdapter::destroy() {
     }
 }
 
-int LiveAudioEncoderAdapter::getAudioFrame(int16_t *samples, int frame_size, int nb_channels, double *presentationTimeMills) {
-    int byteSize = frame_size * nb_channels * 2;
+int LiveAudioEncoderAdapter::getAudioFrame(uint8_t *samples, int frame_size, int nb_channels, double *presentationTimeMills) {
+    int byteSize = frame_size;
     int samplesInShortCursor = 0;
     while (true) {
         if (packetBufferSize == 0) {
@@ -106,7 +106,7 @@ int LiveAudioEncoderAdapter::getAudioFrame(int16_t *samples, int frame_size, int
     return frame_size * nb_channels;
 }
 
-int LiveAudioEncoderAdapter::cpyToSamples(int16_t *samples, int samplesInShortCursor, int cpyPacketBufferSize, double *presentationTimeMills) {
+int LiveAudioEncoderAdapter::cpyToSamples(uint8_t *samples, int samplesInShortCursor, int cpyPacketBufferSize, double *presentationTimeMills) {
     if (0 == samplesInShortCursor) {
         double packetBufferCursorDuration = (double)packetBufferCursor * 1000.0f / (double)(audioSampleRate * channelRatio);
         (*presentationTimeMills) = packetBufferPresentationTimeMills + packetBufferCursorDuration;

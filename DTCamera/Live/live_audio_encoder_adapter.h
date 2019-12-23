@@ -42,7 +42,7 @@ protected:
     
     float channelRatio;
     
-    int cpyToSamples(int16_t *samples, int samplesInShortCursor, int cpyPacketBufferSize, double *presentationTimeMills);
+    int cpyToSamples(uint8_t *samples, int samplesInShortCursor, int cpyPacketBufferSize, double *presentationTimeMills);
     
     int getAudioPacket();
     
@@ -53,7 +53,7 @@ protected:
     virtual void discardAudioPacket();
 
 public:
-    int getAudioFrame(int16_t *samples, int frame_size, int nb_channels, double *presentationTimeMills);
+    int getAudioFrame(uint8_t *samples, int frame_size, int nb_channels, double *presentationTimeMills);
 };
 
 #endif /* live_audio_encoder_adapter_h */

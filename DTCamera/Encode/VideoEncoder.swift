@@ -166,7 +166,6 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                                                                                 parameterSetCountOut: &spsCount,
                                                                                 nalUnitHeaderLengthOut: &nalHeaderLength)
             if statusCode == noErr {
-                DDLogDebug("sps: \(String(describing: sps)), spsSize: \(spsSize), spsCount: \(spsCount), NAL header length: \(nalHeaderLength)")
                 // pps
                 var ppsSize: Int = 0
                 var ppsCount: Int = 0
@@ -178,10 +177,10 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                                                                                 parameterSetCountOut: &ppsCount,
                                                                                 nalUnitHeaderLengthOut: &nalHeaderLength)
                 if statusCode == noErr {
-                    DDLogDebug("pps: \(String(describing: pps)), ppsSize: \(ppsSize), ppsCount: \(ppsCount), NAL header length: \(nalHeaderLength)")
                     let spsData = Data(bytes: sps, count: spsSize)
                     let ppsData = Data(bytes: pps, count: ppsSize)
                     let timeMills = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) * 1000
+                    DDLogDebug("videoEncoder spsSize: \(spsSize) nalHeaderLength: \(nalHeaderLength) ppsSize: \(ppsSize) nalHeaderLength: \(nalHeaderLength)")
                     encoder.delegate?.videoEncoder(encoder, encoded: spsData, pps: ppsData, timestamp: timeMills)
                 }
             }
@@ -210,6 +209,7 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                 
                 let data: Data = Data(bytes: dataPointer.advanced(by: bufferOffset + AVCCHeaderLength), count: Int(NALUnitLength))
                 let timeMills = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) * 1000
+                DDLogDebug("videoEncoder encodedData: \(Int(NALUnitLength))")
                 encoder.delegate?.videoEncoder(encoder, encoded: data, isKeyframe: isKeyframe, timestamp: timeMills)
                 
                 // move forward to the next NAL Unit

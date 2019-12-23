@@ -15,6 +15,7 @@
 extern "C" {
     #include "libavformat/avformat.h"
     #include "libavcodec/avcodec.h"
+    #include "libswresample/swresample.h"
 }
 
 #ifndef PUBLISH_BITE_RATE
@@ -24,12 +25,20 @@ extern "C" {
 class LiveAudioEncoder {
 private:
     AVCodecContext *avCodecContext;
-    AVFrame *encode_frame;
+        
     int64_t audio_next_pts;
     
-    uint8_t **audio_samples_data;
-    int audio_nb_samples;
-    int audio_samples_size;
+    AVFrame *input_frame;
+    int buffer_size;
+    uint8_t *samples;
+    int samplesCursor;
+    
+    SwrContext *swrContext;
+    uint8_t **convert_data;
+    AVFrame *swrFrame;
+    uint8_t *swrBuffer;
+    int swrBufferSize;
+
     int publishBitRate;
     int audioChannels;
     int audioSampleRate;
@@ -37,7 +46,7 @@ private:
     int alloc_avframe();
     int alloc_audio_stream(const char *codec_name);
     
-    typedef int (*fill_pcm_frame_callback)(int16_t *, int, int, double*, void *context);
+    typedef int (*fill_pcm_frame_callback)(uint8_t *, int, int, double*, void *context);
     
     fill_pcm_frame_callback fillPCMFrameCallback;
     void *fillPCMFrameContext;
@@ -45,7 +54,7 @@ public:
     LiveAudioEncoder();
     virtual ~LiveAudioEncoder();
     
-    int init(int bitRate, int channels, int sampleRate, const char *codec_name, int (*fill_pcm_frame_callback)(int16_t *, int, int, double*, void *context), void *context);
+    int init(int bitRate, int channels, int sampleRate, const char *codec_name, int (*fill_pcm_frame_callback)(uint8_t *, int, int, double*, void *context), void *context);
     int encode(LiveAudioPacket **audioPacket);
     void destroy();
 };
