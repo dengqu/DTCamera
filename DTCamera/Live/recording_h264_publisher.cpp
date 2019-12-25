@@ -114,29 +114,31 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
         
         parseH264SequenceHeader(headerData, headerSize, &spsFrame, spsFrameLen, &ppsFrame, ppsFrameLen);
         
-        // Extradata contains PPS & SPS for AVCC format
+        // 将 SPS 和 PPS 封装到视频编码器上下文的 extradata 中，参考 FFmpeg 源码中 avc.c
         int extradata_len = 8 + spsFrameLen - 4 + 1 + 2 + ppsFrameLen - 4;
         c->extradata = (uint8_t *)av_mallocz(extradata_len);
-        c->extradata[0] = 0x01;
-        c->extradata[1] = spsFrame[4 + 1];
-        c->extradata[2] = spsFrame[4 + 2];
-        c->extradata[3] = spsFrame[4 + 3];
-        c->extradata[4] = 0xFC | 3;
-        c->extradata[5] = 0xE0 | 1;
-        int tmp = spsFrameLen - 4;
+        c->extradata_size = extradata_len;
+        c->extradata[0] = 0x01; // version
+        c->extradata[1] = spsFrame[4 + 1];  // profile
+        c->extradata[2] = spsFrame[4 + 2];  // profile compat
+        c->extradata[3] = spsFrame[4 + 3];  // level
+        c->extradata[4] = 0xFC | 3; // 保留位
+        c->extradata[5] = 0xE0 | 1; // 保留位
+        int tmp = spsFrameLen - 4; // 开始写 SPS
         c->extradata[6] = (tmp >> 8) & 0x00ff;
         c->extradata[7] = tmp & 0x00ff;
         int i = 0;
         for (i = 0; i < tmp; i++) {
             c->extradata[8 + i] = spsFrame[4 + i];
         }
-        c->extradata[8 + tmp] = 0x01;
-        int tmp2 = ppsFrameLen - 4;
+        c->extradata[8 + tmp] = 0x01; // 结束写 SPS
+        int tmp2 = ppsFrameLen - 4; // 开始写 PPS
         c->extradata[8 + tmp + 1] = (tmp2 >> 8) & 0x00ff;
         c->extradata[8 + tmp + 2] = tmp2 & 0x00ff;
         for (i = 0; i < tmp2; i++) {
             c->extradata[8 + tmp + 3 + i] = ppsFrame[4 + i];
         }
+        // 结束写 PPS
         
         int ret = avformat_write_header(oc, NULL);
         if (ret < 0) {
@@ -159,7 +161,7 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 
                 pkt.pts = pts;
                 pkt.dts = dts;
-                pkt.flags = AV_PKT_FLAG_KEY;
+                pkt.flags = AV_PKT_FLAG_KEY; // 标识为关键帧
                 c->frame_number++;
             }
         } else {
@@ -176,7 +178,7 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 
                 pkt.pts = pts;
                 pkt.dts = dts;
-                pkt.flags = 0;
+                pkt.flags = 0; // 标识为不是关键帧
                 c->frame_number++;
             }
         }

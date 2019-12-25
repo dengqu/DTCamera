@@ -26,7 +26,7 @@ public:
     virtual void abortAudioPacketQueue();
     virtual void destroyAudioPacketQueue();
     virtual int getAudioPacket(LiveAudioPacket **audioPacket, bool block);
-    virtual void pushAudioPacketToQueue(LiveAudioPacket *audioPacket); // TODO: Push AAC
+    virtual void pushAudioPacketToQueue(LiveAudioPacket *audioPacket);
     virtual int getAudioPacketQueueSize();
 };
 

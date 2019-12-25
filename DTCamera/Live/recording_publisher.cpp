@@ -42,12 +42,12 @@ int RecordingPublisher::detectTimeout() {
     if (platform_4_live::getCurrentTimeMills() - sendLatestFrameTimemills > publishTimeout) {
         int queueSize = LivePacketPool::GetInstance()->getRecordingVideoPacketQueueSize();
         printf("RecordingPublisher::interrupt_cb callback time out ... queue size:%d\n", queueSize);
-        return 1;
+        return 1; // 返回 1 则代表结束 I/O 操作
     }
-    return 0;
+    return 0; // 返回 0 则代表继续 I/O 操作
 }
 
-int RecordingPublisher::interrupt_cb(void *ctx) {
+int RecordingPublisher::interrupt_cb(void *ctx) { // 超时回调函数
     RecordingPublisher *publisher = (RecordingPublisher *)ctx;
     return publisher->detectTimeout();
 }
@@ -116,7 +116,7 @@ int RecordingPublisher::encode() {
     double video_time = getVideoStreamTimeInSecs();
     double audio_time = getAudioStreamTimeInSecs();
     printf("video_time is %lf, audio_time is %f\n", video_time, audio_time);
-    if (!video_st || (video_st && audio_st && audio_time < video_time)) {
+    if (!video_st || (video_st && audio_st && audio_time < video_time)) { // 通过比较两路流上当前的时间戳信息，将时间戳比较小的那一路流进行封装和输出，音视频是交错存储的，即存储完一帧视频帧之后，再存储一段时间的音频，不一定是一帧音频，要看视频的 FPS 是多少
         ret = write_audio_frame(oc, audio_st);
     } else if (video_st) {
         ret = write_video_frame(oc, video_st);
@@ -217,7 +217,7 @@ AVStream* RecordingPublisher::add_stream(AVFormatContext *oc, AVCodec **codec, e
         case AVMEDIA_TYPE_AUDIO:
             printf("audioBitRate is %d audioChannels is %d audioSampleRate is %d\n", audioBitRate,
                  audioChannels, audioSampleRate);
-            c->sample_fmt = AV_SAMPLE_FMT_S16;
+            c->sample_fmt = AV_SAMPLE_FMT_FLTP;
             c->bit_rate = audioBitRate;
             c->codec_type = AVMEDIA_TYPE_AUDIO;
             c->sample_rate = audioSampleRate;
@@ -309,7 +309,7 @@ int RecordingPublisher::open_audio(AVFormatContext *oc, AVCodec *codec, AVStream
     char dsi[2];
     dsi[0] = (object_type << 3) | (get_sr_index(c->sample_rate) >> 1);
     dsi[1] = ((get_sr_index(c->sample_rate) & 1) << 7) | (c->channels << 3);
-    memcpy(c->extradata, dsi, 2);
+    memcpy(c->extradata, dsi, 2); // FFmpeg 设置 extradata 的目的是为解码器提供原始数据，从而初始化解码器，类似于编码 AAC 前面加上 ADTS 的头，ADTS 头部信息可以提取编码器的 Profile、采样率以及声道数的信息
     bsfc = av_bitstream_filter_init("aac_adtstoasc"); // This filter creates an MPEG-4 AudioSpecificConfig from an MPEG-2/4 ADTS header and removes the ADTS header.
     return 1;
 }

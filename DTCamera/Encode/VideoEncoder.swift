@@ -33,6 +33,7 @@ class VideoEncoder {
 
     private var isReady = false
     private var encodingTimeMills: Int64 = -1
+    var isKeyframeFound = false
     
     private var session: VTCompressionSession!
     
@@ -152,7 +153,7 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
         let rawDictionary: UnsafeRawPointer = CFArrayGetValueAtIndex(attachments, 0)
         let dictionary: CFDictionary = Unmanaged.fromOpaque(rawDictionary).takeUnretainedValue()
         let isKeyframe = !CFDictionaryContainsKey(dictionary, Unmanaged.passUnretained(kCMSampleAttachmentKey_NotSync).toOpaque())
-        if isKeyframe { // 每一个关键帧前面都会输出 SPS 和 PPS 信息
+        if isKeyframe && !encoder.isKeyframeFound { // 每一个关键帧前面都会输出 SPS 和 PPS 信息
             let format = CMSampleBufferGetFormatDescription(sampleBuffer)
             // sps
             var spsSize: Int = 0
@@ -181,6 +182,7 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                     let ppsData = Data(bytes: pps, count: ppsSize)
                     let timeMills = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) * 1000
                     DDLogDebug("videoEncoder spsSize: \(spsSize) nalHeaderLength: \(nalHeaderLength) ppsSize: \(ppsSize) nalHeaderLength: \(nalHeaderLength)")
+                    encoder.isKeyframeFound = true
                     encoder.delegate?.videoEncoder(encoder, encoded: spsData, pps: ppsData, timestamp: timeMills)
                 }
             }
