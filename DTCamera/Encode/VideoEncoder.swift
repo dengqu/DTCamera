@@ -211,7 +211,7 @@ func didCompressH264(outputCallbackRefCon: UnsafeMutableRawPointer?,
                 
                 let data: Data = Data(bytes: dataPointer.advanced(by: bufferOffset + AVCCHeaderLength), count: Int(NALUnitLength))
                 let timeMills = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) * 1000
-                DDLogDebug("videoEncoder encodedData: \(Int(NALUnitLength))")
+//                DDLogDebug("videoEncoder encodedData: \(Int(NALUnitLength))")
                 encoder.delegate?.videoEncoder(encoder, encoded: data, isKeyframe: isKeyframe, timestamp: timeMills)
                 
                 // move forward to the next NAL Unit

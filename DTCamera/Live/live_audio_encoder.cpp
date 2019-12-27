@@ -16,6 +16,7 @@ LiveAudioEncoder::~LiveAudioEncoder() {
 
 int LiveAudioEncoder::init(int bitRate, int channels, int sampleRate, const char *codec_name, int (*fill_pcm_frame_callback)(uint8_t *, int, int, double *, void *), void *context) {
     avCodecContext = NULL;
+    audio_next_pts = 0.0;
     input_frame = NULL;
     samples = NULL;
     samplesCursor = 0;

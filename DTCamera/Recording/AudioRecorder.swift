@@ -435,7 +435,7 @@ func renderCallback(inRefCon: UnsafeMutableRawPointer,
                     ioData: UnsafeMutablePointer<AudioBufferList>?) -> OSStatus {
     let recorder: AudioRecorder = Unmanaged.fromOpaque(inRefCon).takeUnretainedValue()
     var statusCode = AudioUnitRender(recorder.mixerUnit, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, ioData!)
-    DDLogDebug("audio recorder receive \(inNumberFrames) frames with \(ioData?.pointee.mBuffers.mDataByteSize ?? 0) btyes")
+//    DDLogDebug("audio recorder receive \(inNumberFrames) frames with \(ioData?.pointee.mBuffers.mDataByteSize ?? 0) btyes")
     if let audioFile = recorder.audioFile {
         statusCode = ExtAudioFileWriteAsync(audioFile, inNumberFrames, ioData)
         if statusCode != noErr {

@@ -115,7 +115,7 @@ int RecordingPublisher::encode() {
     int ret = 0;
     double video_time = getVideoStreamTimeInSecs();
     double audio_time = getAudioStreamTimeInSecs();
-    printf("video_time is %lf, audio_time is %f\n", video_time, audio_time);
+//    printf("video_time is %lf, audio_time is %f\n", video_time, audio_time);
     if (!video_st || (video_st && audio_st && audio_time < video_time)) { // 通过比较两路流上当前的时间戳信息，将时间戳比较小的那一路流进行封装和输出，音视频是交错存储的，即存储完一帧视频帧之后，再存储一段时间的音频，不一定是一帧音频，要看视频的 FPS 是多少
         ret = write_audio_frame(oc, audio_st);
     } else if (video_st) {
@@ -338,6 +338,7 @@ int RecordingPublisher::write_audio_frame(AVFormatContext *oc, AVStream *st) {
             newPacket.dts = pkt.dts;
             newPacket.duration = pkt.duration;
             newPacket.stream_index = pkt.stream_index;
+//            printf("write_audio_frame %d\n", newPacket.size);
             ret = this->interleavedWriteFrame(oc, &newPacket);
             if (ret != 0) {
                 printf("Error while writing audio frame: %s\n", av_err2str(ret));

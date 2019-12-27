@@ -159,6 +159,9 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 pkt.data[2] = ((bufferSize) >> 8) & 0x00ff;
                 pkt.data[3] = ((bufferSize)) & 0x00ff;
                 
+                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, pkt.size - 4,
+                       pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
+
                 pkt.pts = pts;
                 pkt.dts = dts;
                 pkt.flags = AV_PKT_FLAG_KEY; // 标识为关键帧
@@ -174,8 +177,11 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 pkt.data[0] = ((bufferSize) >> 24) & 0x00ff;
                 pkt.data[1] = ((bufferSize) >> 16) & 0x00ff;
                 pkt.data[2] = ((bufferSize) >> 8) & 0x00ff;
-                pkt.data[3] = ((bufferSize)) & 0x00ff;
+                pkt.data[3] = ((bufferSize)) & 0x00ff; // TODO: print nalu length, compare with flv parse
                 
+                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, pkt.size - 4,
+                       pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
+
                 pkt.pts = pts;
                 pkt.dts = dts;
                 pkt.flags = 0; // 标识为不是关键帧
