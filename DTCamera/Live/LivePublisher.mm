@@ -88,7 +88,7 @@ static int on_publish_timeout_callback(void *context) {
     videoPacket->buffer = new unsigned char[headerLength + data.length];
     videoPacket->size = int(headerLength + data.length);
     memcpy(videoPacket->buffer, bytesHeader, headerLength);
-    memcpy(videoPacket->buffer + headerLength, (unsigned char*)[data bytes], data.length);
+    memcpy(videoPacket->buffer + headerLength, (unsigned char*)[data bytes], data.length); // TODO: Thread Problems
     videoPacket->timeMills = miliseconds;
     
     LivePacketPool::GetInstance()->pushRecordingVideoPacketToQueue(videoPacket);

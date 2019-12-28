@@ -447,7 +447,9 @@ extension RecordingPipeline: AVCaptureVideoDataOutputSampleBufferDelegate {
                 self.delegate?.recordingPipeline(self, display: previewPixelBuffer)
             }
             if recordingStatus == .recording {
+//                CVPixelBufferLockBaseAddress(outputPixelBuffer, [])
                 videoEncoder?.encode(pixelBuffer: outputPixelBuffer)
+//                CVPixelBufferUnlockBaseAddress(outputPixelBuffer, [])
             }
         }
     }
