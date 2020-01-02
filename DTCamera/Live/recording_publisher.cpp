@@ -52,7 +52,7 @@ int RecordingPublisher::interrupt_cb(void *ctx) { // 超时回调函数
     return publisher->detectTimeout();
 }
 
-int RecordingPublisher::init(char *videoOutputURI, int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate, int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName) {
+int RecordingPublisher::init(char *videoOutputURI, char *h264URI, int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate, int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName) {
     int ret = 0;
     this->publishTimeout = PUBLISH_DATA_TIME_OUT;
     this->sendLatestFrameTimemills = platform_4_live::getCurrentTimeMills();
@@ -68,6 +68,7 @@ int RecordingPublisher::init(char *videoOutputURI, int videoWidth, int videoHeig
     this->audioSampleRate = audioSampleRate;
     this->audioChannels = audioChannels;
     this->audioBitRate = audioBitRate;
+    this->h264File = fopen(h264URI, "wb");
     
     avcodec_register_all();
     av_register_all();
@@ -333,12 +334,12 @@ int RecordingPublisher::write_audio_frame(AVFormatContext *oc, AVStream *st) {
         AVPacket newPacket;
         av_init_packet(&newPacket);
         ret = av_bitstream_filter_filter(bsfc, st->codec, NULL, &newPacket.data, &newPacket.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY);
-        if (ret > 0) {
+        if (ret >= 0) {
             newPacket.pts = pkt.pts;
             newPacket.dts = pkt.dts;
             newPacket.duration = pkt.duration;
             newPacket.stream_index = pkt.stream_index;
-//            printf("write_audio_frame %d\n", newPacket.size);
+            printf("write_audio_frame %d\n", newPacket.size);
             ret = this->interleavedWriteFrame(oc, &newPacket);
             if (ret != 0) {
                 printf("Error while writing audio frame: %s\n", av_err2str(ret));

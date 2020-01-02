@@ -22,7 +22,8 @@ static int on_publish_timeout_callback(void *context) {
 @interface LivePublisher ()
 
 @property (nonatomic, copy) NSString *rtmpURL;
-@property (nonatomic, strong) NSURL *h264URL;
+@property (nonatomic, strong) NSURL *h264BeforeURL;
+@property (nonatomic, strong) NSString *h264AfterURL;
 @property (nonatomic, assign) NSInteger videoWidth;
 @property (nonatomic, assign) NSInteger videoHeight;
 @property (nonatomic, assign) NSInteger videoFrameRate;
@@ -44,13 +45,14 @@ static int on_publish_timeout_callback(void *context) {
     dispatch_queue_t _consumerQueue;
 }
 
-- (instancetype)initWithRTMPURL:(NSString *)rtmpURL h264URL:(NSURL *)h264URL
+- (instancetype)initWithRTMPURL:(NSString *)rtmpURL h264BeforeURL:(NSURL *)h264BeforeURL h264AfterURL:(NSString *)h264AfterURL
                      videoWidth:(NSInteger)videoWidth videoHeight:(NSInteger)videoHeight videoFrameRate:(NSInteger)videoFrameRate videoBitRate:(NSInteger)videoBitRate
                 audioSampleRate:(NSInteger)audioSampleRate audioChannels:(NSInteger)audioChannels audioBitRate:(NSInteger)audioBitRate audioCodecName:(NSString *)audioCodecName {
     self = [super init];
     if (self) {
         self.rtmpURL = rtmpURL;
-        self.h264URL = h264URL;
+        self.h264BeforeURL = h264BeforeURL;
+        self.h264AfterURL = h264AfterURL;
         self.videoWidth = videoWidth;
         self.videoHeight = videoHeight;
         self.videoFrameRate = videoFrameRate;
@@ -60,7 +62,7 @@ static int on_publish_timeout_callback(void *context) {
         self.audioBitRate = audioBitRate;
         self.audioCodecName = audioCodecName;
         _consumerQueue = dispatch_queue_create("com.danthought.LivePublisher.consumerQueue", NULL);
-        _fileHandle = [NSFileHandle fileHandleForWritingToURL:h264URL error:NULL];
+        _fileHandle = [NSFileHandle fileHandleForWritingToURL:h264BeforeURL error:NULL];
     }
     return self;
 }
@@ -75,13 +77,10 @@ static int on_publish_timeout_callback(void *context) {
     videoPacket->buffer = new unsigned char[length];
     videoPacket->size = int(length);
     memcpy(videoPacket->buffer, bytesHeader, headerLength);
-    [self.fileHandle writeData:[NSData dataWithBytes:bytesHeader length:4]];
     memcpy(videoPacket->buffer + headerLength, (unsigned char*)[sps bytes], sps.length);
-    [self.fileHandle writeData:sps];
     memcpy(videoPacket->buffer + headerLength + sps.length, bytesHeader, headerLength);
-    [self.fileHandle writeData:[NSData dataWithBytes:bytesHeader length:4]];
     memcpy(videoPacket->buffer + headerLength * 2 + sps.length, (unsigned char*)[pps bytes], pps.length);
-    [self.fileHandle writeData:pps];
+    [self.fileHandle writeData:[NSData dataWithBytes:videoPacket->buffer length:videoPacket->size]];
     videoPacket->timeMills = 0;
     
     LivePacketPool::GetInstance()->pushRecordingVideoPacketToQueue(videoPacket);
@@ -98,9 +97,8 @@ static int on_publish_timeout_callback(void *context) {
     videoPacket->buffer = new unsigned char[headerLength + data.length];
     videoPacket->size = int(headerLength + data.length);
     memcpy(videoPacket->buffer, bytesHeader, headerLength);
-    [self.fileHandle writeData:[NSData dataWithBytes:bytesHeader length:4]];
     memcpy(videoPacket->buffer + headerLength, (unsigned char*)[data bytes], data.length);
-    [self.fileHandle writeData:data];
+    [self.fileHandle writeData:[NSData dataWithBytes:videoPacket->buffer length:videoPacket->size]];
     videoPacket->timeMills = miliseconds;
     
     LivePacketPool::GetInstance()->pushRecordingVideoPacketToQueue(videoPacket);
@@ -149,6 +147,7 @@ static int on_publish_timeout_callback(void *context) {
         LivePacketPool::GetInstance()->initAudioPacketQueue((int)strongSelf.audioSampleRate);
         LiveAudioPacketPool::GetInstance()->initAudioPacketQueue();
         int consumerInitCode = strongSelf->_consumer->init([strongSelf nsstring2char:strongSelf.rtmpURL],
+                                                           [strongSelf nsstring2char:strongSelf.h264AfterURL],
                                                            (int)strongSelf.videoWidth,
                                                            (int)strongSelf.videoHeight,
                                                            (int)strongSelf.videoFrameRate,

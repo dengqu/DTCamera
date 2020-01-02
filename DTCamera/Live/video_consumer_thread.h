@@ -21,7 +21,7 @@ class VideoConsumerThread: public LiveThread {
 public:
     VideoConsumerThread();
     virtual ~VideoConsumerThread();
-    int init(char *videoOutputURI,
+    int init(char *videoOutputURI, char *h264URI,
              int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate,
              int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName);
     virtual void stop();

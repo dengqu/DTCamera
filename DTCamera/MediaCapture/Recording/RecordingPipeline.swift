@@ -185,7 +185,6 @@ class RecordingPipeline: NSObject {
     private func cleanupRecording() {
         videoEncoder = nil
 //        audioRecorder = nil
-        livePublisher = nil
         recordingStatus = .idle
         if let currentBackgroundRecordingID = backgroundRecordingID {
             backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
@@ -345,13 +344,16 @@ class RecordingPipeline: NSObject {
     
     private func startComsumer() {
         let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true)
-        let h264File = MediaViewController.getMediaFileURL(name: "video", ext: "h264", needCreate: true)
+        let h264BeforeFile = MediaViewController.getMediaFileURL(name: "video_before", ext: "h264", needCreate: true)
+        let h264AfterFile = MediaViewController.getMediaFileURL(name: "video_after", ext: "h264", needCreate: true)
         if let videoFile = videoFile,
-            let h264File = h264File,
+            let h264BeforeFile = h264BeforeFile,
+            let h264AfterFile = h264AfterFile,
             let videoFormatDescription = videoFormatDescription {
             let dimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
             livePublisher = LivePublisher(rtmpurl: videoFile.path,
-                                          h264URL: h264File,
+                                          h264Before: h264BeforeFile,
+                                          h264AfterURL: h264AfterFile.path,
                                           videoWidth: Int(dimensions.width),
                                           videoHeight: Int(dimensions.height),
                                           videoFrameRate: mode.config.recordingFrameRate,

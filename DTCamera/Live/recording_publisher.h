@@ -42,7 +42,7 @@ public:
     
     int detectTimeout();
     
-    virtual int init(char *videoOutputURI,
+    virtual int init(char *videoOutputURI, char *h264URI,
                      int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate,
                      int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName);
     
@@ -88,6 +88,8 @@ protected:
     int startSendTime = 0;
     
     int interleavedWriteFrame(AVFormatContext *s, AVPacket *pkt);
+    
+    FILE *h264File;
     
     AVOutputFormat *fmt;
     AVFormatContext *oc;

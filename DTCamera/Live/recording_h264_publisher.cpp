@@ -91,6 +91,9 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
     }
     int bufferSize = (h264Packet)->size;
     uint8_t *outputData = (uint8_t *)(h264Packet->buffer);
+    
+    fwrite(outputData, sizeof(byte), bufferSize, this->h264File);
+        
     lastPresentationTimeMs = h264Packet->timeMills;
     // 填充起来我们的AVPacket
     AVPacket pkt = { 0 };
@@ -159,7 +162,7 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 pkt.data[2] = ((bufferSize) >> 8) & 0x00ff;
                 pkt.data[3] = ((bufferSize)) & 0x00ff;
                 
-                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, pkt.size - 4,
+                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, bufferSize,
                        pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
 
                 pkt.pts = pts;
@@ -179,7 +182,7 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 pkt.data[2] = ((bufferSize) >> 8) & 0x00ff;
                 pkt.data[3] = ((bufferSize)) & 0x00ff;
                 
-                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, pkt.size - 4,
+                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, bufferSize,
                        pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
 
                 pkt.pts = pts;
