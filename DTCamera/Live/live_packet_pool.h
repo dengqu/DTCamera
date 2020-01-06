@@ -9,7 +9,6 @@
 #ifndef live_packet_pool_h
 #define live_packet_pool_h
 
-#include "live_common.h"
 #include "live_audio_packet_queue.h"
 #include "live_video_packet_queue.h"
 

@@ -40,7 +40,7 @@ int AudioEncoder::alloc_audio_stream(const char *codec_name) {
     avCodecContext->channels = av_get_channel_layout_nb_channels(avCodecContext->channel_layout); // 基本属性 - 声道
     avCodecContext->profile = FF_PROFILE_AAC_LOW;
     printf("avCodecContext->channels is %d\n", avCodecContext->channels);
-    avCodecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+    avCodecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
     
     codec = avcodec_find_encoder_by_name(codec_name); // 寻找 encoder
     if (!codec) {

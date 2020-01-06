@@ -106,8 +106,8 @@ void LivePacketPool::pushAudioPacketToQueue(LiveAudioPacket *audioPacket) {
                 bufferCursor = 0;
             }
         }
+        delete audioPacket;
     }
-    delete audioPacket;
 }
 
 void LivePacketPool::initRecordingVideoPacketQueue() {

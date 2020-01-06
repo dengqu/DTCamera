@@ -63,14 +63,14 @@ void VideoConsumerThread::init() {
     videoPublisher = NULL;
 }
 
-int VideoConsumerThread::init(char *videoOutputURI, char *h264URI, int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate, int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName) {
+int VideoConsumerThread::init(char *videoOutputURI, int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate, int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName) {
     init();
     if (NULL == videoPublisher) {
         pthread_mutex_lock(&connectingLock);
         this->isConnecting = true;
         pthread_mutex_unlock(&connectingLock);
         buildPublisherInstance();
-        int ret = videoPublisher->init(videoOutputURI, h264URI, videoWidth, videoHeight, videoFrameRate, videoBitRate, audioSampleRate, audioChannels, audioBitRate, audioCodecName);
+        int ret = videoPublisher->init(videoOutputURI, videoWidth, videoHeight, videoFrameRate, videoBitRate, audioSampleRate, audioChannels, audioBitRate, audioCodecName);
         pthread_mutex_lock(&connectingLock);
         this->isConnecting = false;
         pthread_mutex_unlock(&connectingLock);
@@ -83,6 +83,7 @@ int VideoConsumerThread::init(char *videoOutputURI, char *h264URI, int videoWidt
             
             pthread_cond_signal(&interruptCondition);
             pthread_mutex_unlock(&interruptLock);
+            return ret;
         }
         if (!isStopping) {
             videoPublisher->registerFillAACPacketCallback(fill_aac_packet_callback, this);

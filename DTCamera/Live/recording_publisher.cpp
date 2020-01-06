@@ -52,7 +52,7 @@ int RecordingPublisher::interrupt_cb(void *ctx) { // 超时回调函数
     return publisher->detectTimeout();
 }
 
-int RecordingPublisher::init(char *videoOutputURI, char *h264URI, int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate, int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName) {
+int RecordingPublisher::init(char *videoOutputURI, int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate, int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName) {
     int ret = 0;
     this->publishTimeout = PUBLISH_DATA_TIME_OUT;
     this->sendLatestFrameTimemills = platform_4_live::getCurrentTimeMills();
@@ -68,7 +68,6 @@ int RecordingPublisher::init(char *videoOutputURI, char *h264URI, int videoWidth
     this->audioSampleRate = audioSampleRate;
     this->audioChannels = audioChannels;
     this->audioBitRate = audioBitRate;
-    this->h264File = fopen(h264URI, "wb");
     
     avcodec_register_all();
     av_register_all();
@@ -218,13 +217,13 @@ AVStream* RecordingPublisher::add_stream(AVFormatContext *oc, AVCodec **codec, e
         case AVMEDIA_TYPE_AUDIO:
             printf("audioBitRate is %d audioChannels is %d audioSampleRate is %d\n", audioBitRate,
                  audioChannels, audioSampleRate);
-            c->sample_fmt = AV_SAMPLE_FMT_FLTP;
+            c->sample_fmt = AV_SAMPLE_FMT_S16;
             c->bit_rate = audioBitRate;
             c->codec_type = AVMEDIA_TYPE_AUDIO;
             c->sample_rate = audioSampleRate;
             c->channel_layout = audioChannels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO;
             c->channels = av_get_channel_layout_nb_channels(c->channel_layout);
-            c->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+            c->flags |= CODEC_FLAG_GLOBAL_HEADER;
             break;
         case AVMEDIA_TYPE_VIDEO:
             c->codec_id = AV_CODEC_ID_H264;
@@ -260,7 +259,7 @@ AVStream* RecordingPublisher::add_stream(AVFormatContext *oc, AVCodec **codec, e
     }
     /* Some formats want stream headers to be separate. */
     if (oc->oformat->flags & AVFMT_GLOBALHEADER) {
-        c->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+        c->flags |= CODEC_FLAG_GLOBAL_HEADER;
     }
     return st;
 }

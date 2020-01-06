@@ -91,9 +91,7 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
     }
     int bufferSize = (h264Packet)->size;
     uint8_t *outputData = (uint8_t *)(h264Packet->buffer);
-    
-    fwrite(outputData, sizeof(byte), bufferSize, this->h264File);
-        
+            
     lastPresentationTimeMs = h264Packet->timeMills;
     // 填充起来我们的AVPacket
     AVPacket pkt = { 0 };

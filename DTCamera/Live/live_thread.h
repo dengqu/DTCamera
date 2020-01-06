@@ -9,7 +9,7 @@
 #ifndef live_thread_h
 #define live_thread_h
 
-#include "live_common.h"
+#include "platform_4_live_common.h"
 #include <pthread.h>
 
 class LiveThread {

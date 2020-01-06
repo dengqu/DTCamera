@@ -9,7 +9,6 @@
 #ifndef live_audio_packet_pool_h
 #define live_audio_packet_pool_h
 
-#include "live_common.h"
 #include "live_audio_packet_queue.h"
 
 class LiveAudioPacketPool {

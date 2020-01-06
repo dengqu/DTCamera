@@ -9,17 +9,11 @@
 #ifndef recording_publisher_h
 #define recording_publisher_h
 
-#include "live_common.h"
+#include "platform_4_live_common.h"
+#include "platform_4_live_ffmpeg.h"
+#include "live_video_packet_queue.h"
+#include "live_audio_packet_queue.h"
 #include "live_packet_pool.h"
-
-extern "C" {
-    #include "libavformat/avformat.h"
-    #include "libavformat/avio.h"
-    #include "libavcodec/avcodec.h"
-    #include "libavutil/channel_layout.h"
-    #include "libavutil/avutil.h"
-    #include "libavutil/opt.h"
-}
 
 #define COLOR_FORMAT            AV_PIX_FMT_BGRA
 #ifndef PUBLISH_DATA_TIME_OUT
@@ -42,7 +36,7 @@ public:
     
     int detectTimeout();
     
-    virtual int init(char *videoOutputURI, char *h264URI,
+    virtual int init(char *videoOutputURI,
                      int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate,
                      int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName);
     
@@ -88,9 +82,7 @@ protected:
     int startSendTime = 0;
     
     int interleavedWriteFrame(AVFormatContext *s, AVPacket *pkt);
-    
-    FILE *h264File;
-    
+
     AVOutputFormat *fmt;
     AVFormatContext *oc;
     AVStream *video_st;

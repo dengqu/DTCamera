@@ -440,9 +440,10 @@ extension RecordingPipeline: AVCaptureVideoDataOutputSampleBufferDelegate {
                 self.delegate?.recordingPipeline(self, display: outputPixelBuffer)
             }
             if recordingStatus == .recording {
-                CVPixelBufferLockBaseAddress(outputPixelBuffer, [])
+//                CVPixelBufferLockBaseAddress(outputPixelBuffer, [])
                 videoEncoder?.encode(pixelBuffer: outputPixelBuffer)
-                CVPixelBufferUnlockBaseAddress(outputPixelBuffer, [])
+//                CVPixelBufferUnlockBaseAddress(outputPixelBuffer, [])
+                semaphore.signal()
             } else {
                 semaphore.signal()
             }
@@ -512,7 +513,7 @@ extension RecordingPipeline: LivePublisherDelegate {
     }
     
     func pushRecordingVideoPacketToQueue() {
-        semaphore.signal()
+//        semaphore.signal()
     }
     
 }

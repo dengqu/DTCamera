@@ -9,7 +9,7 @@
 #ifndef video_consumer_thread_h
 #define video_consumer_thread_h
 
-#include "live_common.h"
+#include "platform_4_live_common.h"
 #include "live_thread.h"
 #include "live_packet_pool.h"
 #include "live_audio_packet_pool.h"
@@ -21,7 +21,7 @@ class VideoConsumerThread: public LiveThread {
 public:
     VideoConsumerThread();
     virtual ~VideoConsumerThread();
-    int init(char *videoOutputURI, char *h264URI,
+    int init(char *videoOutputURI,
              int videoWidth, int videoHeight, int videoFrameRate, int videoBitRate,
              int audioSampleRate, int audioChannels, int audioBitRate, char *audioCodecName);
     virtual void stop();

@@ -147,7 +147,6 @@ static int on_publish_timeout_callback(void *context) {
         LivePacketPool::GetInstance()->initAudioPacketQueue((int)strongSelf.audioSampleRate);
         LiveAudioPacketPool::GetInstance()->initAudioPacketQueue();
         int consumerInitCode = strongSelf->_consumer->init([strongSelf nsstring2char:strongSelf.rtmpURL],
-                                                           [strongSelf nsstring2char:strongSelf.h264AfterURL],
                                                            (int)strongSelf.videoWidth,
                                                            (int)strongSelf.videoHeight,
                                                            (int)strongSelf.videoFrameRate,

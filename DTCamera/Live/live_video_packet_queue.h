@@ -9,7 +9,7 @@
 #ifndef live_video_packet_queue_h
 #define live_video_packet_queue_h
 
-#include "live_common.h"
+#include "platform_4_live_common.h"
 #include <pthread.h>
 
 #define H264_NALU_TYPE_NON_IDR_PICTURE                                  1

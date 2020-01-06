@@ -102,7 +102,7 @@ struct MediaConfig {
     let audioSampleRate: Int = 44100
     let audioChannels: Int = 2
     let audioBitRate: Int = 64000
-    let audioCodecName: String = "aac"
+    let audioCodecName: String = "libfdk_aac"
 
     init(limitOfPhotos: Int = 9,
          ratioMode: CameraRatioMode = .r3to4, positionMode: CameraPositionMode = .back,
