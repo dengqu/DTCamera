@@ -44,7 +44,20 @@ class RecordingPipeline: NSObject {
     private var videoFormatDescription: CMFormatDescription?
     
     // Preview
-    private let semaphore = DispatchSemaphore(value: 1)
+    private let previewPixelBufferQueue = DispatchQueue(label: "recording preview pixel buffer queue", attributes: [.concurrent], target: nil)
+    private var _previewPixelBuffer: CVPixelBuffer?
+    private var previewPixelBuffer: CVPixelBuffer? {
+        get {
+            previewPixelBufferQueue.sync {
+                return _previewPixelBuffer
+            }
+        }
+        set {
+            previewPixelBufferQueue.async(flags: .barrier) { [weak self] in
+                self?._previewPixelBuffer = newValue
+            }
+        }
+    }
     
     // Video Encode
     private var videoEncoder: VideoEncoder?
@@ -344,16 +357,10 @@ class RecordingPipeline: NSObject {
     
     private func startComsumer() {
         let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true)
-        let h264BeforeFile = MediaViewController.getMediaFileURL(name: "video_before", ext: "h264", needCreate: true)
-        let h264AfterFile = MediaViewController.getMediaFileURL(name: "video_after", ext: "h264", needCreate: true)
         if let videoFile = videoFile,
-            let h264BeforeFile = h264BeforeFile,
-            let h264AfterFile = h264AfterFile,
             let videoFormatDescription = videoFormatDescription {
             let dimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
             livePublisher = LivePublisher(rtmpurl: videoFile.path,
-                                          h264Before: h264BeforeFile,
-                                          h264AfterURL: h264AfterFile.path,
                                           videoWidth: Int(dimensions.width),
                                           videoHeight: Int(dimensions.height),
                                           videoFrameRate: mode.config.recordingFrameRate,
@@ -414,7 +421,6 @@ class RecordingPipeline: NSObject {
 extension RecordingPipeline: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        semaphore.wait()
         let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
         let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
         calculateFrameRate(at: timestamp)
@@ -432,23 +438,16 @@ extension RecordingPipeline: AVCaptureVideoDataOutputSampleBufferDelegate {
                     effectFilterVideoDimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
                 }
             }
-            semaphore.signal()
         } else if isRenderingEnabled, let inputPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
             let outputPixelBuffer = effectFilter.filter(pixelBuffer: inputPixelBuffer)
+            previewPixelBuffer = outputPixelBuffer
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.delegate?.recordingPipeline(self, display: outputPixelBuffer)
+                guard let self = self, let previewPixelBuffer = self.previewPixelBuffer else { return }
+                self.delegate?.recordingPipeline(self, display: previewPixelBuffer)
             }
             if recordingStatus == .recording {
-//                CVPixelBufferLockBaseAddress(outputPixelBuffer, [])
                 videoEncoder?.encode(pixelBuffer: outputPixelBuffer)
-//                CVPixelBufferUnlockBaseAddress(outputPixelBuffer, [])
-                semaphore.signal()
-            } else {
-                semaphore.signal()
             }
-        } else {
-            semaphore.signal()
         }
     }
     
@@ -510,10 +509,6 @@ extension RecordingPipeline: LivePublisherDelegate {
             self?.stopRecording()
             self?.cleanupRecording()
         }
-    }
-    
-    func pushRecordingVideoPacketToQueue() {
-//        semaphore.signal()
     }
     
 }

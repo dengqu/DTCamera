@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)onConnectSuccess;
 - (void)onConnectFailed;
 - (void)publishTimeOut;
-- (void)pushRecordingVideoPacketToQueue;
 
 @end
 
@@ -26,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<LivePublisherDelegate> delegate;
 @property (nonatomic, assign) double startConnectTimeMills;
 
-- (instancetype)initWithRTMPURL:(NSString *)rtmpURL h264BeforeURL:(NSURL *)h264BeforeURL h264AfterURL:(NSString *)h264AfterURL
+- (instancetype)initWithRTMPURL:(NSString *)rtmpURL
      videoWidth:(NSInteger)videoWidth videoHeight:(NSInteger)videoHeight videoFrameRate:(NSInteger)videoFrameRate videoBitRate:(NSInteger)videoBitRate
                 audioSampleRate:(NSInteger)audioSampleRate audioChannels:(NSInteger)audioChannels audioBitRate:(NSInteger)audioBitRate audioCodecName:(NSString *)audioCodecName;
 - (void)gotSpsPps:(NSData*)sps pps:(NSData*)pps timestramp:(Float64)miliseconds;

@@ -22,8 +22,6 @@ static int on_publish_timeout_callback(void *context) {
 @interface LivePublisher ()
 
 @property (nonatomic, copy) NSString *rtmpURL;
-@property (nonatomic, strong) NSURL *h264BeforeURL;
-@property (nonatomic, strong) NSString *h264AfterURL;
 @property (nonatomic, assign) NSInteger videoWidth;
 @property (nonatomic, assign) NSInteger videoHeight;
 @property (nonatomic, assign) NSInteger videoFrameRate;
@@ -34,7 +32,6 @@ static int on_publish_timeout_callback(void *context) {
 @property (nonatomic, copy) NSString *audioCodecName;
 
 @property (nonatomic, assign) int totalSampleCount;
-@property (nonatomic, strong) NSFileHandle *fileHandle;
 
 @end
 
@@ -45,14 +42,12 @@ static int on_publish_timeout_callback(void *context) {
     dispatch_queue_t _consumerQueue;
 }
 
-- (instancetype)initWithRTMPURL:(NSString *)rtmpURL h264BeforeURL:(NSURL *)h264BeforeURL h264AfterURL:(NSString *)h264AfterURL
+- (instancetype)initWithRTMPURL:(NSString *)rtmpURL
                      videoWidth:(NSInteger)videoWidth videoHeight:(NSInteger)videoHeight videoFrameRate:(NSInteger)videoFrameRate videoBitRate:(NSInteger)videoBitRate
                 audioSampleRate:(NSInteger)audioSampleRate audioChannels:(NSInteger)audioChannels audioBitRate:(NSInteger)audioBitRate audioCodecName:(NSString *)audioCodecName {
     self = [super init];
     if (self) {
         self.rtmpURL = rtmpURL;
-        self.h264BeforeURL = h264BeforeURL;
-        self.h264AfterURL = h264AfterURL;
         self.videoWidth = videoWidth;
         self.videoHeight = videoHeight;
         self.videoFrameRate = videoFrameRate;
@@ -62,7 +57,6 @@ static int on_publish_timeout_callback(void *context) {
         self.audioBitRate = audioBitRate;
         self.audioCodecName = audioCodecName;
         _consumerQueue = dispatch_queue_create("com.danthought.LivePublisher.consumerQueue", NULL);
-        _fileHandle = [NSFileHandle fileHandleForWritingToURL:h264BeforeURL error:NULL];
     }
     return self;
 }
@@ -80,12 +74,9 @@ static int on_publish_timeout_callback(void *context) {
     memcpy(videoPacket->buffer + headerLength, (unsigned char*)[sps bytes], sps.length);
     memcpy(videoPacket->buffer + headerLength + sps.length, bytesHeader, headerLength);
     memcpy(videoPacket->buffer + headerLength * 2 + sps.length, (unsigned char*)[pps bytes], pps.length);
-    [self.fileHandle writeData:[NSData dataWithBytes:videoPacket->buffer length:videoPacket->size]];
     videoPacket->timeMills = 0;
     
     LivePacketPool::GetInstance()->pushRecordingVideoPacketToQueue(videoPacket);
-    
-    [self.delegate pushRecordingVideoPacketToQueue];
 }
 
 - (void)gotEncodedData:(NSData*)data isKeyFrame:(BOOL)isKeyFrame timestramp:(Float64)miliseconds {
@@ -98,12 +89,9 @@ static int on_publish_timeout_callback(void *context) {
     videoPacket->size = int(headerLength + data.length);
     memcpy(videoPacket->buffer, bytesHeader, headerLength);
     memcpy(videoPacket->buffer + headerLength, (unsigned char*)[data bytes], data.length);
-    [self.fileHandle writeData:[NSData dataWithBytes:videoPacket->buffer length:videoPacket->size]];
     videoPacket->timeMills = miliseconds;
     
     LivePacketPool::GetInstance()->pushRecordingVideoPacketToQueue(videoPacket);
-    
-    [self.delegate pushRecordingVideoPacketToQueue];
 }
 
 - (void)receiveAudioBuffer:(AudioBuffer)buffer sampleRate:(int)sampleRate startRecordTimeMills:(Float64)startRecordTimeMills {
