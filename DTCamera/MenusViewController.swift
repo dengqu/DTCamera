@@ -15,7 +15,8 @@ class MenusViewController: UITableViewController {
     
     private let sampleRate: Int = 44100
     
-    private var audioRecorder: AudioRecorder?
+    private var audioUnitRecorder: AudioRecorder?
+    private var audioEngineRecorder: AudioRecorder?
     private var audioEncoder: AudioEncoder?
     private var auGraphPlayer: AUGraphPlayer?
     
@@ -36,7 +37,7 @@ class MenusViewController: UITableViewController {
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 4
+        return 5
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -47,6 +48,8 @@ class MenusViewController: UITableViewController {
         } else if section == 2 {
             return 3
         } else if section == 3 {
+            return 3
+        } else if section == 4 {
             return 4
         }
         return 0
@@ -56,10 +59,12 @@ class MenusViewController: UITableViewController {
         if section == 0 {
             return "Major"
         } else if section == 1 {
-            return "Audio Recordings"
+            return "Audio Recording with Audio Unit"
         } else if section == 2 {
-            return "Audio Convert"
+            return "Audio Recording with AVAudioEngine"
         } else if section == 3 {
+            return "Audio Convert"
+        } else if section == 4 {
             return "Audio Play"
         }
         return nil
@@ -81,13 +86,21 @@ class MenusViewController: UITableViewController {
             }
         } else if indexPath.section == 2 {
             if indexPath.row == 0 {
+                cell.textLabel?.text = "Start CAF Recording with Drums BGM"
+            } else if indexPath.row == 1 {
+                cell.textLabel?.text = "Start CAF Recording with Guitar BGM"
+            } else if indexPath.row == 2 {
+                cell.textLabel?.text = "Stop CAF Recording"
+            }
+        } else if indexPath.section == 3 {
+            if indexPath.row == 0 {
                 cell.textLabel?.text = "Convert CAF to AAC with AudioToolbox"
             } else if indexPath.row == 1 {
                 cell.textLabel?.text = "Convert CAF to AAC with FFmpeg"
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Convert AAC to PCM with FFmpeg"
             }
-        } else if indexPath.section == 3 {
+        } else if indexPath.section == 4 {
             if indexPath.row == 0 {
                 cell.textLabel?.text = "Start Play MP3"
             } else if indexPath.row == 1 {
@@ -111,20 +124,33 @@ class MenusViewController: UITableViewController {
             present(mediaVC, animated: true, completion: nil)
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
-                startPCMRecording(bgmFileURL: nil)
+                startPCMRecordingWithAudioUnit(bgmFileURL: nil)
             } else if indexPath.row == 1 {
                 if let bgmFileURL = Bundle.main.url(forResource: "DrumsMonoSTP", withExtension: "aif") {
-                    startPCMRecording(bgmFileURL: bgmFileURL)
+                    startPCMRecordingWithAudioUnit(bgmFileURL: bgmFileURL)
                 }
             } else if indexPath.row == 2 {
                 if let bgmFileURL = Bundle.main.url(forResource: "GuitarMonoSTP", withExtension: "aif") {
-                    startPCMRecording(bgmFileURL: bgmFileURL)
+                    startPCMRecordingWithAudioUnit(bgmFileURL: bgmFileURL)
                 }
             } else if indexPath.row == 3 {
-                audioRecorder?.stopRecording()
-                audioRecorder = nil
+                audioUnitRecorder?.stopRecording()
+                audioUnitRecorder = nil
             }
         } else if indexPath.section == 2 {
+            if indexPath.row == 0 {
+                if let bgmFileURL = Bundle.main.url(forResource: "DrumsMonoSTP", withExtension: "aif") {
+                    startPCMRecordingWithAVAudioEngine(bgmFileURL: bgmFileURL)
+                }
+            } else if indexPath.row == 1 {
+                if let bgmFileURL = Bundle.main.url(forResource: "GuitarMonoSTP", withExtension: "aif") {
+                    startPCMRecordingWithAVAudioEngine(bgmFileURL: bgmFileURL)
+                }
+            } else if indexPath.row == 2 {
+                audioEngineRecorder?.stopRecording()
+                audioEngineRecorder = nil
+            }
+        } else if indexPath.section == 3 {
             if indexPath.row == 0 {
                 if  let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false),
                     let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needCreate: true) {
@@ -146,7 +172,7 @@ class MenusViewController: UITableViewController {
                     aacDecoder.startDecode()
                 }
             }
-        } else if indexPath.section == 3 {
+        } else if indexPath.section == 4 {
             if indexPath.row == 0 {
                 if let fileURL = Bundle.main.url(forResource: "faded", withExtension: "mp3") {
                     playAudio(fileURL: fileURL)
@@ -166,10 +192,17 @@ class MenusViewController: UITableViewController {
         }
     }
     
-    private func startPCMRecording(bgmFileURL: URL?) {
+    private func startPCMRecordingWithAudioUnit(bgmFileURL: URL?) {
         if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf") {
-            audioRecorder = AudioRecorder(sampleRate: sampleRate, fileURL: fileURL, bgmFileURL: bgmFileURL)
-            audioRecorder?.startRecording()
+            audioUnitRecorder = AudioUnitRecorder(sampleRate: sampleRate, fileURL: fileURL, bgmFileURL: bgmFileURL)
+            audioUnitRecorder?.startRecording()
+        }
+    }
+    
+    private func startPCMRecordingWithAVAudioEngine(bgmFileURL: URL?) {
+        if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf") {
+            audioEngineRecorder = AudioEngineRecorder(sampleRate: sampleRate, fileURL: fileURL, bgmFileURL: bgmFileURL)
+            audioEngineRecorder?.startRecording()
         }
     }
     

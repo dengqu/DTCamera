@@ -30,7 +30,7 @@
 - (void)startEncode {
     AudioEncoder *encoder = new AudioEncoder();
     int bitsPerSample = 16;
-    const char *codec_name = [@"aac" cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *codec_name = [@"libfdk_aac" cStringUsingEncoding:NSUTF8StringEncoding];
     int bitRate = 128 * 1024;
     int channels = 2;
     int sampleRate = 44100;

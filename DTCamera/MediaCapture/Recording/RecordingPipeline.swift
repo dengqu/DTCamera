@@ -394,7 +394,7 @@ class RecordingPipeline: NSObject {
                                         maxBitRate: mode.config.recordingBitRate,
                                         avgBitRate: mode.config.recordingBitRate)
             videoEncoder?.delegate = self
-            audioRecorder = AudioRecorder(sampleRate: mode.config.audioSampleRate, fileURL: nil, bgmFileURL: bgmFile)
+            audioRecorder = AudioEngineRecorder(sampleRate: mode.config.audioSampleRate, fileURL: nil, bgmFileURL: bgmFile)
             audioRecorder?.delegate = self
             audioRecorder?.startRecording()
             startRecordTimeMills = CFAbsoluteTimeGetCurrent() * 1000
