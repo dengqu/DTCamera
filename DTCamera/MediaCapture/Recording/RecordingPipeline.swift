@@ -356,11 +356,9 @@ class RecordingPipeline: NSObject {
     }
     
     private func startComsumer() {
-        let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true)
-        if let videoFile = videoFile,
-            let videoFormatDescription = videoFormatDescription {
+        if let videoFormatDescription = videoFormatDescription {
             let dimensions = CMVideoFormatDescriptionGetDimensions(videoFormatDescription)
-            livePublisher = LivePublisher(rtmpurl: videoFile.path,
+            livePublisher = LivePublisher(rtmpurl: mode.config.videoURL,
                                           videoWidth: Int(dimensions.width),
                                           videoHeight: Int(dimensions.height),
                                           videoFrameRate: mode.config.recordingFrameRate,
@@ -373,9 +371,6 @@ class RecordingPipeline: NSObject {
             livePublisher?.start()
         } else {
             DDLogError("Could not start recording")
-            if videoFile == nil {
-                DDLogError("videoFile is nil")
-            }
             if videoFormatDescription == nil {
                 DDLogError("videoFormatDescription is nil")
             }

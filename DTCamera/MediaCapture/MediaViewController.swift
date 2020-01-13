@@ -92,6 +92,7 @@ enum CameraPositionMode {
 }
 
 struct MediaConfig {
+    let videoURL: String
     let limitOfPhotos: Int
     let ratioMode: CameraRatioMode
     let positionMode: CameraPositionMode
@@ -104,9 +105,10 @@ struct MediaConfig {
     let audioBitRate: Int = 64000
     let audioCodecName: String = "libfdk_aac"
 
-    init(limitOfPhotos: Int = 9,
+    init(videoURL: String, limitOfPhotos: Int = 9,
          ratioMode: CameraRatioMode = .r3to4, positionMode: CameraPositionMode = .back,
          minDuration: Int = 5, maxDuration: Int = 60) {
+        self.videoURL = videoURL
         self.limitOfPhotos = limitOfPhotos
         self.positionMode = positionMode
         self.ratioMode = ratioMode

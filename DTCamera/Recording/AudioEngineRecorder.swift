@@ -13,7 +13,9 @@ import CocoaLumberjack
 class AudioEngineRecorder: AudioRecorder {
     
     var outputFile: AVAudioFile?
+    var outputFormat: AVAudioFormat!
     var converterFormat: AVAudioFormat!
+    var converter: AVAudioConverter!
 
     var bgmFile: AVAudioFile?
 
@@ -22,8 +24,10 @@ class AudioEngineRecorder: AudioRecorder {
     
     override init(sampleRate: Int, fileURL: URL?, bgmFileURL: URL?) {
         super.init(sampleRate: sampleRate, fileURL: fileURL, bgmFileURL: bgmFileURL)
+        outputFormat = engine.mainMixerNode.outputFormat(forBus: 0)
         setupFilePlayer()
         setupOutputFile()
+        setupConverter()
         setupAudioEngine()
     }
     
@@ -64,8 +68,8 @@ class AudioEngineRecorder: AudioRecorder {
     
     private func setupOutputFile() {
         guard let fileURL = fileURL else { return }
-        setupConverterFormat()
-        outputFile = try? AVAudioFile(forWriting: fileURL, settings: converterFormat.settings)
+
+        outputFile = try? AVAudioFile(forWriting: fileURL, settings: outputFormat.settings)
     }
     
     private func setupFilePlayer() {
@@ -80,17 +84,18 @@ class AudioEngineRecorder: AudioRecorder {
         filePlayer.scheduleFile(bgmFile, at: nil, completionHandler: nil)
     }
     
-    private func setupConverterFormat() {
+    private func setupConverter() {
+        guard fileURL == nil else { return }
         guard let converterFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: Double(sampleRate), channels: 2, interleaved: true) else {
             DDLogError("Could not create audio format for converter")
             exit(1)
         }
         self.converterFormat = converterFormat
+        self.converter = AVAudioConverter(from: outputFormat, to: converterFormat)!
     }
     
     private func installTap() {
         let outputFormat = engine.mainMixerNode.outputFormat(forBus: 0)
-        let converter = AVAudioConverter(from: outputFormat, to: converterFormat)!
         engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: outputFormat) { [weak self] buffer, when in
             guard let self = self else { return }
             if let outputFile = self.outputFile {
@@ -99,7 +104,7 @@ class AudioEngineRecorder: AudioRecorder {
                 } catch let error {
                     DDLogError("Could not write buffer data to file \(error.localizedDescription)")
                 }
-            } else if let delegate = self.delegate {
+            } else if let delegate = self.delegate, let converter = self.converter {
                 let inputCallback: AVAudioConverterInputBlock = { inNumPackets, outStatus in
                     outStatus.pointee = AVAudioConverterInputStatus.haveData
                     return buffer

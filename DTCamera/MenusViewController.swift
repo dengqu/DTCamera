@@ -21,6 +21,8 @@ class MenusViewController: UITableViewController {
     private var auGraphPlayer: AUGraphPlayer?
     
     private let cellIdentifier = "cellIdentifier"
+    private let rtmpServerKey = "rtmp_server"
+    private let rtmpServerDefaultValue = "rtmp://172.104.92.161/mytv/room"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,7 +44,7 @@ class MenusViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
+            return 3
         } else if section == 1 {
             return 4
         } else if section == 2 {
@@ -57,7 +59,7 @@ class MenusViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
-            return "Major"
+            return "Camera"
         } else if section == 1 {
             return "Audio Recording with Audio Unit"
         } else if section == 2 {
@@ -73,7 +75,13 @@ class MenusViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
         if indexPath.section == 0 {
-            cell.textLabel?.text = "Open Camera"
+            if indexPath.row == 0 {
+                cell.textLabel?.text = "Open Camera for Recording"
+            } else if indexPath.row == 1 {
+                cell.textLabel?.text = "Open Camera for Living"
+            } else if indexPath.row == 2 {
+                cell.textLabel?.text = "Config RTMP URL"
+            }
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
                 cell.textLabel?.text = "Start CAF Recording"
@@ -117,11 +125,39 @@ class MenusViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.section == 0 {
-            let mode = MediaMode(source: .recording, type: .all, config: MediaConfig())
-            let mediaVC = MediaViewController(mode: mode)
-            mediaVC.modalPresentationStyle = .fullScreen
-            mediaVC.delegate = self
-            present(mediaVC, animated: true, completion: nil)
+            if indexPath.row == 0 {
+                if let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true) {
+                    let mode = MediaMode(source: .recording, type: .all, config: MediaConfig(videoURL: videoFile.path))
+                    let mediaVC = MediaViewController(mode: mode)
+                    mediaVC.modalPresentationStyle = .fullScreen
+                    mediaVC.delegate = self
+                    present(mediaVC, animated: true, completion: nil)
+                }
+            } else if indexPath.row == 1 {
+                let mode = MediaMode(source: .recording,
+                                     type: .all,
+                                     config: MediaConfig(videoURL: UserDefaults.standard.string(forKey: rtmpServerKey) ?? rtmpServerDefaultValue))
+                let mediaVC = MediaViewController(mode: mode)
+                mediaVC.modalPresentationStyle = .fullScreen
+                mediaVC.delegate = self
+                present(mediaVC, animated: true, completion: nil)
+            } else if indexPath.row == 2 {
+                let alertController = UIAlertController(title: "RTMP URL", message: nil, preferredStyle: .alert)
+                alertController.addTextField { textField in
+                    textField.text = UserDefaults.standard.string(forKey: self.rtmpServerKey) ?? self.rtmpServerDefaultValue
+                }
+                let confirmAction = UIAlertAction(title: "Save", style: .default) { _ in
+                    let textField = alertController.textFields?.first
+                    if let rtmpURL = textField?.text {
+                        UserDefaults.standard.set(rtmpURL, forKey: self.rtmpServerKey)
+                        UserDefaults.standard.synchronize()
+                    }
+                }
+                let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                alertController.addAction(confirmAction)
+                alertController.addAction(cancelAction)
+                present(alertController, animated: true, completion: nil)
+            }
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
                 startPCMRecordingWithAudioUnit(bgmFileURL: nil)
