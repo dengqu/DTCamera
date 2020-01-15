@@ -40,14 +40,22 @@ class EffectOpenGLFilter: EffectFilter {
     private var filterPositionSlot = GLuint()
     private var filterTexturePositionSlot = GLuint()
     private var filterTextureUniform = GLint()
+    private var textTextureUniform = GLint()
+    private var textTextureName = GLuint()
+    private var textProgressUniform = GLint()
+    private var textProgress: TimeInterval = 0
+    private var sequenceIn: TimeInterval = 0
+    private var fadeInEndTime: TimeInterval = 0
+    private var fadeOutStartTime: TimeInterval = 0
+    private var sequenceOut: TimeInterval = 0
 
-    private var logoOffset: GLfloat = 0.05
-    private var logoSize: GLfloat = 0.2
-    private var logoPositionVertices: [GLfloat] = [ // vertical flip
-        -1, -1, // top left
-        1, -1, // top right
-        -1, 1, // bottom left
-        1, 1, // bottom right
+    private let logoOffset: GLfloat = 10
+    private let logoSize: GLfloat = 60
+    private var logoPositionVertices: [GLfloat] = [ // before vertical flip
+        -1, -1, // bottom left
+        1, -1, // bottom right
+        -1, 1, // top left
+        1, 1, // top right
     ]
     private var logoTextureVertices: [Float] = [
         0, 0, // bottom left
@@ -97,6 +105,8 @@ class EffectOpenGLFilter: EffectFilter {
         setupInput()
         if filterProgram == nil {
             compileFilterShaders()
+            textTextureName = drawText("人生很短暂")
+            setupProgress()
         }
         if directPassProgram == nil {
             compileDirectPassShaders()
@@ -129,7 +139,9 @@ class EffectOpenGLFilter: EffectFilter {
         outputTexture.bind(textureNo: GLenum(GL_TEXTURE0))
         renderDestination.attachTexture(name: outputTexture.textureName)
 
-        // draw camera texture
+        // draw camera texture and text texture
+        
+        updateProgress()
         
         filterProgram.use()
         
@@ -137,6 +149,16 @@ class EffectOpenGLFilter: EffectFilter {
         inputTexture.bind(textureNo: GLenum(GL_TEXTURE1))
         glUniform1i(filterTextureUniform, 1)
         
+        glActiveTexture(GLenum(GL_TEXTURE2))
+        glBindTexture(GLenum(GL_TEXTURE_2D), textTextureName)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GL_CLAMP_TO_EDGE)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
+        glUniform1i(textTextureUniform, 2)
+        
+        glUniform1f(textProgressUniform, GLfloat(textProgress))
+
         glEnableVertexAttribArray(filterPositionSlot)
         glVertexAttribPointer(filterPositionSlot,
                               2,
@@ -157,6 +179,7 @@ class EffectOpenGLFilter: EffectFilter {
         
         inputTexture.unbind()
         inputTexture.deleteTexture()
+        glBindTexture(GLenum(GL_TEXTURE_2D), 0)
         
         // draw logo
 
@@ -231,20 +254,19 @@ class EffectOpenGLFilter: EffectFilter {
             textureVertices[6] = toX
         }
         
-        let scale = GLfloat(targetWidth / targetHeight)
-        // top left
-        logoPositionVertices[0] = -1 + logoOffset
-        logoPositionVertices[1] = 1 - (logoOffset + logoSize) * scale
-        // top right
-        logoPositionVertices[2] = -1 + (logoOffset + logoSize)
-        logoPositionVertices[3] = 1 - (logoOffset + logoSize) * scale
         // bottom left
-        logoPositionVertices[4] = -1 + logoOffset
-        logoPositionVertices[5] = 1 - logoOffset * scale
+        logoPositionVertices[0] = 2 * (logoOffset / targetWidth) - 1
+        logoPositionVertices[1] = 2 * ((targetHeight - logoOffset - logoSize) / targetHeight) - 1
         // bottom right
-        logoPositionVertices[6] = -1 + (logoOffset + logoSize)
-        logoPositionVertices[7] = 1 - logoOffset * scale
-
+        logoPositionVertices[2] = 2 * ((logoOffset + logoSize) / targetWidth) - 1
+        logoPositionVertices[3] = 2 * ((targetHeight - logoOffset - logoSize) / targetHeight) - 1
+        // top left
+        logoPositionVertices[4] = 2 * (logoOffset / targetWidth) - 1
+        logoPositionVertices[5] = 2 * ((targetHeight - logoOffset) / targetHeight) - 1
+        // top right
+        logoPositionVertices[6] = 2 * ((logoOffset + logoSize) / targetWidth) - 1
+        logoPositionVertices[7] = 2 * ((targetHeight - logoOffset) / targetHeight) - 1
+        
         inputWidth = Int(sourceWidth)
         inputHeight = Int(sourceHeight)
         outputWidth = Int(targetWidth)
@@ -259,11 +281,13 @@ class EffectOpenGLFilter: EffectFilter {
     }
     
     private func compileFilterShaders() {
-        filterProgram = ShaderProgram(vertexShaderName: "RemoveGreenFilterVertex",
-                                      fragmentShaderName: "RemoveGreenFilterFragment")
+        filterProgram = ShaderProgram(vertexShaderName: "FilterVertex",
+                                      fragmentShaderName: "FilterFragment")
         filterPositionSlot = filterProgram.attributeLocation(for: "a_position")
         filterTexturePositionSlot = filterProgram.attributeLocation(for: "a_texcoord")
         filterTextureUniform = filterProgram.uniformLocation(for: "u_texture")
+        textTextureUniform = filterProgram.uniformLocation(for: "u_text_texture")
+        textProgressUniform = filterProgram.uniformLocation(for: "u_text_progress")
     }
     
     private func compileDirectPassShaders() {
@@ -302,6 +326,57 @@ class EffectOpenGLFilter: EffectFilter {
         } catch {
             DDLogError("Could not load texture \(filename)")
             exit(1)
+        }
+    }
+    
+    private func drawText(_ text: String) -> GLuint {
+        let textSize = CGSize(width: 200, height: 40)
+        let fontSize: CGFloat = 28
+        UIGraphicsBeginImageContextWithOptions(.init(width: inputWidth, height: inputHeight), true, 1.0)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        NSString(string: text).draw(in: CGRect(x: (CGFloat(inputWidth) - textSize.width) / 2,
+                                               y: CGFloat(inputHeight) - CGFloat(inputHeight - outputHeight) / 2 - textSize.height,
+                                               width: textSize.width,
+                                               height: fontSize + 2),
+                                    withAttributes: [.font: UIFont.boldSystemFont(ofSize: fontSize),
+                                                     .foregroundColor: UIColor.green,
+                                                     .paragraphStyle: paragraphStyle])
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        if let image = image, let cgImage = image.cgImage {
+//            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+            let option = [GLKTextureLoaderOriginBottomLeft: false]
+            do {
+                let info = try GLKTextureLoader.texture(with: cgImage, options: option as [String : NSNumber]?)
+                return info.name
+            } catch {
+                DDLogError("Could not load texture \(text) \(error.localizedDescription)")
+                exit(1)
+            }
+        }
+        return 0
+    }
+    
+    private func setupProgress() {
+        sequenceIn = Date().addingTimeInterval(2).timeIntervalSince1970
+        fadeInEndTime = Date().addingTimeInterval(2 + 3).timeIntervalSince1970
+        fadeOutStartTime = Date().addingTimeInterval(2 + 3 + 5).timeIntervalSince1970
+        sequenceOut = Date().addingTimeInterval(2 + 3 + 5 + 3).timeIntervalSince1970
+    }
+    
+    private func updateProgress() {
+        let currentTime = Date().timeIntervalSince1970
+        if currentTime <= fadeInEndTime {
+            textProgress = (currentTime - sequenceIn) / (fadeInEndTime - sequenceIn)
+        } else if currentTime >= fadeOutStartTime {
+            textProgress = 1.0 - (currentTime - fadeOutStartTime) / (sequenceOut - fadeOutStartTime)
+        }
+        if textProgress < 0 {
+            textProgress = 0
+        }
+        if textProgress > 1 {
+            textProgress = 1
         }
     }
 
