@@ -29,7 +29,7 @@ int LiveAudioEncoder::encode(LiveAudioPacket **audioPacket) {
      /** 1、调用注册的回调方法来填充音频的PCM数据 **/
     double presentationTimeMills = -1;
     int actualFillSampleSize = fillPCMFrameCallback((int16_t *) audio_samples_data[0], audio_nb_samples, audioChannels, &presentationTimeMills, fillPCMFrameContext);
-    LOGI("fillPCMFrameCallback actualFillSampleSize is %d \n", actualFillSampleSize);
+//    LOGI("fillPCMFrameCallback actualFillSampleSize is %d \n", actualFillSampleSize);
     if (actualFillSampleSize == -1) {
         LOGI("fillPCMFrameCallback failed return actualFillSampleSize is %d \n", actualFillSampleSize);
         return -1;

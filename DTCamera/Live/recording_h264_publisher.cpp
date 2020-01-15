@@ -160,8 +160,8 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 pkt.data[2] = ((bufferSize) >> 8) & 0x00ff;
                 pkt.data[3] = ((bufferSize)) & 0x00ff;
                 
-                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, bufferSize,
-                       pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
+//                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, bufferSize,
+//                       pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
 
                 pkt.pts = pts;
                 pkt.dts = dts;
@@ -180,8 +180,8 @@ int RecordingH264Publisher::write_video_frame(AVFormatContext *oc, AVStream *st)
                 pkt.data[2] = ((bufferSize) >> 8) & 0x00ff;
                 pkt.data[3] = ((bufferSize)) & 0x00ff;
                 
-                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, bufferSize,
-                       pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
+//                printf("write_video_frame %d %d %x %x %x %x\n", nalu_type, bufferSize,
+//                       pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3]);
 
                 pkt.pts = pts;
                 pkt.dts = dts;

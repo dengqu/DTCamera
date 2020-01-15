@@ -21,9 +21,11 @@ class AudioEngineRecorder: AudioRecorder {
 
     private let engine = AVAudioEngine()
     private let filePlayer = AVAudioPlayerNode()
+    private let rateEffect = AVAudioUnitTimePitch()
     
     override init(sampleRate: Int, fileURL: URL?, bgmFileURL: URL?) {
         super.init(sampleRate: sampleRate, fileURL: fileURL, bgmFileURL: bgmFileURL)
+        rateEffect.rate = 1.25
         outputFormat = engine.mainMixerNode.outputFormat(forBus: 0)
         setupFilePlayer()
         setupOutputFile()
@@ -53,13 +55,15 @@ class AudioEngineRecorder: AudioRecorder {
 
     private func setupAudioEngine() {
         engine.attach(filePlayer)
-        
+        engine.attach(rateEffect)
+
         let format = engine.inputNode.inputFormat(forBus: 0)
 
         engine.connect(engine.inputNode, to: engine.mainMixerNode, fromBus: 0,
                        toBus: 0, format: format)
         if let bgmFile = bgmFile {
-            engine.connect(filePlayer, to: engine.mainMixerNode, fromBus: 0,
+            engine.connect(filePlayer, to: rateEffect, format: format)
+            engine.connect(rateEffect, to: engine.mainMixerNode, fromBus: 0,
                            toBus: 1, format: bgmFile.processingFormat)
         }
                 
@@ -81,7 +85,9 @@ class AudioEngineRecorder: AudioRecorder {
     private func scheduleAudioFile() {
         guard let bgmFile = bgmFile else { return }
 
-        filePlayer.scheduleFile(bgmFile, at: nil, completionHandler: nil)
+        filePlayer.scheduleFile(bgmFile, at: nil) { [weak self] in
+            self?.scheduleAudioFile()
+        }
     }
     
     private func setupConverter() {

@@ -26,7 +26,7 @@ class OpenGLPreviewView: UIView {
         -1, 1, // top left
         1, 1, // top right
     ]
-    private var textureVertices: [Float] = [ // 180 degree rotated
+    private var textureVertices: [Float] = [ // vertical flip
         0, 1, // top left
         1, 1, // top right
         0, 0, // bottom left

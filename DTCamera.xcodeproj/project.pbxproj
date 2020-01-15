@@ -24,6 +24,7 @@
 		404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */; };
 		404CE307235D8FE900DBCFB3 /* EffectOpenCVFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */; };
 		404CE309235EE1F500DBCFB3 /* AssetRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */; };
+		4063871D23CDA59A0033CB8A /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063871C23CDA59A0033CB8A /* logo.png */; };
 		406516A8238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406516A7238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift */; };
 		406C011523596E5100E01E70 /* PixelBufferTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C011423596E5100E01E70 /* PixelBufferTexture.swift */; };
 		406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C0117235971AA00E01E70 /* RenderDestination.swift */; };
@@ -36,8 +37,8 @@
 		40937E63239F36E100DE5E85 /* AACEncoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40937E62239F36E100DE5E85 /* AACEncoder.mm */; };
 		40A657F223A3663A00F5662B /* live_audio_packet_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40A657F023A3663A00F5662B /* live_audio_packet_queue.cpp */; };
 		40A657F823A3931900F5662B /* LivePublisher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40A657F723A3931900F5662B /* LivePublisher.mm */; };
-		40AE65CF233E10B60063C4D8 /* DumbFilterVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */; };
-		40AE65D1233E10DD0063C4D8 /* DumbFilterFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */; };
+		40AE65CF233E10B60063C4D8 /* RemoveGreenFilterVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65CE233E10B60063C4D8 /* RemoveGreenFilterVertex.glsl */; };
+		40AE65D1233E10DD0063C4D8 /* RemoveGreenFilterFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 40AE65D0233E10DD0063C4D8 /* RemoveGreenFilterFragment.glsl */; };
 		40B109F123A09644004198B4 /* audio_decoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40B109EF23A09644004198B4 /* audio_decoder.cpp */; };
 		40B109F423A0F7A7004198B4 /* AACDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40B109F323A0F7A7004198B4 /* AACDecoder.mm */; };
 		40B30C6B23C70B8300B1AA57 /* AudioEngineRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40B30C6A23C70B8300B1AA57 /* AudioEngineRecorder.swift */; };
@@ -120,6 +121,7 @@
 		404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
 		404CE306235D8FE900DBCFB3 /* EffectOpenCVFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectOpenCVFilter.swift; sourceTree = "<group>"; };
 		404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRecorder.swift; sourceTree = "<group>"; };
+		4063871C23CDA59A0033CB8A /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		406516A7238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FourCharCode+StringLiteralConvertible.swift"; sourceTree = "<group>"; };
 		406C011423596E5100E01E70 /* PixelBufferTexture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBufferTexture.swift; sourceTree = "<group>"; };
 		406C0117235971AA00E01E70 /* RenderDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderDestination.swift; sourceTree = "<group>"; };
@@ -135,8 +137,8 @@
 		40A657F123A3663A00F5662B /* live_audio_packet_queue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = live_audio_packet_queue.h; sourceTree = "<group>"; };
 		40A657F623A3931900F5662B /* LivePublisher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LivePublisher.h; sourceTree = "<group>"; };
 		40A657F723A3931900F5662B /* LivePublisher.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LivePublisher.mm; sourceTree = "<group>"; };
-		40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = DumbFilterVertex.glsl; sourceTree = "<group>"; };
-		40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = DumbFilterFragment.glsl; sourceTree = "<group>"; };
+		40AE65CE233E10B60063C4D8 /* RemoveGreenFilterVertex.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoveGreenFilterVertex.glsl; sourceTree = "<group>"; };
+		40AE65D0233E10DD0063C4D8 /* RemoveGreenFilterFragment.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoveGreenFilterFragment.glsl; sourceTree = "<group>"; };
 		40B109EF23A09644004198B4 /* audio_decoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = audio_decoder.cpp; sourceTree = "<group>"; };
 		40B109F023A09644004198B4 /* audio_decoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = audio_decoder.h; sourceTree = "<group>"; };
 		40B109F223A0F7A7004198B4 /* AACDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AACDecoder.h; sourceTree = "<group>"; };
@@ -436,8 +438,8 @@
 				407843C0233DB2C9007B0CFE /* ShaderProgram.swift */,
 				403EEFD123320561007CC795 /* DirectPassVertex.glsl */,
 				403EEFD223320561007CC795 /* DirectPassFragment.glsl */,
-				40AE65CE233E10B60063C4D8 /* DumbFilterVertex.glsl */,
-				40AE65D0233E10DD0063C4D8 /* DumbFilterFragment.glsl */,
+				40AE65CE233E10B60063C4D8 /* RemoveGreenFilterVertex.glsl */,
+				40AE65D0233E10DD0063C4D8 /* RemoveGreenFilterFragment.glsl */,
 			);
 			path = OpenGL;
 			sourceTree = "<group>";
@@ -589,6 +591,7 @@
 		40F3E688237EE56500D69336 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4063871C23CDA59A0033CB8A /* logo.png */,
 				40307FF52390D1BE00915B97 /* DrumsMonoSTP.aif */,
 				40307FF62390D1BE00915B97 /* GuitarMonoSTP.aif */,
 				404178972382A92E0078893D /* faded.mp3 */,
@@ -950,13 +953,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */,
-				40AE65CF233E10B60063C4D8 /* DumbFilterVertex.glsl in Resources */,
+				40AE65CF233E10B60063C4D8 /* RemoveGreenFilterVertex.glsl in Resources */,
+				4063871D23CDA59A0033CB8A /* logo.png in Resources */,
 				403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */,
 				40307FF72390D1BE00915B97 /* DrumsMonoSTP.aif in Resources */,
 				404178982382A92E0078893D /* faded.mp3 in Resources */,
 				40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */,
 				40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */,
-				40AE65D1233E10DD0063C4D8 /* DumbFilterFragment.glsl in Resources */,
+				40AE65D1233E10DD0063C4D8 /* RemoveGreenFilterFragment.glsl in Resources */,
 				403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */,
 				40307FF82390D1BE00915B97 /* GuitarMonoSTP.aif in Resources */,
 			);

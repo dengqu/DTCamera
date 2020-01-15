@@ -35,10 +35,32 @@ class EffectOpenGLFilter: EffectFilter {
         0, 1, // top left
         1, 1, // top right
     ]
-    private var program: ShaderProgram!
-    private var positionSlot = GLuint()
-    private var texturePositionSlot = GLuint()
-    private var textureUniform = GLint()
+    
+    private var filterProgram: ShaderProgram!
+    private var filterPositionSlot = GLuint()
+    private var filterTexturePositionSlot = GLuint()
+    private var filterTextureUniform = GLint()
+
+    private var logoOffset: GLfloat = 0.05
+    private var logoSize: GLfloat = 0.2
+    private var logoPositionVertices: [GLfloat] = [ // vertical flip
+        -1, -1, // top left
+        1, -1, // top right
+        -1, 1, // bottom left
+        1, 1, // bottom right
+    ]
+    private var logoTextureVertices: [Float] = [
+        0, 0, // bottom left
+        1, 0, // bottom right
+        0, 1, // top left
+        1, 1, // top right
+    ]
+    private var logoTextureName = GLuint()
+    
+    private var directPassProgram: ShaderProgram!
+    private var directPassPositionSlot = GLuint()
+    private var directPassTexturePositionSlot = GLuint()
+    private var directPassTextureUniform = GLint()
 
     // Output
     private var outputWidth: Int = 0
@@ -73,8 +95,12 @@ class EffectOpenGLFilter: EffectFilter {
         }
         
         setupInput()
-        if program == nil {
-            compileShaders()
+        if filterProgram == nil {
+            compileFilterShaders()
+        }
+        if directPassProgram == nil {
+            compileDirectPassShaders()
+            logoTextureName = loadTexture("logo.png")
         }
         setupOutputTexture(retainedBufferCountHint: retainedBufferCountHint)
         if renderDestination == nil {
@@ -99,26 +125,28 @@ class EffectOpenGLFilter: EffectFilter {
             }
         }
 
-        program.use()
-        
-        inputTexture.createTexture(from: pixelBuffer)
-        inputTexture.bind(textureNo: GLenum(GL_TEXTURE1))
-        glUniform1i(textureUniform, 1)
-        
         let outputPixelBuffer = outputTexture.createTexture()
         outputTexture.bind(textureNo: GLenum(GL_TEXTURE0))
         renderDestination.attachTexture(name: outputTexture.textureName)
+
+        // draw camera texture
         
-        glEnableVertexAttribArray(positionSlot)
-        glVertexAttribPointer(positionSlot,
+        filterProgram.use()
+        
+        inputTexture.createTexture(from: pixelBuffer)
+        inputTexture.bind(textureNo: GLenum(GL_TEXTURE1))
+        glUniform1i(filterTextureUniform, 1)
+        
+        glEnableVertexAttribArray(filterPositionSlot)
+        glVertexAttribPointer(filterPositionSlot,
                               2,
                               GLenum(GL_FLOAT),
                               GLboolean(UInt8(GL_FALSE)),
                               GLsizei(0),
                               &squareVertices)
         
-        glEnableVertexAttribArray(texturePositionSlot)
-        glVertexAttribPointer(texturePositionSlot,
+        glEnableVertexAttribArray(filterTexturePositionSlot)
+        glVertexAttribPointer(filterTexturePositionSlot,
                               2,
                               GLenum(GL_FLOAT),
                               GLboolean(UInt8(GL_FALSE)),
@@ -127,11 +155,42 @@ class EffectOpenGLFilter: EffectFilter {
         
         glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
         
+        inputTexture.unbind()
+        inputTexture.deleteTexture()
+        
+        // draw logo
+
+        directPassProgram.use()
+
+        glEnableVertexAttribArray(directPassPositionSlot)
+        glVertexAttribPointer(directPassPositionSlot,
+                              2,
+                              GLenum(GL_FLOAT),
+                              GLboolean(UInt8(GL_FALSE)),
+                              GLsizei(0),
+                              &logoPositionVertices)
+        
+        glEnableVertexAttribArray(directPassTexturePositionSlot)
+        glVertexAttribPointer(directPassTexturePositionSlot,
+                              2,
+                              GLenum(GL_FLOAT),
+                              GLboolean(UInt8(GL_FALSE)),
+                              GLsizei(0),
+                              &logoTextureVertices)
+        
+        glActiveTexture(GLenum(GL_TEXTURE1))
+        glBindTexture(GLenum(GL_TEXTURE_2D), logoTextureName)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GL_CLAMP_TO_EDGE)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
+        glUniform1i(directPassTextureUniform, 1)
+
+        glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
+        
         glFlush()
         
-        inputTexture.unbind()
         outputTexture.unbind()
-        inputTexture.deleteTexture()
         outputTexture.deleteTexture()
 
         if oldContext !== context {
@@ -171,6 +230,21 @@ class EffectOpenGLFilter: EffectFilter {
             textureVertices[4] = fromX
             textureVertices[6] = toX
         }
+        
+        let scale = GLfloat(targetWidth / targetHeight)
+        // top left
+        logoPositionVertices[0] = -1 + logoOffset
+        logoPositionVertices[1] = 1 - (logoOffset + logoSize) * scale
+        // top right
+        logoPositionVertices[2] = -1 + (logoOffset + logoSize)
+        logoPositionVertices[3] = 1 - (logoOffset + logoSize) * scale
+        // bottom left
+        logoPositionVertices[4] = -1 + logoOffset
+        logoPositionVertices[5] = 1 - logoOffset * scale
+        // bottom right
+        logoPositionVertices[6] = -1 + (logoOffset + logoSize)
+        logoPositionVertices[7] = 1 - logoOffset * scale
+
         inputWidth = Int(sourceWidth)
         inputHeight = Int(sourceHeight)
         outputWidth = Int(targetWidth)
@@ -184,11 +258,20 @@ class EffectOpenGLFilter: EffectFilter {
         inputTexture.createTextureCache(in: context)
     }
     
-    private func compileShaders() {
-        program = ShaderProgram(vertexShaderName: "DumbFilterVertex", fragmentShaderName: "DumbFilterFragment")
-        positionSlot = program.attributeLocation(for: "a_position")
-        texturePositionSlot = program.attributeLocation(for: "a_texcoord")
-        textureUniform = program.uniformLocation(for: "u_texture")
+    private func compileFilterShaders() {
+        filterProgram = ShaderProgram(vertexShaderName: "RemoveGreenFilterVertex",
+                                      fragmentShaderName: "RemoveGreenFilterFragment")
+        filterPositionSlot = filterProgram.attributeLocation(for: "a_position")
+        filterTexturePositionSlot = filterProgram.attributeLocation(for: "a_texcoord")
+        filterTextureUniform = filterProgram.uniformLocation(for: "u_texture")
+    }
+    
+    private func compileDirectPassShaders() {
+        directPassProgram = ShaderProgram(vertexShaderName: "DirectPassVertex",
+                                          fragmentShaderName: "DirectPassFragment")
+        directPassPositionSlot = filterProgram.attributeLocation(for: "a_position")
+        directPassTexturePositionSlot = filterProgram.attributeLocation(for: "a_texcoord")
+        directPassTextureUniform = filterProgram.uniformLocation(for: "u_texture")
     }
     
     private func setupOutputTexture(retainedBufferCountHint: Int) {
@@ -210,6 +293,18 @@ class EffectOpenGLFilter: EffectFilter {
         renderDestination.createFrameBuffer()
     }
     
+    private func loadTexture(_ filename: String) -> GLuint {
+        let path = Bundle.main.path(forResource: filename, ofType: nil)!
+        let option = [GLKTextureLoaderOriginBottomLeft: false]
+        do {
+            let info = try GLKTextureLoader.texture(withContentsOfFile: path, options: option as [String : NSNumber]?)
+            return info.name
+        } catch {
+            DDLogError("Could not load texture \(filename)")
+            exit(1)
+        }
+    }
+
     private func reset() {
         let oldContext = EAGLContext.current()
         if context != oldContext {
@@ -219,7 +314,8 @@ class EffectOpenGLFilter: EffectFilter {
             }
         }
         renderDestination.deleteFrameBuffer()
-        program?.delete()
+        filterProgram?.delete()
+        directPassProgram?.delete()
         inputTexture?.deleteTextureCache()
         outputTexture?.deleteTextureCache()
         outputTexture?.deleteBufferPool()
