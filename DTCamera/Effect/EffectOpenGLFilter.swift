@@ -49,22 +49,41 @@ class EffectOpenGLFilter: EffectFilter {
     private var fadeOutStartTime: TimeInterval = 0
     private var sequenceOut: TimeInterval = 0
 
+    private var imageTextureVertices: [Float] = [
+        0, 0, // bottom left
+        1, 0, // bottom right
+        0, 1, // top left
+        1, 1, // top right
+    ]
+
     private let logoOffset: GLfloat = 10
-    private let logoSize: GLfloat = 60
+    private let logoSize: GLfloat = 180 / 3
     private var logoPositionVertices: [GLfloat] = [ // before vertical flip
         -1, -1, // bottom left
         1, -1, // bottom right
         -1, 1, // top left
         1, 1, // top right
     ]
-    private var logoTextureVertices: [Float] = [
-        0, 0, // bottom left
-        1, 0, // bottom right
-        0, 1, // top left
-        1, 1, // top right
-    ]
     private var logoTextureName = GLuint()
     
+    private var animatorOffsetX: GLfloat = 0
+    private let animatorOffsetY: GLfloat = 130
+    private let animatorWidth: GLfloat = 324 / 2
+    private let animatorHeight: GLfloat = 288 / 2
+    private var animatorPositionVertices: [GLfloat] = [ // before vertical flip
+        -1, -1, // bottom left
+        1, -1, // bottom right
+        -1, 1, // top left
+        1, 1, // top right
+    ]
+    private var animatorTextureNames: [GLuint] = []
+    private var animatorIndex = 0
+    private var animatorCount = -1
+    private var animatorStep = 3
+    private var animatorPositionOrigin: GLfloat = 0
+    private var animatorPositionCurrent: GLfloat = 0
+    private var animatorProgress: GLfloat = 0.05
+        
     private var directPassProgram: ShaderProgram!
     private var directPassPositionSlot = GLuint()
     private var directPassTexturePositionSlot = GLuint()
@@ -111,6 +130,10 @@ class EffectOpenGLFilter: EffectFilter {
         if directPassProgram == nil {
             compileDirectPassShaders()
             logoTextureName = loadTexture("logo.png")
+            for i in 0..<4 {
+                let filename = String(format: "walk%02d.png", i + 1)
+                animatorTextureNames.append(loadTexture(filename))
+            }
         }
         setupOutputTexture(retainedBufferCountHint: retainedBufferCountHint)
         if renderDestination == nil {
@@ -199,7 +222,7 @@ class EffectOpenGLFilter: EffectFilter {
                               GLenum(GL_FLOAT),
                               GLboolean(UInt8(GL_FALSE)),
                               GLsizei(0),
-                              &logoTextureVertices)
+                              &imageTextureVertices)
         
         glActiveTexture(GLenum(GL_TEXTURE1))
         glBindTexture(GLenum(GL_TEXTURE_2D), logoTextureName)
@@ -211,6 +234,36 @@ class EffectOpenGLFilter: EffectFilter {
 
         glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
         
+        // draw png sequence
+        
+        updateAnimator()
+
+        glVertexAttribPointer(directPassPositionSlot,
+                              2,
+                              GLenum(GL_FLOAT),
+                              GLboolean(UInt8(GL_FALSE)),
+                              GLsizei(0),
+                              &animatorPositionVertices)
+        
+        glVertexAttribPointer(directPassTexturePositionSlot,
+                              2,
+                              GLenum(GL_FLOAT),
+                              GLboolean(UInt8(GL_FALSE)),
+                              GLsizei(0),
+                              &imageTextureVertices)
+        
+        glActiveTexture(GLenum(GL_TEXTURE1))
+        glBindTexture(GLenum(GL_TEXTURE_2D), animatorTextureNames[animatorIndex])
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GL_CLAMP_TO_EDGE)
+        glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
+        glUniform1i(directPassTextureUniform, 1)
+
+        glEnable(GLenum(GL_BLEND))
+        glBlendFunc(GLenum(GL_SRC_ALPHA), GLenum(GL_ONE_MINUS_SRC_ALPHA))
+        glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
+
         glFlush()
         
         outputTexture.unbind()
@@ -267,6 +320,23 @@ class EffectOpenGLFilter: EffectFilter {
         logoPositionVertices[6] = 2 * ((logoOffset + logoSize) / targetWidth) - 1
         logoPositionVertices[7] = 2 * ((targetHeight - logoOffset) / targetHeight) - 1
         
+        animatorOffsetX = -animatorWidth
+        // bottom left
+        animatorPositionVertices[0] = 2 * (animatorOffsetX / targetWidth) - 1
+        animatorPositionVertices[1] = 2 * ((targetHeight - animatorOffsetY - animatorHeight) / targetHeight) - 1
+        // bottom right
+        animatorPositionVertices[2] = 2 * ((animatorOffsetX + animatorWidth) / targetWidth) - 1
+        animatorPositionVertices[3] = 2 * ((targetHeight - animatorOffsetY - animatorHeight) / targetHeight) - 1
+        // top left
+        animatorPositionVertices[4] = 2 * (animatorOffsetX / targetWidth) - 1
+        animatorPositionVertices[5] = 2 * ((targetHeight - animatorOffsetY) / targetHeight) - 1
+        // top right
+        animatorPositionVertices[6] = 2 * ((animatorOffsetX + animatorWidth) / targetWidth) - 1
+        animatorPositionVertices[7] = 2 * ((targetHeight - animatorOffsetY) / targetHeight) - 1
+        
+        animatorPositionOrigin = animatorPositionVertices[0]
+        animatorPositionCurrent = animatorPositionOrigin
+
         inputWidth = Int(sourceWidth)
         inputHeight = Int(sourceHeight)
         outputWidth = Int(targetWidth)
@@ -379,7 +449,28 @@ class EffectOpenGLFilter: EffectFilter {
             textProgress = 1
         }
     }
-
+    
+    private func updateAnimator() {
+        animatorCount += 1
+        if animatorCount >= animatorStep {
+            animatorCount = 0
+            animatorIndex += 1
+            if animatorIndex >= animatorTextureNames.count {
+                animatorIndex = 0
+            }
+            animatorPositionCurrent = animatorPositionCurrent + animatorProgress
+            if animatorPositionCurrent > 1.0 {
+                animatorPositionCurrent = animatorPositionOrigin
+            }
+            let left = animatorPositionCurrent
+            let right = left + (animatorWidth / Float(outputWidth)) * 2
+            animatorPositionVertices[0] = left
+            animatorPositionVertices[2] = right
+            animatorPositionVertices[4] = left
+            animatorPositionVertices[6] = right
+        }
+    }
+    
     private func reset() {
         let oldContext = EAGLContext.current()
         if context != oldContext {
