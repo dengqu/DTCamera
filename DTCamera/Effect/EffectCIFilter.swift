@@ -61,6 +61,8 @@ class EffectCIFilter: EffectFilter {
         return outputPixelBuffer
     }
     
+    func addEmitter(x: CGFloat, y: CGFloat) {}
+    
     private func createPixelBuffer() -> CVPixelBuffer {
         var pixelBuffer: CVPixelBuffer!
         let resultCode = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, bufferPool, &pixelBuffer)

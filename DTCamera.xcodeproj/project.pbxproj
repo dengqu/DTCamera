@@ -29,6 +29,11 @@
 		4063873F23D03A330033CB8A /* walk02.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063873B23D03A330033CB8A /* walk02.png */; };
 		4063874023D03A330033CB8A /* walk03.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063873C23D03A330033CB8A /* walk03.png */; };
 		4063874123D03A330033CB8A /* walk01.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063873D23D03A330033CB8A /* walk01.png */; };
+		4063874623D19D3D0033CB8A /* explosion.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063874423D19D3D0033CB8A /* explosion.png */; };
+		4063874723D19D3D0033CB8A /* flower.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063874523D19D3D0033CB8A /* flower.png */; };
+		4063874A23D19DF30033CB8A /* EmitterFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 4063874823D19DF20033CB8A /* EmitterFragment.glsl */; };
+		4063874B23D19DF30033CB8A /* EmitterVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 4063874923D19DF20033CB8A /* EmitterVertex.glsl */; };
+		4063874D23D1A8E10033CB8A /* GLKMatrix+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4063874C23D1A8E10033CB8A /* GLKMatrix+Array.swift */; };
 		406516A8238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406516A7238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift */; };
 		406C011523596E5100E01E70 /* PixelBufferTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C011423596E5100E01E70 /* PixelBufferTexture.swift */; };
 		406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406C0117235971AA00E01E70 /* RenderDestination.swift */; };
@@ -130,6 +135,11 @@
 		4063873B23D03A330033CB8A /* walk02.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = walk02.png; sourceTree = "<group>"; };
 		4063873C23D03A330033CB8A /* walk03.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = walk03.png; sourceTree = "<group>"; };
 		4063873D23D03A330033CB8A /* walk01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = walk01.png; sourceTree = "<group>"; };
+		4063874423D19D3D0033CB8A /* explosion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = explosion.png; sourceTree = "<group>"; };
+		4063874523D19D3D0033CB8A /* flower.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flower.png; sourceTree = "<group>"; };
+		4063874823D19DF20033CB8A /* EmitterFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EmitterFragment.glsl; sourceTree = "<group>"; };
+		4063874923D19DF20033CB8A /* EmitterVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EmitterVertex.glsl; sourceTree = "<group>"; };
+		4063874C23D1A8E10033CB8A /* GLKMatrix+Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GLKMatrix+Array.swift"; sourceTree = "<group>"; };
 		406516A7238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FourCharCode+StringLiteralConvertible.swift"; sourceTree = "<group>"; };
 		406C011423596E5100E01E70 /* PixelBufferTexture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBufferTexture.swift; sourceTree = "<group>"; };
 		406C0117235971AA00E01E70 /* RenderDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderDestination.swift; sourceTree = "<group>"; };
@@ -444,10 +454,12 @@
 			isa = PBXGroup;
 			children = (
 				407843C0233DB2C9007B0CFE /* ShaderProgram.swift */,
-				403EEFD123320561007CC795 /* DirectPassVertex.glsl */,
-				403EEFD223320561007CC795 /* DirectPassFragment.glsl */,
 				40AE65CE233E10B60063C4D8 /* FilterVertex.glsl */,
 				40AE65D0233E10DD0063C4D8 /* FilterFragment.glsl */,
+				403EEFD123320561007CC795 /* DirectPassVertex.glsl */,
+				403EEFD223320561007CC795 /* DirectPassFragment.glsl */,
+				4063874923D19DF20033CB8A /* EmitterVertex.glsl */,
+				4063874823D19DF20033CB8A /* EmitterFragment.glsl */,
 			);
 			path = OpenGL;
 			sourceTree = "<group>";
@@ -574,6 +586,7 @@
 				40E1B2A5232F2B2400A67F11 /* UIImage+Editor.swift */,
 				40E1B2C4232F3E1E00A67F11 /* UIColor+Extension.swift */,
 				40E1B2CE232F90AB00A67F11 /* Array+Extension.swift */,
+				4063874C23D1A8E10033CB8A /* GLKMatrix+Array.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -599,6 +612,8 @@
 		40F3E688237EE56500D69336 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4063874423D19D3D0033CB8A /* explosion.png */,
+				4063874523D19D3D0033CB8A /* flower.png */,
 				4063873D23D03A330033CB8A /* walk01.png */,
 				4063873B23D03A330033CB8A /* walk02.png */,
 				4063873C23D03A330033CB8A /* walk03.png */,
@@ -965,8 +980,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4063873E23D03A330033CB8A /* walk04.png in Resources */,
+				4063874623D19D3D0033CB8A /* explosion.png in Resources */,
 				40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */,
 				40AE65CF233E10B60063C4D8 /* FilterVertex.glsl in Resources */,
+				4063874A23D19DF30033CB8A /* EmitterFragment.glsl in Resources */,
+				4063874723D19D3D0033CB8A /* flower.png in Resources */,
 				4063871D23CDA59A0033CB8A /* logo.png in Resources */,
 				4063874023D03A330033CB8A /* walk03.png in Resources */,
 				403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */,
@@ -975,6 +993,7 @@
 				404178982382A92E0078893D /* faded.mp3 in Resources */,
 				40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */,
 				4063874123D03A330033CB8A /* walk01.png in Resources */,
+				4063874B23D19DF30033CB8A /* EmitterVertex.glsl in Resources */,
 				40E1B28C232F29B300A67F11 /* Main.storyboard in Resources */,
 				40AE65D1233E10DD0063C4D8 /* FilterFragment.glsl in Resources */,
 				403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */,
@@ -1076,6 +1095,7 @@
 				40E1B2B5232F2B2400A67F11 /* PreviewPhotoViewController.swift in Sources */,
 				40E1B2AD232F2B2400A67F11 /* PhotoEditorMaskView.swift in Sources */,
 				40E1B2BD232F2B2400A67F11 /* LibraryAlbumCell.swift in Sources */,
+				4063874D23D1A8E10033CB8A /* GLKMatrix+Array.swift in Sources */,
 				40E1B2BB232F2B2400A67F11 /* PreviewVideoViewController.swift in Sources */,
 				40E1B2B4232F2B2400A67F11 /* PhotoThumbnailCell.swift in Sources */,
 				40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */,

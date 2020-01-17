@@ -39,6 +39,8 @@ class EffectOpenCVFilter: EffectFilter {
         return pixelBuffer
     }
 
+    func addEmitter(x: CGFloat, y: CGFloat) {}
+    
     private func reset() {
         openCVWrapper = nil
     }

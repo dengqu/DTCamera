@@ -11,6 +11,29 @@ import GLKit
 import CoreMedia
 import CocoaLumberjack
 
+struct Particle {
+    var pID: GLfloat = 0
+    var pRadiusOffset: GLfloat = 0
+    var pVelocityOffset: GLfloat = 0
+    var pDecayOffset: GLfloat = 0
+    var pSizeOffset: GLfloat = 0
+    var pColorOffsetR: GLfloat = 0
+    var pColorOffsetG: GLfloat = 0
+    var pColorOffsetB: GLfloat = 0
+}
+
+class Emitter {
+    var eParticles: [Particle] = []
+    var eRadius: GLfloat = 0
+    var eVelocity: GLfloat = 0
+    var eDecay: GLfloat = 0
+    var eSizeStart: GLfloat = 0
+    var eSizeEnd: GLfloat = 0
+    var eColorStart: GLKVector3 = GLKVector3Make(0, 0, 0)
+    var eColorEnd: GLKVector3 = GLKVector3Make(0, 0, 0)
+    var ePosition: GLKVector2 = GLKVector2Make(0, 0)
+}
+
 class EffectOpenGLFilter: EffectFilter {
 
     var outputFormatDescription: CMFormatDescription?
@@ -88,6 +111,37 @@ class EffectOpenGLFilter: EffectFilter {
     private var directPassPositionSlot = GLuint()
     private var directPassTexturePositionSlot = GLuint()
     private var directPassTextureUniform = GLint()
+    
+    private let numberOfParticles = 180
+    private var gravity = GLKVector2Make(0, 0)
+    private var life: Float = 0
+    private var time: Float = 0
+    private var particleBuffer = GLuint()
+    private var emitter: Emitter?
+    
+    private var emitterProgram: ShaderProgram!
+    private var emitter_a_pID = GLuint()
+    private var emitter_a_pRadiusOffset = GLuint()
+    private var emitter_a_pVelocityOffset = GLuint()
+    private var emitter_a_pDecayOffset = GLuint()
+    private var emitter_a_pSizeOffset = GLuint()
+    private var emitter_a_pColorOffset = GLuint()
+    private var emitter_u_ProjectionMatrix = GLint()
+    private var emitter_u_Gravity = GLint()
+    private var emitter_u_Time = GLint()
+    private var emitter_u_eRadius = GLint()
+    private var emitter_u_eVelocity = GLint()
+    private var emitter_u_eDecay = GLint()
+    private var emitter_u_eSizeStart = GLint()
+    private var emitter_u_eSizeEnd = GLint()
+    private var emitter_u_eColorStart = GLint()
+    private var emitter_u_eColorEnd = GLint()
+    private var emitter_u_Texture = GLint()
+    private var emitter_u_ePosition = GLint()
+    private var emitterTextureName = GLuint()
+    private var isFlower = true
+    private var explosionTextureName = GLuint()
+    private var flowerTextureName = GLuint()
 
     // Output
     private var outputWidth: Int = 0
@@ -134,6 +188,11 @@ class EffectOpenGLFilter: EffectFilter {
                 let filename = String(format: "walk%02d.png", i + 1)
                 animatorTextureNames.append(loadTexture(filename))
             }
+        }
+        if emitterProgram == nil {
+            compileEmitterShaders()
+            explosionTextureName = loadTexture("explosion.png")
+            flowerTextureName = loadTexture("flower.png")
         }
         setupOutputTexture(retainedBufferCountHint: retainedBufferCountHint)
         if renderDestination == nil {
@@ -263,7 +322,66 @@ class EffectOpenGLFilter: EffectFilter {
         glEnable(GLenum(GL_BLEND))
         glBlendFunc(GLenum(GL_SRC_ALPHA), GLenum(GL_ONE_MINUS_SRC_ALPHA))
         glDrawArrays(GLenum(GL_TRIANGLE_STRIP), 0, 4)
-
+        
+        // draw particle system
+        
+        if let emitter = emitter {
+            updateEmitter()
+            
+            emitterProgram.use()
+            
+            glGenBuffers(1, &particleBuffer)
+            glBindBuffer(GLenum(GL_ARRAY_BUFFER), particleBuffer)
+            glBufferData(GLenum(GL_ARRAY_BUFFER), MemoryLayout<Particle>.size * numberOfParticles, emitter.eParticles, GLenum(GL_STATIC_DRAW))
+            
+            let aspectRatio = Float(outputWidth) / Float(outputHeight)
+            let projectionMatrix = GLKMatrix4MakeScale(1.0, aspectRatio, 1.0)
+            
+            glUniformMatrix4fv(emitter_u_ProjectionMatrix, 1, 0, projectionMatrix.array)
+            glUniform2f(emitter_u_Gravity, gravity.x, gravity.y)
+            glUniform1f(emitter_u_Time, time)
+            glUniform1f(emitter_u_eRadius, emitter.eRadius)
+            glUniform1f(emitter_u_eVelocity, emitter.eVelocity)
+            glUniform1f(emitter_u_eDecay, emitter.eDecay)
+            glUniform1f(emitter_u_eSizeStart, emitter.eSizeStart)
+            glUniform1f(emitter_u_eSizeEnd, emitter.eSizeEnd)
+            glUniform3f(emitter_u_eColorStart, emitter.eColorStart.r, emitter.eColorStart.g, emitter.eColorStart.b)
+            glUniform3f(emitter_u_eColorEnd, emitter.eColorEnd.r, emitter.eColorEnd.g, emitter.eColorEnd.b)
+            glUniform2f(emitter_u_ePosition, emitter.ePosition.x, emitter.ePosition.y)
+            
+            glActiveTexture(GLenum(GL_TEXTURE0))
+            glBindTexture(GLenum(GL_TEXTURE_2D), emitterTextureName)
+            glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
+            glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
+            glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GL_CLAMP_TO_EDGE)
+            glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
+            glUniform1i(emitter_u_Texture, 0)
+            
+            glEnableVertexAttribArray(emitter_a_pID)
+            glEnableVertexAttribArray(emitter_a_pRadiusOffset)
+            glEnableVertexAttribArray(emitter_a_pVelocityOffset)
+            glEnableVertexAttribArray(emitter_a_pDecayOffset)
+            glEnableVertexAttribArray(emitter_a_pColorOffset)
+            
+            glVertexAttribPointer(emitter_a_pID, 1, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<Particle>.size), BUFFER_OFFSET(0))
+            glVertexAttribPointer(emitter_a_pRadiusOffset, 1, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<Particle>.size), BUFFER_OFFSET(MemoryLayout<GLfloat>.size))
+            glVertexAttribPointer(emitter_a_pVelocityOffset, 1, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<Particle>.size), BUFFER_OFFSET(2 * MemoryLayout<GLfloat>.size))
+            glVertexAttribPointer(emitter_a_pDecayOffset, 1, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<Particle>.size), BUFFER_OFFSET(3 * MemoryLayout<GLfloat>.size))
+            glVertexAttribPointer(emitter_a_pSizeOffset, 1, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<Particle>.size), BUFFER_OFFSET(4 * MemoryLayout<GLfloat>.size))
+            glVertexAttribPointer(emitter_a_pColorOffset, 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<Particle>.size), BUFFER_OFFSET(5 * MemoryLayout<GLfloat>.size))
+            
+            glDrawArrays(GLenum(GL_POINTS), 0, GLsizei(numberOfParticles));
+            
+            glDisableVertexAttribArray(emitter_a_pID);
+            glDisableVertexAttribArray(emitter_a_pRadiusOffset);
+            glDisableVertexAttribArray(emitter_a_pVelocityOffset);
+            glDisableVertexAttribArray(emitter_a_pDecayOffset);
+            glDisableVertexAttribArray(emitter_a_pSizeOffset);
+            glDisableVertexAttribArray(emitter_a_pColorOffset);
+            
+            glBindBuffer(GLenum(GL_ARRAY_BUFFER), 0)
+        }
+        
         glFlush()
         
         outputTexture.unbind()
@@ -277,6 +395,14 @@ class EffectOpenGLFilter: EffectFilter {
         }
         
         return outputPixelBuffer
+    }
+    
+    func addEmitter(x: CGFloat, y: CGFloat) {
+        if emitter == nil {
+            loadParticleSystem(position: GLKVector2Make(Float(x), Float(-y)))
+            emitterTextureName = isFlower ? flowerTextureName : explosionTextureName
+            isFlower = !isFlower
+        }
     }
     
     private func caculateDimensions(ratioMode: CameraRatioMode,
@@ -366,6 +492,29 @@ class EffectOpenGLFilter: EffectFilter {
         directPassPositionSlot = filterProgram.attributeLocation(for: "a_position")
         directPassTexturePositionSlot = filterProgram.attributeLocation(for: "a_texcoord")
         directPassTextureUniform = filterProgram.uniformLocation(for: "u_texture")
+    }
+    
+    private func compileEmitterShaders() {
+        emitterProgram = ShaderProgram(vertexShaderName: "EmitterVertex",
+                                       fragmentShaderName: "EmitterFragment")
+        emitter_a_pID = emitterProgram.attributeLocation(for: "a_pID")
+        emitter_a_pRadiusOffset = emitterProgram.attributeLocation(for: "a_pRadiusOffset")
+        emitter_a_pVelocityOffset = emitterProgram.attributeLocation(for: "a_pVelocityOffset")
+        emitter_a_pDecayOffset = emitterProgram.attributeLocation(for: "a_pDecayOffset")
+        emitter_a_pSizeOffset = emitterProgram.attributeLocation(for: "a_pSizeOffset")
+        emitter_a_pColorOffset = emitterProgram.attributeLocation(for: "a_pColorOffset")
+        emitter_u_ProjectionMatrix = emitterProgram.uniformLocation(for: "u_ProjectionMatrix")
+        emitter_u_Gravity = emitterProgram.uniformLocation(for: "u_Gravity")
+        emitter_u_Time = emitterProgram.uniformLocation(for: "u_Time")
+        emitter_u_eRadius = emitterProgram.uniformLocation(for: "u_eRadius")
+        emitter_u_eVelocity = emitterProgram.uniformLocation(for: "u_eVelocity")
+        emitter_u_eDecay = emitterProgram.uniformLocation(for: "u_eDecay")
+        emitter_u_eSizeStart = emitterProgram.uniformLocation(for: "u_eSizeStart")
+        emitter_u_eSizeEnd = emitterProgram.uniformLocation(for: "u_eSizeEnd")
+        emitter_u_eColorStart = emitterProgram.uniformLocation(for: "u_eColorStart")
+        emitter_u_eColorEnd = emitterProgram.uniformLocation(for: "u_eColorEnd")
+        emitter_u_Texture = emitterProgram.uniformLocation(for: "u_Texture")
+        emitter_u_ePosition = emitterProgram.uniformLocation(for: "u_ePosition")
     }
     
     private func setupOutputTexture(retainedBufferCountHint: Int) {
@@ -471,6 +620,63 @@ class EffectOpenGLFilter: EffectFilter {
         }
     }
     
+    private func updateEmitter() {
+        time += 0.033
+        if time >= life {
+            emitter = nil
+            time = 0
+        }
+    }
+        
+    func loadParticleSystem(position: GLKVector2) {
+        let newEmitter = Emitter()
+        
+        let oRadius: Float = 0.10
+        let oVelocity: Float = 0.50
+        let oDecay: Float = 0.25
+        let oSize: Float = 8.00
+        let oColor: Float = 0.25
+
+        for i in 0..<numberOfParticles {
+            var particle = Particle()
+            particle.pID = GLKMathDegreesToRadians(Float(i) / Float(numberOfParticles) * 360.0)
+            particle.pRadiusOffset = randomFloatBetween(min: oRadius, max: 1.00)
+            particle.pVelocityOffset = randomFloatBetween(min: -oVelocity, max: oVelocity)
+            particle.pDecayOffset = randomFloatBetween(min: -oDecay, max: oDecay)
+            particle.pSizeOffset = randomFloatBetween(min: -oSize, max: oSize)
+            particle.pColorOffsetR = randomFloatBetween(min: -oColor, max: oColor)
+            particle.pColorOffsetG = randomFloatBetween(min: -oColor, max: oColor)
+            particle.pColorOffsetB = randomFloatBetween(min: -oColor, max: oColor)
+            newEmitter.eParticles.append(particle)
+        }
+        
+        newEmitter.eRadius = 0.75
+        newEmitter.eVelocity = 3.00
+        newEmitter.eDecay = 2.00
+        newEmitter.eSizeStart = 32.00
+        newEmitter.eColorStart = GLKVector3Make(1.00, 0.50, 0.00)
+        newEmitter.eSizeEnd = 8.00
+        newEmitter.eColorEnd = GLKVector3Make(0.25, 0.00, 0.00)
+        newEmitter.ePosition = position
+        
+        let growth = newEmitter.eRadius / newEmitter.eVelocity
+        life = growth + newEmitter.eDecay + oDecay
+        
+        let drag: Float = -10.00 // before vertical flip
+        gravity = GLKVector2Make(0.00, -9.81 * (1.0 / drag))
+
+        emitter = newEmitter
+    }
+
+    private func randomFloatBetween(min: Float, max: Float) -> Float {
+        let range = max - min
+        return Float(arc4random() % (UInt32(RAND_MAX) + 1)) / Float(RAND_MAX) * range + min
+    }
+    
+    private func BUFFER_OFFSET(_ n: Int) -> UnsafeRawPointer? {
+        return UnsafeRawPointer(bitPattern: n)
+    }
+
     private func reset() {
         let oldContext = EAGLContext.current()
         if context != oldContext {

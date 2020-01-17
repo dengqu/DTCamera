@@ -15,4 +15,5 @@ protocol EffectFilter {
     func prepare(with ratioMode: CameraRatioMode, positionMode: CameraPositionMode,
                  formatDescription: CMFormatDescription, retainedBufferCountHint: Int)
     func filter(pixelBuffer: CVPixelBuffer) -> CVPixelBuffer
+    func addEmitter(x: CGFloat, y: CGFloat)
 }

@@ -39,4 +39,6 @@ class EffectCPUFilter: EffectFilter {
         return pixelBuffer
     }
 
+    func addEmitter(x: CGFloat, y: CGFloat) {}
+    
 }
