@@ -62,6 +62,8 @@ class OpenGLPreviewView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        contentScaleFactor = UIScreen.main.scale
+        
         guard let eaglLayer = eaglLayer else { return }
         eaglLayer.isOpaque = true
         eaglLayer.drawableProperties = [kEAGLDrawablePropertyRetainedBacking: false,
