@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4009905924A2F70400A34B74 /* boat.mov in Resources */ = {isa = PBXBuildFile; fileRef = 4009905824A2F70400A34B74 /* boat.mov */; };
 		40146B4D2351B5EC00F14513 /* DebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40146B4C2351B5EC00F14513 /* DebugHelper.swift */; };
 		40181D6C23AB691D002B2397 /* live_audio_encoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40181D6A23AB691D002B2397 /* live_audio_encoder.cpp */; };
 		40181D6F23AB7ECE002B2397 /* live_audio_encoder_adapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40181D6D23AB7ECE002B2397 /* live_audio_encoder_adapter.cpp */; };
@@ -107,6 +108,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4009905824A2F70400A34B74 /* boat.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = boat.mov; sourceTree = "<group>"; };
 		40146B4C2351B5EC00F14513 /* DebugHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHelper.swift; sourceTree = "<group>"; };
 		40181D6A23AB691D002B2397 /* live_audio_encoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = live_audio_encoder.cpp; sourceTree = "<group>"; };
 		40181D6B23AB691D002B2397 /* live_audio_encoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = live_audio_encoder.h; sourceTree = "<group>"; };
@@ -638,6 +640,7 @@
 		40F3E688237EE56500D69336 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4009905824A2F70400A34B74 /* boat.mov */,
 				4063874423D19D3D0033CB8A /* explosion.png */,
 				4063874523D19D3D0033CB8A /* flower.png */,
 				4063873D23D03A330033CB8A /* walk01.png */,
@@ -999,6 +1002,7 @@
 				40AE65CF233E10B60063C4D8 /* FilterVertex.glsl in Resources */,
 				4063874A23D19DF30033CB8A /* EmitterFragment.glsl in Resources */,
 				4063874723D19D3D0033CB8A /* flower.png in Resources */,
+				4009905924A2F70400A34B74 /* boat.mov in Resources */,
 				4063871D23CDA59A0033CB8A /* logo.png in Resources */,
 				4063874023D03A330033CB8A /* walk03.png in Resources */,
 				403EEFD323320561007CC795 /* DirectPassVertex.glsl in Resources */,

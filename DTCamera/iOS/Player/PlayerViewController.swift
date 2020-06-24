@@ -21,7 +21,7 @@ class PlayerViewController: UIViewController {
     }
     
     override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation {
-        return .landscapeRight
+        return .portrait
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -53,6 +53,10 @@ class PlayerViewController: UIViewController {
     
     func setPlayer(_ player: AVPlayer) {
         playerView.setPlayer(player)
+    }
+    
+    func setURL(_ url: URL) {
+        playerView.setURL(url)
     }
     
     func play() {

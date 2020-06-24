@@ -39,7 +39,7 @@ class MenusViewController: UITableViewController {
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 5
+        return 6
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -53,6 +53,8 @@ class MenusViewController: UITableViewController {
             return 3
         } else if section == 4 {
             return 4
+        } else if section == 5 {
+            return 2
         }
         return 0
     }
@@ -68,6 +70,8 @@ class MenusViewController: UITableViewController {
             return "Audio Convert"
         } else if section == 4 {
             return "Audio Play"
+        } else if section == 5 {
+            return "Video Play"
         }
         return nil
     }
@@ -119,6 +123,12 @@ class MenusViewController: UITableViewController {
                 cell.textLabel?.text = "Start Play AAC"
             } else if indexPath.row == 3 {
                 cell.textLabel?.text = "Stop Play"
+            }
+        } else if indexPath.section == 5 {
+            if indexPath.row == 0 {
+                cell.textLabel?.text = "Play Local Video"
+            } else if indexPath.row == 1 {
+                cell.textLabel?.text = "Play Network Video"
             }
         }
         return cell
@@ -232,6 +242,16 @@ class MenusViewController: UITableViewController {
                 auGraphPlayer?.stop()
                 auGraphPlayer = nil
             }
+        } else if indexPath.section == 5 {
+            if indexPath.row == 0 {
+                if let fileURL = Bundle.main.url(forResource: "boat", withExtension: "mov") {
+                    playVideo(url: fileURL)
+                }
+            } else if indexPath.row == 1 {
+                if let fileURL = URL(string: "http://danthought.com/morning.mov") {
+                    playVideo(url: fileURL)
+                }
+            }
         }
     }
     
@@ -252,6 +272,13 @@ class MenusViewController: UITableViewController {
     private func playAudio(fileURL: URL) {
         auGraphPlayer = AUGraphPlayer(fileURL: fileURL)
         auGraphPlayer?.play()
+    }
+    
+    private func playVideo(url: URL) {
+        let playerVC = PlayerViewController()
+        playerVC.setURL(url)
+        playerVC.modalPresentationStyle = .fullScreen
+        present(playerVC, animated: true, completion: nil)
     }
     
 }
