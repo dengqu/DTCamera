@@ -40,6 +40,8 @@
 		407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843B8233DA624007B0CFE /* EffectFilter.swift */; };
 		407843BB233DA8F9007B0CFE /* EffectOpenGLFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843BA233DA8F9007B0CFE /* EffectOpenGLFilter.swift */; };
 		407843C1233DB2C9007B0CFE /* ShaderProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407843C0233DB2C9007B0CFE /* ShaderProgram.swift */; };
+		408DB13024A1E01A00A09AA5 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 408DB12E24A1E01A00A09AA5 /* CameraViewController.swift */; };
+		408DB13124A1E01A00A09AA5 /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 408DB12F24A1E01A00A09AA5 /* CameraPreviewView.swift */; };
 		40937E5A239E316C00DE5E85 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 40937E59239E316C00DE5E85 /* libz.tbd */; };
 		40937E5C239E317500DE5E85 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 40937E5B239E317500DE5E85 /* libbz2.tbd */; };
 		40937E5E239E317D00DE5E85 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 40937E5D239E317C00DE5E85 /* libiconv.tbd */; };
@@ -60,7 +62,6 @@
 		40E1B28E232F29B400A67F11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28D232F29B400A67F11 /* Assets.xcassets */; };
 		40E1B291232F29B400A67F11 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40E1B28F232F29B400A67F11 /* LaunchScreen.storyboard */; };
 		40E1B2AB232F2B2400A67F11 /* PhotoEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B298232F2B2300A67F11 /* PhotoEditorViewController.swift */; };
-		40E1B2AC232F2B2400A67F11 /* CaptureVideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B299232F2B2300A67F11 /* CaptureVideoPreviewView.swift */; };
 		40E1B2AD232F2B2400A67F11 /* PhotoEditorMaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B29A232F2B2300A67F11 /* PhotoEditorMaskView.swift */; };
 		40E1B2AE232F2B2400A67F11 /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B29B232F2B2300A67F11 /* MediaViewController.swift */; };
 		40E1B2AF232F2B2400A67F11 /* PhotoEditorFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B29C232F2B2300A67F11 /* PhotoEditorFrameView.swift */; };
@@ -74,7 +75,6 @@
 		40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A4232F2B2400A67F11 /* LibraryVideoCell.swift */; };
 		40E1B2B8232F2B2400A67F11 /* UIImage+Editor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A5232F2B2400A67F11 /* UIImage+Editor.swift */; };
 		40E1B2B9232F2B2400A67F11 /* PhotoLibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A6232F2B2400A67F11 /* PhotoLibraryViewController.swift */; };
-		40E1B2BA232F2B2400A67F11 /* CaptureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A7232F2B2400A67F11 /* CaptureViewController.swift */; };
 		40E1B2BB232F2B2400A67F11 /* PreviewVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */; };
 		40E1B2BC232F2B2400A67F11 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2A9232F2B2400A67F11 /* PlayerView.swift */; };
 		40E1B2BD232F2B2400A67F11 /* LibraryAlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E1B2AA232F2B2400A67F11 /* LibraryAlbumCell.swift */; };
@@ -91,7 +91,6 @@
 		40E9ACD423A8DA02005A1D97 /* recording_h264_publisher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40E9ACD223A8DA02005A1D97 /* recording_h264_publisher.cpp */; };
 		40F3E687237EABFE00D69336 /* AUGraphPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F3E686237EABFE00D69336 /* AUGraphPlayer.swift */; };
 		40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */; };
-		40FA3FFF2369949600738C47 /* CapturePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFE2369949600738C47 /* CapturePipeline.swift */; };
 		40FA40012369983200738C47 /* RecordingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA40002369983200738C47 /* RecordingViewController.swift */; };
 		40FE69DA2372609000F1D266 /* VideoEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FE69D92372609000F1D266 /* VideoEncoder.swift */; };
 		40FE8A3223C57BC80092A5EA /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40FE8A2A23C57BC80092A5EA /* libavutil.a */; };
@@ -146,6 +145,8 @@
 		407843B8233DA624007B0CFE /* EffectFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectFilter.swift; sourceTree = "<group>"; };
 		407843BA233DA8F9007B0CFE /* EffectOpenGLFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectOpenGLFilter.swift; sourceTree = "<group>"; };
 		407843C0233DB2C9007B0CFE /* ShaderProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShaderProgram.swift; sourceTree = "<group>"; };
+		408DB12E24A1E01A00A09AA5 /* CameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		408DB12F24A1E01A00A09AA5 /* CameraPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraPreviewView.swift; sourceTree = "<group>"; };
 		40937E59239E316C00DE5E85 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		40937E5B239E317500DE5E85 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		40937E5D239E317C00DE5E85 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
@@ -177,7 +178,6 @@
 		40E1B290232F29B400A67F11 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		40E1B292232F29B400A67F11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		40E1B298232F2B2300A67F11 /* PhotoEditorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorViewController.swift; sourceTree = "<group>"; };
-		40E1B299232F2B2300A67F11 /* CaptureVideoPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureVideoPreviewView.swift; sourceTree = "<group>"; };
 		40E1B29A232F2B2300A67F11 /* PhotoEditorMaskView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorMaskView.swift; sourceTree = "<group>"; };
 		40E1B29B232F2B2300A67F11 /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaViewController.swift; sourceTree = "<group>"; };
 		40E1B29C232F2B2300A67F11 /* PhotoEditorFrameView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorFrameView.swift; sourceTree = "<group>"; };
@@ -191,7 +191,6 @@
 		40E1B2A4232F2B2400A67F11 /* LibraryVideoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryVideoCell.swift; sourceTree = "<group>"; };
 		40E1B2A5232F2B2400A67F11 /* UIImage+Editor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Editor.swift"; sourceTree = "<group>"; };
 		40E1B2A6232F2B2400A67F11 /* PhotoLibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoLibraryViewController.swift; sourceTree = "<group>"; };
-		40E1B2A7232F2B2400A67F11 /* CaptureViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureViewController.swift; sourceTree = "<group>"; };
 		40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewVideoViewController.swift; sourceTree = "<group>"; };
 		40E1B2A9232F2B2400A67F11 /* PlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		40E1B2AA232F2B2400A67F11 /* LibraryAlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryAlbumCell.swift; sourceTree = "<group>"; };
@@ -213,7 +212,6 @@
 		40E9ACD323A8DA02005A1D97 /* recording_h264_publisher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = recording_h264_publisher.h; sourceTree = "<group>"; };
 		40F3E686237EABFE00D69336 /* AUGraphPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUGraphPlayer.swift; sourceTree = "<group>"; };
 		40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPipeline.swift; sourceTree = "<group>"; };
-		40FA3FFE2369949600738C47 /* CapturePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipeline.swift; sourceTree = "<group>"; };
 		40FA40002369983200738C47 /* RecordingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewController.swift; sourceTree = "<group>"; };
 		40FE69D92372609000F1D266 /* VideoEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEncoder.swift; sourceTree = "<group>"; };
 		40FE89CA23C57BC80092A5EA /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
@@ -420,7 +418,6 @@
 		407843BC233DA927007B0CFE /* Preview */ = {
 			isa = PBXGroup;
 			children = (
-				40E1B299232F2B2300A67F11 /* CaptureVideoPreviewView.swift */,
 				40E1B2CC232F87EE00A67F11 /* OpenGLPreviewView.swift */,
 			);
 			path = Preview;
@@ -431,10 +428,6 @@
 			children = (
 				40FE69D92372609000F1D266 /* VideoEncoder.swift */,
 				404178992384DC430078893D /* AudioEncoder.swift */,
-				40937E61239F36E100DE5E85 /* AACEncoder.h */,
-				40937E62239F36E100DE5E85 /* AACEncoder.mm */,
-				40B109F223A0F7A7004198B4 /* AACDecoder.h */,
-				40B109F323A0F7A7004198B4 /* AACDecoder.mm */,
 			);
 			path = Encode;
 			sourceTree = "<group>";
@@ -447,7 +440,8 @@
 				40C4289023A2456D004CB01F /* AudioUnitRecorder.swift */,
 				404CE308235EE1F500DBCFB3 /* AssetRecorder.swift */,
 			);
-			path = Recording;
+			name = Recording;
+			path = ../Recording;
 			sourceTree = "<group>";
 		};
 		407843BF233DAFE4007B0CFE /* OpenGL */ = {
@@ -462,6 +456,72 @@
 				4063874823D19DF20033CB8A /* EmitterFragment.glsl */,
 			);
 			path = OpenGL;
+			sourceTree = "<group>";
+		};
+		407FF8B424A1FFC90092FD95 /* Encode */ = {
+			isa = PBXGroup;
+			children = (
+				40937E61239F36E100DE5E85 /* AACEncoder.h */,
+				40937E62239F36E100DE5E85 /* AACEncoder.mm */,
+				40B109F223A0F7A7004198B4 /* AACDecoder.h */,
+				40B109F323A0F7A7004198B4 /* AACDecoder.mm */,
+			);
+			path = Encode;
+			sourceTree = "<group>";
+		};
+		408DB12A24A1D7C500A09AA5 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				40E1B29B232F2B2300A67F11 /* MediaViewController.swift */,
+				408DB12D24A1DF4C00A09AA5 /* Recording */,
+				40FA40022369984700738C47 /* Library */,
+				408DB12C24A1D8B100A09AA5 /* Player */,
+				40FA40052369991600738C47 /* PhotoBrowser */,
+				40FA40062369994800738C47 /* PhotoEditor */,
+				407843BD233DA933007B0CFE /* Encode */,
+				407843BE233DA940007B0CFE /* Recording */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		408DB12B24A1D82000A09AA5 /* CrossPlatform */ = {
+			isa = PBXGroup;
+			children = (
+				404CE2FE235D8EAB00DBCFB3 /* ThirdParty */,
+				406C011623596F3C00E01E70 /* Components */,
+				404CE301235D8F6900DBCFB3 /* OpenCV */,
+				407843BF233DAFE4007B0CFE /* OpenGL */,
+				4032F6222399075700FABC3C /* FFmpeg */,
+				40E1B2C1232F2CBC00A67F11 /* Effect */,
+				40FA40042369985800738C47 /* Capture */,
+				407FF8B424A1FFC90092FD95 /* Encode */,
+				407843BC233DA927007B0CFE /* Preview */,
+				40E1B2C0232F2CB100A67F11 /* Live */,
+			);
+			path = CrossPlatform;
+			sourceTree = "<group>";
+		};
+		408DB12C24A1D8B100A09AA5 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				40F3E686237EABFE00D69336 /* AUGraphPlayer.swift */,
+				40E1B2A9232F2B2400A67F11 /* PlayerView.swift */,
+				40E1B29E232F2B2300A67F11 /* PlayerViewController.swift */,
+				40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		408DB12D24A1DF4C00A09AA5 /* Recording */ = {
+			isa = PBXGroup;
+			children = (
+				408DB12E24A1E01A00A09AA5 /* CameraViewController.swift */,
+				408DB12F24A1E01A00A09AA5 /* CameraPreviewView.swift */,
+				40E1B2A0232F2B2300A67F11 /* RecordingControl.swift */,
+				40E1B2C6232F618B00A67F11 /* CircleView.swift */,
+				40E1B2C7232F618B00A67F11 /* CircleLayer.swift */,
+			);
+			path = Recording;
 			sourceTree = "<group>";
 		};
 		40E1B27A232F29B300A67F11 = {
@@ -485,23 +545,11 @@
 		40E1B285232F29B300A67F11 /* DTCamera */ = {
 			isa = PBXGroup;
 			children = (
+				408DB12A24A1D7C500A09AA5 /* iOS */,
+				408DB12B24A1D82000A09AA5 /* CrossPlatform */,
 				40F3E688237EE56500D69336 /* Resources */,
-				404CE2FE235D8EAB00DBCFB3 /* ThirdParty */,
-				406C011623596F3C00E01E70 /* Components */,
 				40146B4B2351B58E00F14513 /* Utils */,
 				40E1B2C3232F3DE000A67F11 /* Extension */,
-				404CE301235D8F6900DBCFB3 /* OpenCV */,
-				4032F6222399075700FABC3C /* FFmpeg */,
-				407843BF233DAFE4007B0CFE /* OpenGL */,
-				40FA40052369991600738C47 /* PhotoBrowser */,
-				40FA40062369994800738C47 /* PhotoEditor */,
-				40E1B2BE232F2B8800A67F11 /* Player */,
-				40E1B2BF232F2C4000A67F11 /* MediaCapture */,
-				40E1B2C1232F2CBC00A67F11 /* Effect */,
-				407843BC233DA927007B0CFE /* Preview */,
-				407843BD233DA933007B0CFE /* Encode */,
-				407843BE233DA940007B0CFE /* Recording */,
-				40E1B2C0232F2CB100A67F11 /* Live */,
 				404CE302235D8F9D00DBCFB3 /* DTCamera-Bridging-Header.h */,
 				40E1B2CA232F7E5900A67F11 /* MediaCustomTheme.swift */,
 				40E1B286232F29B300A67F11 /* AppDelegate.swift */,
@@ -512,28 +560,6 @@
 				40E1B292232F29B400A67F11 /* Info.plist */,
 			);
 			path = DTCamera;
-			sourceTree = "<group>";
-		};
-		40E1B2BE232F2B8800A67F11 /* Player */ = {
-			isa = PBXGroup;
-			children = (
-				40E1B2A9232F2B2400A67F11 /* PlayerView.swift */,
-				40E1B29E232F2B2300A67F11 /* PlayerViewController.swift */,
-				40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */,
-				40F3E686237EABFE00D69336 /* AUGraphPlayer.swift */,
-			);
-			path = Player;
-			sourceTree = "<group>";
-		};
-		40E1B2BF232F2C4000A67F11 /* MediaCapture */ = {
-			isa = PBXGroup;
-			children = (
-				40E1B29B232F2B2300A67F11 /* MediaViewController.swift */,
-				40FA40022369984700738C47 /* Library */,
-				40FA40032369985300738C47 /* Capture */,
-				40FA40042369985800738C47 /* Recording */,
-			);
-			path = MediaCapture;
 			sourceTree = "<group>";
 		};
 		40E1B2C0232F2CB100A67F11 /* Live */ = {
@@ -637,25 +663,13 @@
 			path = Library;
 			sourceTree = "<group>";
 		};
-		40FA40032369985300738C47 /* Capture */ = {
-			isa = PBXGroup;
-			children = (
-				40E1B2A7232F2B2400A67F11 /* CaptureViewController.swift */,
-				40FA3FFE2369949600738C47 /* CapturePipeline.swift */,
-			);
-			path = Capture;
-			sourceTree = "<group>";
-		};
-		40FA40042369985800738C47 /* Recording */ = {
+		40FA40042369985800738C47 /* Capture */ = {
 			isa = PBXGroup;
 			children = (
 				40FA40002369983200738C47 /* RecordingViewController.swift */,
 				40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */,
-				40E1B2A0232F2B2300A67F11 /* RecordingControl.swift */,
-				40E1B2C6232F618B00A67F11 /* CircleView.swift */,
-				40E1B2C7232F618B00A67F11 /* CircleLayer.swift */,
 			);
-			path = Recording;
+			path = Capture;
 			sourceTree = "<group>";
 		};
 		40FA40052369991600738C47 /* PhotoBrowser */ = {
@@ -1076,10 +1090,10 @@
 				404CE309235EE1F500DBCFB3 /* AssetRecorder.swift in Sources */,
 				404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */,
 				404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */,
+				408DB13124A1E01A00A09AA5 /* CameraPreviewView.swift in Sources */,
 				40E9ACD123A78FC0005A1D97 /* recording_publisher.cpp in Sources */,
 				40F3E687237EABFE00D69336 /* AUGraphPlayer.swift in Sources */,
 				406516A8238B81DC00809389 /* FourCharCode+StringLiteralConvertible.swift in Sources */,
-				40E1B2AC232F2B2400A67F11 /* CaptureVideoPreviewView.swift in Sources */,
 				40E9ACCB23A76EEE005A1D97 /* video_consumer_thread.cpp in Sources */,
 				40E1B2B7232F2B2400A67F11 /* LibraryVideoCell.swift in Sources */,
 				4032F6252399089F00FABC3C /* audio_encoder.cpp in Sources */,
@@ -1102,17 +1116,16 @@
 				404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */,
 				40E9ACC823A76281005A1D97 /* live_thread.cpp in Sources */,
 				40E1B2C9232F618B00A67F11 /* CircleLayer.swift in Sources */,
-				40FA3FFF2369949600738C47 /* CapturePipeline.swift in Sources */,
 				40B109F123A09644004198B4 /* audio_decoder.cpp in Sources */,
 				406C0118235971AA00E01E70 /* RenderDestination.swift in Sources */,
 				40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */,
+				408DB13024A1E01A00A09AA5 /* CameraViewController.swift in Sources */,
 				40E1B2B6232F2B2400A67F11 /* PhotoEditorResizeView.swift in Sources */,
 				40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */,
 				40E1B2AB232F2B2400A67F11 /* PhotoEditorViewController.swift in Sources */,
 				40C4289423A245BE004CB01F /* live_packet_pool.cpp in Sources */,
 				407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */,
 				40FE69DA2372609000F1D266 /* VideoEncoder.swift in Sources */,
-				40E1B2BA232F2B2400A67F11 /* CaptureViewController.swift in Sources */,
 				4041789A2384DC430078893D /* AudioEncoder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1268,8 +1281,7 @@
 				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/OpenCV",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/OpenCV",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				HEADER_SEARCH_PATHS = (
@@ -1288,8 +1300,8 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/SnapKit/SnapKit.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICountingLabel/UICountingLabel.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/fishhook/fishhook.framework/Headers\"",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FFmpeg/include",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FDK-AAC/include",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FFmpeg/include",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FDK-AAC/include",
 				);
 				INFOPLIST_FILE = DTCamera/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -1299,10 +1311,10 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FFmpeg",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FFmpeg/lib",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FDK-AAC/lib",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/X264/lib",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FFmpeg",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FFmpeg/lib",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FDK-AAC/lib",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/X264/lib",
 				);
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.danthought.DTCamera;
@@ -1327,8 +1339,7 @@
 				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/OpenCV",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/OpenCV",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				HEADER_SEARCH_PATHS = (
@@ -1346,7 +1357,8 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/SnapKit/SnapKit.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICountingLabel/UICountingLabel.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/fishhook/fishhook.framework/Headers\"",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FFmpeg/include",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FFmpeg/include",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FDK-AAC/include",
 				);
 				INFOPLIST_FILE = DTCamera/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -1356,10 +1368,10 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FFmpeg",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FFmpeg/lib",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/FDK-AAC/lib",
-					"$(PROJECT_DIR)/DTCamera/ThirdParty/X264/lib",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FFmpeg",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FFmpeg/lib",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/FDK-AAC/lib",
+					"$(PROJECT_DIR)/DTCamera/CrossPlatform/ThirdParty/X264/lib",
 				);
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.danthought.DTCamera;

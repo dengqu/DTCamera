@@ -44,7 +44,7 @@ class MenusViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 3
+            return 4
         } else if section == 1 {
             return 4
         } else if section == 2 {
@@ -81,6 +81,8 @@ class MenusViewController: UITableViewController {
                 cell.textLabel?.text = "Open Camera for Living"
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Config RTMP URL"
+            } else if indexPath.row == 3 {
+                cell.textLabel?.text = "Library Capture Recording"
             }
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
@@ -127,20 +129,16 @@ class MenusViewController: UITableViewController {
         if indexPath.section == 0 {
             if indexPath.row == 0 {
                 if let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true) {
-                    let mode = MediaMode(source: .recording, type: .all, config: MediaConfig(videoURL: videoFile.path))
-                    let mediaVC = MediaViewController(mode: mode)
-                    mediaVC.modalPresentationStyle = .fullScreen
-                    mediaVC.delegate = self
-                    present(mediaVC, animated: true, completion: nil)
+                    let mode = MediaMode(config: MediaConfig(videoURL: videoFile.path))
+                    let recordingVC = RecordingViewController(mode: mode, isFile: true)
+                    recordingVC.modalPresentationStyle = .fullScreen
+                    present(recordingVC, animated: true, completion: nil)
                 }
             } else if indexPath.row == 1 {
-                let mode = MediaMode(source: .recording,
-                                     type: .all,
-                                     config: MediaConfig(videoURL: UserDefaults.standard.string(forKey: rtmpServerKey) ?? rtmpServerDefaultValue))
-                let mediaVC = MediaViewController(mode: mode)
-                mediaVC.modalPresentationStyle = .fullScreen
-                mediaVC.delegate = self
-                present(mediaVC, animated: true, completion: nil)
+                let mode = MediaMode(config: MediaConfig(videoURL: UserDefaults.standard.string(forKey: rtmpServerKey) ?? rtmpServerDefaultValue))
+                let recordingVC = RecordingViewController(mode: mode, isFile: false)
+                recordingVC.modalPresentationStyle = .fullScreen
+                present(recordingVC, animated: true, completion: nil)
             } else if indexPath.row == 2 {
                 let alertController = UIAlertController(title: "RTMP URL", message: nil, preferredStyle: .alert)
                 alertController.addTextField { textField in
@@ -157,6 +155,15 @@ class MenusViewController: UITableViewController {
                 alertController.addAction(confirmAction)
                 alertController.addAction(cancelAction)
                 present(alertController, animated: true, completion: nil)
+            } else if indexPath.row == 3 {
+                let mode = MediaMode(sources: [.library, .capture, .recording],
+                                     source: .capture,
+                                     type: .all,
+                                     config: MediaConfig())
+                let mediaVC = MediaViewController(mode: mode)
+                mediaVC.modalPresentationStyle = .fullScreen
+                mediaVC.delegate = self
+                present(mediaVC, animated: true, completion: nil)
             }
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
