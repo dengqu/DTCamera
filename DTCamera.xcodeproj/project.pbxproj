@@ -28,6 +28,7 @@
 		405FC95E24AEE2AE00CF98FE /* AudioEngineRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405FC95A24AEE2AE00CF98FE /* AudioEngineRecorder.swift */; };
 		405FC95F24AEE2AE00CF98FE /* AudioUnitRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405FC95B24AEE2AE00CF98FE /* AudioUnitRecorder.swift */; };
 		405FC96024AEE2AE00CF98FE /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405FC95C24AEE2AE00CF98FE /* AudioRecorder.swift */; };
+		405FC96224AF12EA00CF98FE /* AudioEnginePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405FC96124AF12EA00CF98FE /* AudioEnginePlayer.swift */; };
 		4063871D23CDA59A0033CB8A /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063871C23CDA59A0033CB8A /* logo.png */; };
 		4063873E23D03A330033CB8A /* walk04.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063873A23D03A320033CB8A /* walk04.png */; };
 		4063873F23D03A330033CB8A /* walk02.png in Resources */ = {isa = PBXBuildFile; fileRef = 4063873B23D03A330033CB8A /* walk02.png */; };
@@ -134,6 +135,7 @@
 		405FC95A24AEE2AE00CF98FE /* AudioEngineRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioEngineRecorder.swift; sourceTree = "<group>"; };
 		405FC95B24AEE2AE00CF98FE /* AudioUnitRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioUnitRecorder.swift; sourceTree = "<group>"; };
 		405FC95C24AEE2AE00CF98FE /* AudioRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		405FC96124AF12EA00CF98FE /* AudioEnginePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEnginePlayer.swift; sourceTree = "<group>"; };
 		4063871C23CDA59A0033CB8A /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		4063873A23D03A320033CB8A /* walk04.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = walk04.png; sourceTree = "<group>"; };
 		4063873B23D03A330033CB8A /* walk02.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = walk02.png; sourceTree = "<group>"; };
@@ -506,6 +508,7 @@
 			isa = PBXGroup;
 			children = (
 				40F3E686237EABFE00D69336 /* AUGraphPlayer.swift */,
+				405FC96124AF12EA00CF98FE /* AudioEnginePlayer.swift */,
 				40E1B2A9232F2B2400A67F11 /* PlayerView.swift */,
 				40E1B29E232F2B2300A67F11 /* PlayerViewController.swift */,
 				40E1B2A8232F2B2400A67F11 /* PreviewVideoViewController.swift */,
@@ -1106,6 +1109,7 @@
 				405FC96024AEE2AE00CF98FE /* AudioRecorder.swift in Sources */,
 				40E1B2CB232F7E5900A67F11 /* MediaCustomTheme.swift in Sources */,
 				40181D6C23AB691D002B2397 /* live_audio_encoder.cpp in Sources */,
+				405FC96224AF12EA00CF98FE /* AudioEnginePlayer.swift in Sources */,
 				40E9ACCE23A7861B005A1D97 /* live_audio_packet_pool.cpp in Sources */,
 				40E1B2B1232F2B2400A67F11 /* PlayerViewController.swift in Sources */,
 				40A657F823A3931900F5662B /* LivePublisher.mm in Sources */,

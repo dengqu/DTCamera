@@ -19,7 +19,8 @@ class MenusViewController: UITableViewController {
     private var audioEngineRecorder: AudioRecorder?
     private var audioEncoder: AudioEncoder?
     private var auGraphPlayer: AUGraphPlayer?
-    
+    private var audioEnginePlayer: AudioEnginePlayer?
+
     private let cellIdentifier = "cellIdentifier"
     private let rtmpServerKey = "rtmp_server"
     private let rtmpServerDefaultValue = "rtmp://172.104.92.161/mytv/room"
@@ -39,7 +40,7 @@ class MenusViewController: UITableViewController {
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 6
+        return 7
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -54,6 +55,8 @@ class MenusViewController: UITableViewController {
         } else if section == 4 {
             return 4
         } else if section == 5 {
+            return 4
+        } else if section == 6 {
             return 2
         }
         return 0
@@ -69,9 +72,11 @@ class MenusViewController: UITableViewController {
         } else if section == 3 {
             return "Audio Convert"
         } else if section == 4 {
-            return "Audio Play"
+            return "Audio Play with Audio Unit"
         } else if section == 5 {
-            return "Video Play"
+            return "Audio Play with AVAudioEngine"
+        } else if section == 6 {
+            return "Video Play with AVPlayer"
         }
         return nil
     }
@@ -125,6 +130,16 @@ class MenusViewController: UITableViewController {
                 cell.textLabel?.text = "Stop Play"
             }
         } else if indexPath.section == 5 {
+            if indexPath.row == 0 {
+                cell.textLabel?.text = "Start Play MP3"
+            } else if indexPath.row == 1 {
+                cell.textLabel?.text = "Start Play CAF"
+            } else if indexPath.row == 2 {
+                cell.textLabel?.text = "Start Play AAC"
+            } else if indexPath.row == 3 {
+                cell.textLabel?.text = "Stop Play"
+            }
+        } else if indexPath.section == 6 {
             if indexPath.row == 0 {
                 cell.textLabel?.text = "Play Local Video"
             } else if indexPath.row == 1 {
@@ -228,21 +243,38 @@ class MenusViewController: UITableViewController {
         } else if indexPath.section == 4 {
             if indexPath.row == 0 {
                 if let fileURL = Bundle.main.url(forResource: "faded", withExtension: "mp3") {
-                    playAudio(fileURL: fileURL)
+                    playAudioWithAU(fileURL: fileURL)
                 }
             } else if indexPath.row == 1 {
                 if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false) {
-                    playAudio(fileURL: fileURL)
+                    playAudioWithAU(fileURL: fileURL)
                 }
             } else if indexPath.row == 2 {
                 if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false) {
-                    playAudio(fileURL: fileURL)
+                    playAudioWithAU(fileURL: fileURL)
                 }
             } else if indexPath.row == 3 {
                 auGraphPlayer?.stop()
                 auGraphPlayer = nil
             }
         } else if indexPath.section == 5 {
+            if indexPath.row == 0 {
+                if let fileURL = Bundle.main.url(forResource: "faded", withExtension: "mp3") {
+                    playAudioWithEngine(fileURL: fileURL)
+                }
+            } else if indexPath.row == 1 {
+                if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false) {
+                    playAudioWithEngine(fileURL: fileURL)
+                }
+            } else if indexPath.row == 2 {
+                if let fileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false) {
+                    playAudioWithEngine(fileURL: fileURL)
+                }
+            } else if indexPath.row == 3 {
+                audioEnginePlayer?.stop()
+                audioEnginePlayer = nil
+            }
+        } else if indexPath.section == 6 {
             if indexPath.row == 0 {
                 if let fileURL = Bundle.main.url(forResource: "boat", withExtension: "mov") {
                     playVideo(url: fileURL)
@@ -269,9 +301,14 @@ class MenusViewController: UITableViewController {
         }
     }
     
-    private func playAudio(fileURL: URL) {
+    private func playAudioWithAU(fileURL: URL) {
         auGraphPlayer = AUGraphPlayer(fileURL: fileURL)
         auGraphPlayer?.play()
+    }
+    
+    private func playAudioWithEngine(fileURL: URL) {
+        audioEnginePlayer = AudioEnginePlayer(fileURL: fileURL)
+        audioEnginePlayer?.play()
     }
     
     private func playVideo(url: URL) {
