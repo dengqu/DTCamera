@@ -128,7 +128,7 @@ class AUGraphPlayer {
     
     private func setAudioUnitsProperties() {
         var mixerElementCount: UInt32 = 1
-        let statusCode = AudioUnitSetProperty(mixerUnit,
+        var statusCode = AudioUnitSetProperty(mixerUnit,
                                               kAudioUnitProperty_ElementCount,
                                               kAudioUnitScope_Input,
                                               0,
@@ -136,6 +136,17 @@ class AUGraphPlayer {
                                               UInt32(MemoryLayout.size(ofValue: mixerElementCount)))
         if statusCode != noErr {
             DDLogError("Could not set element count for mixer unit input element 0 \(statusCode)")
+            exit(1)
+        }
+        
+        statusCode = AudioUnitSetParameter(mixerUnit,
+                                           kMultiChannelMixerParam_Volume,
+                                           kAudioUnitScope_Output,
+                                           0,
+                                           5.0,
+                                           0)
+        if statusCode != noErr {
+            DDLogError("Could not set volume for mixer unit output element 0 \(statusCode)")
             exit(1)
         }
     }
@@ -154,6 +165,7 @@ class AUGraphPlayer {
     }
         
     private func setupFilePlayer() {
+        // 打开音频文件
         var fileId: AudioFileID!
         var statusCode = AudioFileOpenURL(fileURL as CFURL, .readPermission, 0, &fileId)
         if statusCode != noErr {
@@ -161,6 +173,7 @@ class AUGraphPlayer {
             exit(1)
         }
         
+        // 给 AudioUnit 设置音频文件 ID
         statusCode = AudioUnitSetProperty(filePlayerUnit,
                                           kAudioUnitProperty_ScheduledFileIDs,
                                           kAudioUnitScope_Global,
@@ -172,6 +185,7 @@ class AUGraphPlayer {
             exit(1)
         }
         
+        // 获取音频文件的格式信息
         var fileAudioStreamFormat = AudioStreamBasicDescription()
         var size = UInt32(MemoryLayout.size(ofValue: fileAudioStreamFormat))
         statusCode = AudioFileGetProperty(fileId,
@@ -183,6 +197,7 @@ class AUGraphPlayer {
             exit(1)
         }
         
+        // 获取音频文件的包数量
         var numberOfPackets: UInt64 = 0
         size = UInt32(MemoryLayout.size(ofValue: numberOfPackets))
         statusCode = AudioFileGetProperty(fileId,
@@ -194,6 +209,7 @@ class AUGraphPlayer {
             exit(1)
         }
         
+        // 设置音频文件播放的范围：是否循环，起始帧，播放多少帧
         var rgn = ScheduledAudioFileRegion(mTimeStamp: .init(),
                                            mCompletionProc: nil,
                                            mCompletionProcUserData: nil,
@@ -215,6 +231,7 @@ class AUGraphPlayer {
             exit(1)
         }
         
+        // 设置 prime，I don`t know why
         var defaultValue: UInt32 = 0
         statusCode = AudioUnitSetProperty(filePlayerUnit,
                                           kAudioUnitProperty_ScheduledFilePrime,
@@ -227,6 +244,7 @@ class AUGraphPlayer {
             exit(1)
         }
         
+        // 设置 start time，I don`t know why
         var startTime = AudioTimeStamp()
         memset(&startTime, 0, MemoryLayout.size(ofValue: startTime))
         startTime.mFlags = .sampleTimeValid
