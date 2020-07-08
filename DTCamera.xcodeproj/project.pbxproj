@@ -20,6 +20,8 @@
 		403EEFD423320561007CC795 /* DirectPassFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 403EEFD223320561007CC795 /* DirectPassFragment.glsl */; };
 		404178982382A92E0078893D /* faded.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 404178972382A92E0078893D /* faded.mp3 */; };
 		4041789A2384DC430078893D /* AudioEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404178992384DC430078893D /* AudioEncoder.swift */; };
+		4048C51E24B5C3A80083FD3A /* RecordingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4048C51C24B5C3A80083FD3A /* RecordingViewController.swift */; };
+		4048C51F24B5C3A80083FD3A /* RecordingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4048C51D24B5C3A80083FD3A /* RecordingPipeline.swift */; };
 		404CE2FB235D4C8B00DBCFB3 /* EffectCPUFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */; };
 		404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */; };
 		404CE305235D8F9D00DBCFB3 /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 404CE304235D8F9D00DBCFB3 /* OpenCVWrapper.mm */; };
@@ -92,8 +94,8 @@
 		40E9ACD123A78FC0005A1D97 /* recording_publisher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40E9ACCF23A78FBF005A1D97 /* recording_publisher.cpp */; };
 		40E9ACD423A8DA02005A1D97 /* recording_h264_publisher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40E9ACD223A8DA02005A1D97 /* recording_h264_publisher.cpp */; };
 		40F3E687237EABFE00D69336 /* AUGraphPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F3E686237EABFE00D69336 /* AUGraphPlayer.swift */; };
-		40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */; };
-		40FA40012369983200738C47 /* RecordingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA40002369983200738C47 /* RecordingViewController.swift */; };
+		40FA3FFD2369916B00738C47 /* LivingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA3FFC2369916B00738C47 /* LivingPipeline.swift */; };
+		40FA40012369983200738C47 /* LivingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FA40002369983200738C47 /* LivingViewController.swift */; };
 		40FE69DA2372609000F1D266 /* VideoEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FE69D92372609000F1D266 /* VideoEncoder.swift */; };
 		40FE8A3223C57BC80092A5EA /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40FE8A2A23C57BC80092A5EA /* libavutil.a */; };
 		40FE8A3323C57BC80092A5EA /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40FE8A2B23C57BC80092A5EA /* libavfilter.a */; };
@@ -125,6 +127,8 @@
 		403EEFD223320561007CC795 /* DirectPassFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectPassFragment.glsl; sourceTree = "<group>"; };
 		404178972382A92E0078893D /* faded.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = faded.mp3; sourceTree = "<group>"; };
 		404178992384DC430078893D /* AudioEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEncoder.swift; sourceTree = "<group>"; };
+		4048C51C24B5C3A80083FD3A /* RecordingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingViewController.swift; sourceTree = "<group>"; };
+		4048C51D24B5C3A80083FD3A /* RecordingPipeline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingPipeline.swift; sourceTree = "<group>"; };
 		404CE2FA235D4C8B00DBCFB3 /* EffectCPUFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCPUFilter.swift; sourceTree = "<group>"; };
 		404CE2FC235D531800DBCFB3 /* EffectCIFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCIFilter.swift; sourceTree = "<group>"; };
 		404CE302235D8F9D00DBCFB3 /* DTCamera-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTCamera-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -215,8 +219,8 @@
 		40E9ACD223A8DA02005A1D97 /* recording_h264_publisher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = recording_h264_publisher.cpp; sourceTree = "<group>"; };
 		40E9ACD323A8DA02005A1D97 /* recording_h264_publisher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = recording_h264_publisher.h; sourceTree = "<group>"; };
 		40F3E686237EABFE00D69336 /* AUGraphPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUGraphPlayer.swift; sourceTree = "<group>"; };
-		40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPipeline.swift; sourceTree = "<group>"; };
-		40FA40002369983200738C47 /* RecordingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewController.swift; sourceTree = "<group>"; };
+		40FA3FFC2369916B00738C47 /* LivingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivingPipeline.swift; sourceTree = "<group>"; };
+		40FA40002369983200738C47 /* LivingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivingViewController.swift; sourceTree = "<group>"; };
 		40FE69D92372609000F1D266 /* VideoEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEncoder.swift; sourceTree = "<group>"; };
 		40FE89CA23C57BC80092A5EA /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		40FE89CB23C57BC80092A5EA /* postprocess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = postprocess.h; sourceTree = "<group>"; };
@@ -671,8 +675,10 @@
 		40FA40042369985800738C47 /* Capture */ = {
 			isa = PBXGroup;
 			children = (
-				40FA40002369983200738C47 /* RecordingViewController.swift */,
-				40FA3FFC2369916B00738C47 /* RecordingPipeline.swift */,
+				4048C51C24B5C3A80083FD3A /* RecordingViewController.swift */,
+				4048C51D24B5C3A80083FD3A /* RecordingPipeline.swift */,
+				40FA40002369983200738C47 /* LivingViewController.swift */,
+				40FA3FFC2369916B00738C47 /* LivingPipeline.swift */,
 			);
 			path = Capture;
 			sourceTree = "<group>";
@@ -1082,7 +1088,7 @@
 				40E1B2C5232F3E1E00A67F11 /* UIColor+Extension.swift in Sources */,
 				407843BB233DA8F9007B0CFE /* EffectOpenGLFilter.swift in Sources */,
 				40E1B2BC232F2B2400A67F11 /* PlayerView.swift in Sources */,
-				40FA40012369983200738C47 /* RecordingViewController.swift in Sources */,
+				40FA40012369983200738C47 /* LivingViewController.swift in Sources */,
 				405FC95D24AEE2AE00CF98FE /* AssetRecorder.swift in Sources */,
 				405FC95F24AEE2AE00CF98FE /* AudioUnitRecorder.swift in Sources */,
 				40E1B2B0232F2B2400A67F11 /* LibraryPhotoCell.swift in Sources */,
@@ -1111,6 +1117,7 @@
 				40181D6C23AB691D002B2397 /* live_audio_encoder.cpp in Sources */,
 				405FC96224AF12EA00CF98FE /* AudioEnginePlayer.swift in Sources */,
 				40E9ACCE23A7861B005A1D97 /* live_audio_packet_pool.cpp in Sources */,
+				4048C51E24B5C3A80083FD3A /* RecordingViewController.swift in Sources */,
 				40E1B2B1232F2B2400A67F11 /* PlayerViewController.swift in Sources */,
 				40A657F823A3931900F5662B /* LivePublisher.mm in Sources */,
 				40E1B2B5232F2B2400A67F11 /* PreviewPhotoViewController.swift in Sources */,
@@ -1118,6 +1125,7 @@
 				40E1B2BD232F2B2400A67F11 /* LibraryAlbumCell.swift in Sources */,
 				4063874D23D1A8E10033CB8A /* GLKMatrix+Array.swift in Sources */,
 				40E1B2BB232F2B2400A67F11 /* PreviewVideoViewController.swift in Sources */,
+				4048C51F24B5C3A80083FD3A /* RecordingPipeline.swift in Sources */,
 				40E1B2B4232F2B2400A67F11 /* PhotoThumbnailCell.swift in Sources */,
 				40E1B2CF232F90AB00A67F11 /* Array+Extension.swift in Sources */,
 				404CE2FD235D531800DBCFB3 /* EffectCIFilter.swift in Sources */,
@@ -1128,7 +1136,7 @@
 				40E1B287232F29B300A67F11 /* AppDelegate.swift in Sources */,
 				408DB13024A1E01A00A09AA5 /* CameraViewController.swift in Sources */,
 				40E1B2B6232F2B2400A67F11 /* PhotoEditorResizeView.swift in Sources */,
-				40FA3FFD2369916B00738C47 /* RecordingPipeline.swift in Sources */,
+				40FA3FFD2369916B00738C47 /* LivingPipeline.swift in Sources */,
 				40E1B2AB232F2B2400A67F11 /* PhotoEditorViewController.swift in Sources */,
 				40C4289423A245BE004CB01F /* live_packet_pool.cpp in Sources */,
 				407843B9233DA624007B0CFE /* EffectFilter.swift in Sources */,

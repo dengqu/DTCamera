@@ -45,7 +45,7 @@ class MenusViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 4
+            return 5
         } else if section == 1 {
             return 4
         } else if section == 2 {
@@ -57,14 +57,14 @@ class MenusViewController: UITableViewController {
         } else if section == 5 {
             return 4
         } else if section == 6 {
-            return 2
+            return 3
         }
         return 0
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
-            return "Camera"
+            return "Camera and Photo Library"
         } else if section == 1 {
             return "Audio Recording with Audio Unit"
         } else if section == 2 {
@@ -85,13 +85,15 @@ class MenusViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
         if indexPath.section == 0 {
             if indexPath.row == 0 {
-                cell.textLabel?.text = "Open Camera for Recording"
+                cell.textLabel?.text = "Recording FLV with FFmpeg"
             } else if indexPath.row == 1 {
-                cell.textLabel?.text = "Open Camera for Living"
+                cell.textLabel?.text = "Living RTMP with FFmpeg"
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Config RTMP URL"
             } else if indexPath.row == 3 {
-                cell.textLabel?.text = "Library Capture Recording"
+                cell.textLabel?.text = "Photo Library, Capture Photo, Recording MP4"
+            } else if indexPath.row == 4 {
+                cell.textLabel?.text = "Recording MP4 with AVAssetWriter"
             }
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
@@ -141,9 +143,11 @@ class MenusViewController: UITableViewController {
             }
         } else if indexPath.section == 6 {
             if indexPath.row == 0 {
-                cell.textLabel?.text = "Play Local Video"
+                cell.textLabel?.text = "Play Local MOV"
             } else if indexPath.row == 1 {
-                cell.textLabel?.text = "Play Network Video"
+                cell.textLabel?.text = "Play Network MOV"
+            } else if indexPath.row == 2 {
+                cell.textLabel?.text = "Play Local MP4"
             }
         }
         return cell
@@ -155,13 +159,13 @@ class MenusViewController: UITableViewController {
             if indexPath.row == 0 {
                 if let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true) {
                     let mode = MediaMode(config: MediaConfig(videoURL: videoFile.path))
-                    let recordingVC = RecordingViewController(mode: mode, isFile: true)
+                    let recordingVC = LivingViewController(mode: mode, isFile: true)
                     recordingVC.modalPresentationStyle = .fullScreen
                     present(recordingVC, animated: true, completion: nil)
                 }
             } else if indexPath.row == 1 {
                 let mode = MediaMode(config: MediaConfig(videoURL: UserDefaults.standard.string(forKey: rtmpServerKey) ?? rtmpServerDefaultValue))
-                let recordingVC = RecordingViewController(mode: mode, isFile: false)
+                let recordingVC = LivingViewController(mode: mode, isFile: false)
                 recordingVC.modalPresentationStyle = .fullScreen
                 present(recordingVC, animated: true, completion: nil)
             } else if indexPath.row == 2 {
@@ -189,6 +193,11 @@ class MenusViewController: UITableViewController {
                 mediaVC.modalPresentationStyle = .fullScreen
                 mediaVC.delegate = self
                 present(mediaVC, animated: true, completion: nil)
+            } else if indexPath.row == 4 {
+                let mode = MediaMode(config: MediaConfig())
+                let recordingVC = RecordingViewController(mode: mode)
+                recordingVC.modalPresentationStyle = .fullScreen
+                present(recordingVC, animated: true, completion: nil)
             }
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
@@ -281,6 +290,10 @@ class MenusViewController: UITableViewController {
                 }
             } else if indexPath.row == 1 {
                 if let fileURL = URL(string: "http://danthought.com/morning.mov") {
+                    playVideo(url: fileURL)
+                }
+            } else if indexPath.row == 2 {
+                if let fileURL = MediaViewController.getMediaFileURL(name: "video", ext: "mp4", needRemove: false) {
                     playVideo(url: fileURL)
                 }
             }
