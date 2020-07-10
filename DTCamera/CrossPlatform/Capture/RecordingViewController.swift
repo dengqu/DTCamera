@@ -398,6 +398,16 @@ class RecordingViewController: UIViewController {
         }
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let touchPoint = touch.location(in: previewView)
+        let glPoint = CGPoint(x: touchPoint.x / previewView.bounds.width, y: touchPoint.y / previewView.bounds.height)
+        let aspectRatio = previewView.bounds.width / previewView.bounds.height
+        let x = (glPoint.x * 2.0) - 1.0
+        let y = ((glPoint.y * 2.0) - 1.0) * (-1.0 / aspectRatio)
+        pipeline.addEmitter(x: x, y: y)
+    }
+    
 }
 
 extension RecordingViewController: RecordingPipelineDelegate {

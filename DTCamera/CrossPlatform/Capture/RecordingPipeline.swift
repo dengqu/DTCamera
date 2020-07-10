@@ -222,6 +222,10 @@ class RecordingPipeline: NSObject {
         recorder?.finishRecording()
     }
 
+    func addEmitter(x: CGFloat, y: CGFloat) {
+        effectFilter.addEmitter(x: x, y: y)
+    }
+
     private func cleanupRecording() {
         recorder = nil
         recordingStatus = .idle
