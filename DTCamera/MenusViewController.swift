@@ -197,6 +197,7 @@ class MenusViewController: UITableViewController {
                 let mode = MediaMode(config: MediaConfig())
                 let recordingVC = RecordingViewController(mode: mode)
                 recordingVC.modalPresentationStyle = .fullScreen
+                recordingVC.delegate = self
                 present(recordingVC, animated: true, completion: nil)
             }
         } else if indexPath.section == 1 {
@@ -331,6 +332,23 @@ class MenusViewController: UITableViewController {
         present(playerVC, animated: true, completion: nil)
     }
     
+    private func saveVideo(_ video: URL) {
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: video)
+        }, completionHandler: { (success, error) in
+            DispatchQueue.main.async {
+                if success {
+                    DTMessageBar.success(message: "视频保存到相册成功", position: .bottom)
+                } else {
+                    if let error = error {
+                        DDLogError("Could not save video to album: \(error)")
+                    }
+                    DTMessageBar.error(message: "视频保存到相册失败", position: .bottom)
+                }
+            }
+        })
+    }
+    
 }
 
 extension MenusViewController: MediaViewControllerDelegate {
@@ -357,24 +375,20 @@ extension MenusViewController: MediaViewControllerDelegate {
     
     func media(viewController: MediaViewController, didFinish video: URL) {
         dismiss(animated: true, completion: nil)
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: video)
-        }, completionHandler: { (success, error) in
-            DispatchQueue.main.async {
-                if success {
-                    DTMessageBar.success(message: "视频保存到相册成功", position: .bottom)
-                } else {
-                    if let error = error {
-                        DDLogError("Could not save video to album: \(error)")
-                    }
-                    DTMessageBar.error(message: "视频保存到相册失败", position: .bottom)
-                }
-            }
-        })
+        saveVideo(video)
     }
     
     func mediaDidDismiss(viewController: MediaViewController) {
         dismiss(animated: true, completion: nil)
+    }
+    
+}
+
+extension MenusViewController: RecordingViewControllerDelegate {
+    
+    func recording(viewController: RecordingViewController, didFinish video: URL) {
+        dismiss(animated: true, completion: nil)
+        saveVideo(video)
     }
     
 }

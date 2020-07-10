@@ -10,8 +10,14 @@ import UIKit
 import AVFoundation
 import DTMessageBar
 
+protocol RecordingViewControllerDelegate: class {
+    func recording(viewController: RecordingViewController, didFinish video: URL)
+}
+
 class RecordingViewController: UIViewController {
-                
+             
+    weak var delegate: RecordingViewControllerDelegate?
+
     private let mode: MediaMode
 
     private var isFirstTimeDidMoveToParent = true
@@ -458,7 +464,8 @@ extension RecordingViewController: PreviewVideoViewControllerDelegate {
     
     func previewVideo(viewController: PreviewVideoViewController, didFinish video: URL) {
         dismiss(animated: false) { [weak self] in
-            self?.close()
+            guard let self = self else { return }
+            self.delegate?.recording(viewController: self, didFinish: video)            
         }
     }
     
