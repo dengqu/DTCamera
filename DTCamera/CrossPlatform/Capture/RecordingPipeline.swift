@@ -192,7 +192,7 @@ class RecordingPipeline: NSObject {
             let videoFormatDescription = videoFormatDescription,
             let audioFormatDescription = audioFormatDescription {
             let recorder = AssetRecorder(url: videoFile, delegate: self, callbackQueue: .main)
-            recorder.addVideoTrack(with: videoFormatDescription, settings: videoCompressionSettings)
+            recorder.addVideoTrack(with: videoFormatDescription, settings: [:])
             recorder.addAudioTrack(with: audioFormatDescription, settings: audioCompressionSettings)
             self.recorder = recorder
             self.videoFile = videoFile

@@ -6,3 +6,4 @@
 #import "AACEncoder.h"
 #import "AACDecoder.h"
 #import "LivePublisher.h"
+#import "VideoRemuxerObject.h"

@@ -264,8 +264,8 @@ class AssetRecorder {
             bitsPerSecond = Int(Float(numPixels) * bitsPerPixel)
             
             let compressionProperties: NSDictionary = [AVVideoAverageBitRateKey : bitsPerSecond,
-                                                       AVVideoExpectedSourceFrameRateKey : 30,
-                                                       AVVideoMaxKeyFrameIntervalKey : 30]
+                                                       AVVideoExpectedSourceFrameRateKey : 24,
+                                                       AVVideoMaxKeyFrameIntervalKey : 24]
             
             videoSettings = [AVVideoCodecKey : AVVideoCodecH264,
                              AVVideoWidthKey : dimensions.width,

@@ -20,6 +20,7 @@ class MenusViewController: UITableViewController {
     private var audioEncoder: AudioEncoder?
     private var auGraphPlayer: AUGraphPlayer?
     private var audioEnginePlayer: AudioEnginePlayer?
+    private let videoRemuxer = VideoRemuxerObject()
 
     private let cellIdentifier = "cellIdentifier"
     private let rtmpServerKey = "rtmp_server"
@@ -40,7 +41,7 @@ class MenusViewController: UITableViewController {
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 7
+        return 8
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -58,6 +59,8 @@ class MenusViewController: UITableViewController {
             return 4
         } else if section == 6 {
             return 3
+        } else if section == 7 {
+            return 2
         }
         return 0
     }
@@ -77,6 +80,8 @@ class MenusViewController: UITableViewController {
             return "Audio Play with AVAudioEngine"
         } else if section == 6 {
             return "Video Play with AVPlayer"
+        } else if section == 7 {
+            return "Video Convert with FFmpeg"
         }
         return nil
     }
@@ -91,9 +96,9 @@ class MenusViewController: UITableViewController {
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Config RTMP URL"
             } else if indexPath.row == 3 {
-                cell.textLabel?.text = "Photo Library, Capture Photo, Recording MP4"
+                cell.textLabel?.text = "Photo Library, Capture Photo, Recording MP4(HEVC)"
             } else if indexPath.row == 4 {
-                cell.textLabel?.text = "Recording MP4 with AVAssetWriter"
+                cell.textLabel?.text = "Recording MP4(H264) with AVAssetWriter"
             }
         } else if indexPath.section == 1 {
             if indexPath.row == 0 {
@@ -148,6 +153,12 @@ class MenusViewController: UITableViewController {
                 cell.textLabel?.text = "Play Network MOV"
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Play Local MP4"
+            }
+        } else if indexPath.section == 7 {
+            if indexPath.row == 0 {
+                cell.textLabel?.text = "Convert MP4(H264) to FLV"
+            } else if indexPath.row == 1 {
+                cell.textLabel?.text = "Convert FLV to MP4(H264)"
             }
         }
         return cell
@@ -296,6 +307,18 @@ class MenusViewController: UITableViewController {
             } else if indexPath.row == 2 {
                 if let fileURL = MediaViewController.getMediaFileURL(name: "video", ext: "mp4", needRemove: false) {
                     playVideo(url: fileURL)
+                }
+            }
+        } else if indexPath.section == 7 {
+            if indexPath.row == 0 {
+                if  let mp4FileURL = MediaViewController.getMediaFileURL(name: "video", ext: "mp4", needRemove: false),
+                    let flvFileURL = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needCreate: true) {
+                    videoRemuxer.remuxing(mp4FileURL.path, outputFilePath: flvFileURL.path)
+                }
+            } else if indexPath.row == 1 {
+                if  let flvFileURL = MediaViewController.getMediaFileURL(name: "video", ext: "flv", needRemove: false),
+                    let mp4FileURL = MediaViewController.getMediaFileURL(name: "video", ext: "mp4", needRemove: true) {
+                    videoRemuxer.remuxing(flvFileURL.path, outputFilePath: mp4FileURL.path)
                 }
             }
         }

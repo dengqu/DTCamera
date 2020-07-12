@@ -227,8 +227,8 @@ class PlayerView: UIView {
         slider = UISlider()
         slider.minimumValue = 0
         slider.setThumbImage(#imageLiteral(resourceName: "currentThumb"), for: .normal)
-        slider.setMinimumTrackImage(#imageLiteral(resourceName: "currentMaximumTrack"), for: .normal)
-        slider.setMaximumTrackImage(#imageLiteral(resourceName: "currentMinimumTrack"), for: .normal)
+        slider.setMinimumTrackImage(#imageLiteral(resourceName: "currentMinimumTrack"), for: .normal)
+        slider.setMaximumTrackImage(#imageLiteral(resourceName: "currentMaximumTrack"), for: .normal)
         
         slider.isContinuous = false
         // slider开始滑动事件
