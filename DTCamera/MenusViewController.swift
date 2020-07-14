@@ -92,7 +92,7 @@ class MenusViewController: UITableViewController {
             if indexPath.row == 0 {
                 cell.textLabel?.text = "Recording FLV with FFmpeg"
             } else if indexPath.row == 1 {
-                cell.textLabel?.text = "Living RTMP with FFmpeg"
+                cell.textLabel?.text = "Living RTMP & Recording H264 with FFmpeg"
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Config RTMP URL"
             } else if indexPath.row == 3 {

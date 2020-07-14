@@ -60,7 +60,9 @@ class LivingPipeline: NSObject {
     
     // Video Encode
     private var videoEncoder: VideoEncoder?
-    
+    private var fileHandle: FileHandle?
+    private let NALUHeader: [UInt8] = [0, 0, 0, 1]
+
     // Audio Recorder
     private var audioRecorder: AudioRecorder?
     private var startRecordTimeMills: Double = 0
@@ -184,6 +186,19 @@ class LivingPipeline: NSObject {
             DDLogError("Expected to be in idle state")
             exit(1)
         }
+        let videoFile = MediaViewController.getMediaFileURL(name: "video", ext: "h264", needCreate: true)
+        if let videoFile = videoFile,
+            let fileHandle = FileHandle(forWritingAtPath: videoFile.path) {
+            self.fileHandle = fileHandle
+        } else {
+            DDLogError("Could not start recording")
+            if videoFile == nil {
+                DDLogError("videoFile is nil")
+            }
+            if fileHandle == nil {
+                DDLogError("fileHandle is nil")
+            }
+        }
         startComsumer()
     }
     
@@ -201,6 +216,7 @@ class LivingPipeline: NSObject {
     private func cleanupRecording() {
         videoEncoder = nil
 //        audioRecorder = nil
+        fileHandle = nil
         recordingStatus = .idle
         if let currentBackgroundRecordingID = backgroundRecordingID {
             backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
@@ -464,10 +480,24 @@ extension LivingPipeline: VideoEncoderDelegate {
     }
     
     func videoEncoder(_ encoder: VideoEncoder, encoded sps: Data, pps: Data, timestamp: Float64) {
+        if let fileHandle = fileHandle {
+            let headerData = Data(bytes: NALUHeader, count: NALUHeader.count)
+            fileHandle.write(headerData)
+            fileHandle.write(sps)
+            fileHandle.write(headerData)
+            fileHandle.write(pps)
+        }
+        
         livePublisher?.gotSpsPps(sps, pps: pps, timestramp: timestamp)
     }
     
     func videoEncoder(_ encoder: VideoEncoder, encoded data: Data, isKeyframe: Bool, timestamp: Float64) {
+        if let fileHandle = fileHandle {
+            let headerData = Data(bytes: NALUHeader, count: NALUHeader.count)
+            fileHandle.write(headerData)
+            fileHandle.write(data)
+        }
+        
         livePublisher?.gotEncodedData(data, isKeyFrame: isKeyframe, timestramp: timestamp)
     }
     
