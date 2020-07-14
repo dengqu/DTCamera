@@ -96,7 +96,7 @@ class MenusViewController: UITableViewController {
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Config RTMP URL"
             } else if indexPath.row == 3 {
-                cell.textLabel?.text = "Photo Library, Capture Photo, Recording MP4(HEVC)"
+                cell.textLabel?.text = "Photo Library, Capture Photo, Recording MP4"
             } else if indexPath.row == 4 {
                 cell.textLabel?.text = "Recording MP4(H264) with AVAssetWriter"
             }
@@ -122,9 +122,9 @@ class MenusViewController: UITableViewController {
             if indexPath.row == 0 {
                 cell.textLabel?.text = "Convert CAF to AAC with AudioToolbox"
             } else if indexPath.row == 1 {
-                cell.textLabel?.text = "Convert CAF to AAC with FFmpeg"
-            } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Convert AAC to PCM with FFmpeg"
+            } else if indexPath.row == 2 {
+                cell.textLabel?.text = "Convert PCM to AAC with FFmpeg"
             }
         } else if indexPath.section == 4 {
             if indexPath.row == 0 {
@@ -249,16 +249,16 @@ class MenusViewController: UITableViewController {
                     }
                 }
             } else if indexPath.row == 1 {
-                if  let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "caf", needRemove: false),
-                    let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needCreate: true) {
-                    let aacEncoder = AACEncoder(inputFilePath: pcmFileURL.path, outputFilePath: aacFileURL.path)
-                    aacEncoder.startEncode()
-                }
-            } else if indexPath.row == 2 {
                 if let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needRemove: false),
                     let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "pcm", needCreate: true) {
                     let aacDecoder = AACDecoder(inputFilePath: aacFileURL.path, outputFilePath: pcmFileURL.path)
                     aacDecoder.startDecode()
+                }
+            } else if indexPath.row == 2 {
+                if  let pcmFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "pcm", needRemove: false),
+                    let aacFileURL = MediaViewController.getMediaFileURL(name: "audio", ext: "aac", needCreate: true) {
+                    let aacEncoder = AACEncoder(inputFilePath: pcmFileURL.path, outputFilePath: aacFileURL.path)
+                    aacEncoder.startEncode()
                 }
             }
         } else if indexPath.section == 4 {
