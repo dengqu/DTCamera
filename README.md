@@ -1,4 +1,10 @@
-# DTCamera 融合很多关于 iOS 音视频的实践
+# DTCamera contains lots of audio & video practices on iOS
+
+## ThirdParties are not committed
+
+Libraries and Frameworks for FFmpeg, FDK-AAC, X264 and OpenCV are not committed. Because they are large. You can download from [ThirdParty.zip](http://danthought.com/ThirdParty.zip). Unzip it under [DTCamera/DTCamera/CrossPlatform](https://github.com/danjiang/DTCamera/tree/master/DTCamera/CrossPlatform). Every thing should be fine.
+
+## Blog Articles
 
 * [FFmpeg 接口使用 - 基础和转封装](http://blog.danthought.com/programming/2020/07/12/ffmpeg-api-fundamentals/)
 * [FFmpeg 接口使用 - 音频编码和音频解码](http://blog.danthought.com/programming/2020/07/14/ffmpeg-api-audio-encode-decode/)
