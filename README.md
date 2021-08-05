@@ -4,6 +4,11 @@
 
 Libraries and Frameworks for FFmpeg, FDK-AAC, X264 and OpenCV are not committed. Because they are large. You can download from [ThirdParty.zip](http://danthought.com/ThirdParty.zip). Unzip it under [DTCamera/DTCamera/CrossPlatform](https://github.com/danjiang/DTCamera/tree/master/DTCamera/CrossPlatform). Every thing should be fine.
 
+从百度网盘下载 ThirdParty.zip：
+
+- 链接: https://pan.baidu.com/s/1HWHGB1uJSpznpC0SiKFDPQ
+- 密码: e1n0
+
 ## Blog Articles
 
 * [FFmpeg 接口使用 - 基础和转封装](http://blog.danthought.com/programming/2020/07/12/ffmpeg-api-fundamentals/)
